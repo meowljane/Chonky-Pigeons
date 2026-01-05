@@ -14,7 +14,10 @@ namespace PigeonGame.Gameplay
         private List<PigeonAI> nearbyPigeons = new List<PigeonAI>();
         private Dictionary<PigeonAI, float> pigeonEatTimers = new Dictionary<PigeonAI, float>();
 
+        public string TrapId => trapId;
+        public float DetectionRadius => detectionRadius;
         public int CurrentFeedAmount => currentFeedAmount;
+        public int MaxFeedAmount => trapData != null ? trapData.feedAmount : 20;
         public bool IsDepleted => currentFeedAmount <= 0;
         public event System.Action<PigeonAI> OnCaptured;
 

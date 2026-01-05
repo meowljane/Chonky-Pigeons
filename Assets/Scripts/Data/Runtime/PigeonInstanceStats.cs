@@ -22,6 +22,34 @@ namespace PigeonGame.Data
         public float crowdWeight;
         public float playerWeight;
         public int price;
+
+        /// <summary>
+        /// 인벤토리 저장용 복사본 생성
+        /// </summary>
+        public PigeonInstanceStats Clone()
+        {
+            return new PigeonInstanceStats
+            {
+                speciesId = this.speciesId,
+                obesity = this.obesity,
+                faceId = this.faceId,
+                bitePower = this.bitePower,
+                eatInterval = this.eatInterval,
+                eatChance = this.eatChance,
+                personalSpaceRadius = this.personalSpaceRadius,
+                playerAlertPerSec = this.playerAlertPerSec,
+                crowdAlertPerNeighborPerSec = this.crowdAlertPerNeighborPerSec,
+                alertDecayPerSec = this.alertDecayPerSec,
+                warnThreshold = this.warnThreshold,
+                backoffThreshold = this.backoffThreshold,
+                fleeThreshold = this.fleeThreshold,
+                backoffDuration = this.backoffDuration,
+                backoffDistance = this.backoffDistance,
+                crowdWeight = this.crowdWeight,
+                playerWeight = this.playerWeight,
+                price = this.price
+            };
+        }
     }
 }
 

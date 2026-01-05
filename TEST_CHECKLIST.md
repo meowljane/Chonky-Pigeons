@@ -69,7 +69,43 @@
 - **BackOff/Flee 행동 구현** (상태별 이동 행동)
 - **Alert 시각화** (디버그용 Gizmos)
 
+## Phase 3 - 수집 & 경제 시스템 ✅
+
+### 구현 완료된 것
+1. **가격 시스템** ✅
+   - ✅ 비둘기 가격 계산 (rarityBasePrice × obesityDiscount × faceBonus)
+   - ✅ PigeonInstanceFactory에서 자동 계산
+
+2. **인벤토리 시스템** ✅
+   - ✅ 포획된 비둘기 자동 저장 (GameManager)
+   - ✅ PigeonInstanceStats 복사본 저장 (Clone 메서드)
+
+3. **판매 시스템** ✅
+   - ✅ 개별 비둘기 판매 (SellPigeon)
+   - ✅ 모든 비둘기 일괄 판매 (SellAllPigeons)
+   - ✅ 판매 시 돈 획득
+
+4. **덫 구매/해금 시스템** ✅
+   - ✅ 덫 해금 상태 관리 (GameManager)
+   - ✅ 덫 구매/해금 (UnlockTrap)
+   - ✅ TrapPlacer에 해금 확인 로직 통합
+   - ✅ 시작 덫 자동 해금 (BREAD)
+
+5. **돈(Currency) 시스템** ✅
+   - ✅ 돈 추가/차감 (AddMoney, SpendMoney)
+   - ✅ 돈 변경 이벤트 (OnMoneyChanged)
+   - ✅ 시작 돈 설정 (100)
+
+6. **UI 시스템** ✅
+   - ✅ 돈 표시 UI (MoneyDisplay)
+   - ✅ 남은 먹이 표시 UI (FoodAmountDisplay) - 덫의 먹이 양 표시 (20 → 0)
+   - ✅ 인벤토리 UI (InventoryUI) - I키로 토글
+   - ✅ 덫 구매 UI (TrapShopUI) - T키로 토글
+   - ✅ 현재 먹고 있는 비둘기 표시 UI (ActivePigeonDisplay)
+   - ✅ Alert 상태 시각화 (색상 인디케이터)
+
 ⏳ **다음 단계**
+- Phase 3 UI 테스트 및 Unity 씬 설정
 - Phase 2 테스트 및 밸런스 조정
 - 다양한 비둘기 종 스폰 시스템 개선
 
