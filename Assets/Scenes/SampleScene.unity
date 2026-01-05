@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91b4b2fa12942cd479533f33fd4019e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.PigeonSpawner
-  pigeonPrefab: {fileID: 730251857453372958, guid: 3b304a092c1c80f439a5a6ff6bbea872, type: 3}
+  pigeonPrefab: {fileID: 7369415880916472406, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
   spawnCount: 5
   spawnRadius: 3
   spawnCenter: {fileID: 0}
@@ -215,6 +215,67 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &169361484
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1046078026758184712, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
+      propertyPath: m_Name
+      value: FoodTrap
+      objectReference: {fileID: 0}
+    - target: {fileID: 3261536370091823362, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.04111
+      objectReference: {fileID: 0}
+    - target: {fileID: 3261536370091823362, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.38071
+      objectReference: {fileID: 0}
+    - target: {fileID: 3261536370091823362, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3261536370091823362, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3261536370091823362, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3261536370091823362, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3261536370091823362, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3261536370091823362, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3261536370091823362, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3261536370091823362, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7706528658669481188, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
+      propertyPath: detectionRadius
+      value: 0.5
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -655,6 +716,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &2979885331668535646
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1472623530065325670, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.68042
+      objectReference: {fileID: 0}
+    - target: {fileID: 1472623530065325670, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.51411
+      objectReference: {fileID: 0}
+    - target: {fileID: 1472623530065325670, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1472623530065325670, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1472623530065325670, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1472623530065325670, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1472623530065325670, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1472623530065325670, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1472623530065325670, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1472623530065325670, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7369415880916472406, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
+      propertyPath: m_Name
+      value: Pigeon
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -665,3 +783,5 @@ SceneRoots:
   - {fileID: 1600182786}
   - {fileID: 118498360}
   - {fileID: 45691159}
+  - {fileID: 169361484}
+  - {fileID: 2979885331668535646}

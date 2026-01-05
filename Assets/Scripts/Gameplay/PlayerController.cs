@@ -10,11 +10,31 @@ namespace PigeonGame.Gameplay
         private Rigidbody2D rb;
         private Vector2 moveInput;
 
+        public static PlayerController Instance { get; private set; }
+        public Vector2 Position => (Vector2)transform.position;
+
         private void Awake()
         {
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+            else
+            {
+                Debug.LogWarning("Multiple PlayerController instances detected!");
+            }
+
             rb = GetComponent<Rigidbody2D>();
             rb.gravityScale = 0;
             rb.linearDamping = 10f;
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
         }
 
         private void Update()

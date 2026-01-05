@@ -142,4 +142,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.FoodTrap
   trapId: BREAD
-  detectionRadius: 2
+  detectionRadius: 0.5
