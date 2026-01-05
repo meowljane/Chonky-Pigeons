@@ -90,6 +90,13 @@ namespace PigeonGame.Gameplay
                     foodDisplay = trapObj.AddComponent<UI.TrapFoodDisplay>();
                 }
 
+                // 덫에 현재 먹고 있는 비둘기 표시 UI 추가 (없으면)
+                var activePigeonDisplay = trapObj.GetComponent<UI.TrapActivePigeonDisplay>();
+                if (activePigeonDisplay == null)
+                {
+                    activePigeonDisplay = trapObj.AddComponent<UI.TrapActivePigeonDisplay>();
+                }
+
                 // 포획 이벤트 연결
                 trap.OnCaptured += OnPigeonCaptured;
 

@@ -15,7 +15,7 @@ namespace PigeonGame.UI
         [SerializeField] private GameObject shopPanel;
         [SerializeField] private Transform trapContainer;
         [SerializeField] private GameObject trapItemPrefab;
-        [SerializeField] private KeyCode toggleKey = KeyCode.T;
+        [SerializeField] private Button toggleButton;
 
         private List<GameObject> trapItems = new List<GameObject>();
         private TrapShop shop;
@@ -33,6 +33,11 @@ namespace PigeonGame.UI
                 shopPanel.SetActive(false);
             }
 
+            if (toggleButton != null)
+            {
+                toggleButton.onClick.AddListener(ToggleShop);
+            }
+
             // GameManager 이벤트 구독
             if (GameManager.Instance != null)
             {
@@ -41,14 +46,6 @@ namespace PigeonGame.UI
             }
 
             UpdateShopDisplay();
-        }
-
-        private void Update()
-        {
-            if (Input.GetKeyDown(toggleKey))
-            {
-                ToggleShop();
-            }
         }
 
         private void OnDestroy()

@@ -17,7 +17,7 @@ namespace PigeonGame.UI
         [SerializeField] private GameObject itemPrefab;
         [SerializeField] private Button sellAllButton;
         [SerializeField] private TextMeshProUGUI inventoryCountText;
-        [SerializeField] private KeyCode toggleKey = KeyCode.I;
+        [SerializeField] private Button toggleButton;
 
         private List<GameObject> itemInstances = new List<GameObject>();
         private PigeonShop shop;
@@ -40,6 +40,11 @@ namespace PigeonGame.UI
                 sellAllButton.onClick.AddListener(OnSellAllClicked);
             }
 
+            if (toggleButton != null)
+            {
+                toggleButton.onClick.AddListener(ToggleInventory);
+            }
+
             // GameManager 이벤트 구독
             if (GameManager.Instance != null)
             {
@@ -47,14 +52,6 @@ namespace PigeonGame.UI
             }
 
             UpdateInventoryDisplay();
-        }
-
-        private void Update()
-        {
-            if (Input.GetKeyDown(toggleKey))
-            {
-                ToggleInventory();
-            }
         }
 
         private void OnDestroy()
@@ -179,4 +176,5 @@ namespace PigeonGame.UI
         }
     }
 }
+
 
