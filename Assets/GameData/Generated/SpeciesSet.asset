@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: SpeciesSet
+  m_EditorClassIdentifier: Assembly-CSharp:PigeonGame.Data:PigeonSpeciesSet
+  version: 1
+  species:
+  - speciesId: SP01
+    name: "\uB3C4\uC2DC\uD68C\uC0C9"
+    rarityTier: 1
+    defaultObesityRange: {x: 4, y: 5}
+    locationPreference:
+      PARK: 70
+      PLAZA: 80
+      ALLEY: 60
+      HARBOR: 40
+      ROOFTOP: 30
+    trapPreference:
+      BREAD: 90
+      SEEDS: 60
+      CORN: 70
+      PELLET: 20
+      SHINY: 10
+    icon: {fileID: 0}
+  - speciesId: SP07
+    name: "\uBE75\uC911\uB3C5"
+    rarityTier: 1
+    defaultObesityRange: {x: 5, y: 5}
+    locationPreference:
+      PARK: 60
+      PLAZA: 90
+      ALLEY: 50
+      HARBOR: 30
+      ROOFTOP: 20
+    trapPreference:
+      BREAD: 100
+      SEEDS: 40
+      CORN: 60
+      PELLET: 10
+      SHINY: 10
+    icon: {fileID: 0}
+  - speciesId: SP14
+    name: "\uBB34\uC9C0\uAC1C\uAE30\uB984\uAD11"
+    rarityTier: 3
+    defaultObesityRange: {x: 1, y: 2}
+    locationPreference:
+      PARK: 60
+      PLAZA: 70
+      ALLEY: 40
+      HARBOR: 45
+      ROOFTOP: 50
+    trapPreference:
+      BREAD: 55
+      SEEDS: 60
+      CORN: 60
+      PELLET: 55
+      SHINY: 45
+    icon: {fileID: 0}
+  - speciesId: SP20
+    name: "\uC655\uAD00\uBE44\uB458\uAE30"
+    rarityTier: 5
+    defaultObesityRange: {x: 1, y: 1}
+    locationPreference:
+      PARK: 20
+      PLAZA: 60
+      ALLEY: 15
+      HARBOR: 50
+      ROOFTOP: 100
+    trapPreference:
+      BREAD: 10
+      SEEDS: 25
+      CORN: 35
+      PELLET: 85
+      SHINY: 80
+    icon: {fileID: 0}

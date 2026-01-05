@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "traps": [
+    {
+      "id": "BREAD",
+      "name": "바삭빵덫",
+      "cost": 10,
+      "feedAmount": 20
+    },
+    {
+      "id": "SEEDS",
+      "name": "톡톡씨앗덫",
+      "cost": 15,
+      "feedAmount": 20
+    },
+    {
+      "id": "CORN",
+      "name": "노랑옥수수덫",
+      "cost": 25,
+      "feedAmount": 20
+    },
+    {
+      "id": "PELLET",
+      "name": "프리미엄알갱이덫",
+      "cost": 50,
+      "feedAmount": 20
+    },
+    {
+      "id": "SHINY",
+      "name": "반짝간식덫",
+      "cost": 100,
+      "feedAmount": 20
+    }
+  ]
+}
+
+

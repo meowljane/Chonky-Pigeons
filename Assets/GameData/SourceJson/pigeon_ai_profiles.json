@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "obesityRule": {
+    "bitePowerEqualsObesity": true,
+    "eatIntervalMultiplierByObesity": {
+      "1": 1.08,
+      "2": 1.0,
+      "3": 0.92,
+      "4": 0.85,
+      "5": 0.8
+    },
+    "obesityPriceDiscount": {
+      "1": 1.1,
+      "2": 1.0,
+      "3": 0.9,
+      "4": 0.8,
+      "5": 0.7
+    }
+  },
+  "rarityBasePrice": {
+    "1": 8,
+    "2": 18,
+    "3": 40,
+    "4": 90,
+    "5": 180
+  },
+  "tiers": {
+    "1": {
+      "eatInterval": 0.65,
+      "eatChance": 0.95,
+      "personalSpaceRadius": 0.55,
+      "playerAlertPerSec": 38,
+      "crowdAlertPerNeighborPerSec": 6,
+      "alertDecayPerSec": 10,
+      "warnThreshold": 45,
+      "backoffThreshold": 80,
+      "fleeThreshold": 110,
+      "backoffDuration": 0.7,
+      "backoffDistance": 0.7,
+      "crowdWeight": 0.4,
+      "playerWeight": 1.0
+    },
+    "2": {
+      "eatInterval": 0.85,
+      "eatChance": 0.88,
+      "personalSpaceRadius": 0.6,
+      "playerAlertPerSec": 30,
+      "crowdAlertPerNeighborPerSec": 7,
+      "alertDecayPerSec": 9,
+      "warnThreshold": 50,
+      "backoffThreshold": 82,
+      "fleeThreshold": 110,
+      "backoffDuration": 0.85,
+      "backoffDistance": 0.8,
+      "crowdWeight": 0.45,
+      "playerWeight": 1.0
+    },
+    "3": {
+      "eatInterval": 1.1,
+      "eatChance": 0.75,
+      "personalSpaceRadius": 0.75,
+      "playerAlertPerSec": 22,
+      "crowdAlertPerNeighborPerSec": 11,
+      "alertDecayPerSec": 11,
+      "warnThreshold": 55,
+      "backoffThreshold": 78,
+      "fleeThreshold": 105,
+      "backoffDuration": 1.15,
+      "backoffDistance": 1.05,
+      "crowdWeight": 0.65,
+      "playerWeight": 1.0
+    },
+    "4": {
+      "eatInterval": 1.35,
+      "eatChance": 0.65,
+      "personalSpaceRadius": 0.9,
+      "playerAlertPerSec": 18,
+      "crowdAlertPerNeighborPerSec": 14,
+      "alertDecayPerSec": 12,
+      "warnThreshold": 58,
+      "backoffThreshold": 74,
+      "fleeThreshold": 100,
+      "backoffDuration": 1.35,
+      "backoffDistance": 1.25,
+      "crowdWeight": 0.75,
+      "playerWeight": 1.0
+    },
+    "5": {
+      "eatInterval": 1.55,
+      "eatChance": 0.55,
+      "personalSpaceRadius": 1.1,
+      "playerAlertPerSec": 14,
+      "crowdAlertPerNeighborPerSec": 16,
+      "alertDecayPerSec": 13,
+      "warnThreshold": 60,
+      "backoffThreshold": 70,
+      "fleeThreshold": 95,
+      "backoffDuration": 1.55,
+      "backoffDistance": 1.45,
+      "crowdWeight": 0.85,
+      "playerWeight": 1.0
+    }
+  },
+  "stressToEatModifier": {
+    "enabled": true,
+    "warnEatChanceMultiplier": 0.65,
+    "warnEatIntervalMultiplier": 1.25,
+    "backoffStopsEating": true
+  }
+}
+
+

@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "species": [
+    {
+      "speciesId": "SP01",
+      "name": "도시회색",
+      "rarityTier": 1,
+      "defaultObesityRange": [4, 5],
+      "locationPreference": { "PARK": 70, "PLAZA": 80, "ALLEY": 60, "HARBOR": 40, "ROOFTOP": 30 },
+      "trapPreference": { "BREAD": 90, "SEEDS": 60, "CORN": 70, "PELLET": 20, "SHINY": 10 }
+    },
+    {
+      "speciesId": "SP07",
+      "name": "빵중독",
+      "rarityTier": 1,
+      "defaultObesityRange": [5, 5],
+      "locationPreference": { "PARK": 60, "PLAZA": 90, "ALLEY": 50, "HARBOR": 30, "ROOFTOP": 20 },
+      "trapPreference": { "BREAD": 100, "SEEDS": 40, "CORN": 60, "PELLET": 10, "SHINY": 10 }
+    },
+    {
+      "speciesId": "SP14",
+      "name": "무지개기름광",
+      "rarityTier": 3,
+      "defaultObesityRange": [1, 2],
+      "locationPreference": { "PARK": 60, "PLAZA": 70, "ALLEY": 40, "HARBOR": 45, "ROOFTOP": 50 },
+      "trapPreference": { "BREAD": 55, "SEEDS": 60, "CORN": 60, "PELLET": 55, "SHINY": 45 }
+    },
+    {
+      "speciesId": "SP20",
+      "name": "왕관비둘기",
+      "rarityTier": 5,
+      "defaultObesityRange": [1, 1],
+      "locationPreference": { "PARK": 20, "PLAZA": 60, "ALLEY": 15, "HARBOR": 50, "ROOFTOP": 100 },
+      "trapPreference": { "BREAD": 10, "SEEDS": 25, "CORN": 35, "PELLET": 85, "SHINY": 80 }
+    }
+  ]
+}
+
+
