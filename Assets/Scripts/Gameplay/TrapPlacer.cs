@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 using PigeonGame.Data;
 
 namespace PigeonGame.Gameplay
@@ -27,8 +28,61 @@ namespace PigeonGame.Gameplay
             Mouse mouse = Mouse.current;
             if (mouse != null && mouse.leftButton.wasPressedThisFrame)
             {
-                PlaceTrap();
+                // UI 요소를 클릭한 경우 덫 설치하지 않음
+                if (!IsPointerOverUI())
+                {
+                    PlaceTrap();
+                }
             }
+        }
+
+        /// <summary>
+        /// 마우스 포인터가 UI 위에 있는지 확인
+        /// </summary>
+        private bool IsPointerOverUI()
+        {
+            if (EventSystem.current == null)
+                return false;
+
+            // EventSystem을 사용한 기본 체크 (마우스와 터치 모두 지원)
+            if (EventSystem.current.IsPointerOverGameObject())
+            {
+                return true;
+            }
+
+            // 새 Input System용 추가 체크 (터치 입력 명시적 처리)
+            PointerEventData pointerData = new PointerEventData(EventSystem.current);
+            Vector2 screenPosition = Vector2.zero;
+            bool hasInput = false;
+
+            // 마우스 포인터 위치
+            Mouse mouse = Mouse.current;
+            if (mouse != null)
+            {
+                screenPosition = mouse.position.ReadValue();
+                hasInput = true;
+            }
+            else
+            {
+                // 터치 입력
+                Touchscreen touch = Touchscreen.current;
+                if (touch != null && touch.primaryTouch.isInProgress)
+                {
+                    screenPosition = touch.primaryTouch.position.ReadValue();
+                    hasInput = true;
+                }
+            }
+
+            if (!hasInput)
+                return false;
+
+            pointerData.position = screenPosition;
+
+            // UI 레이어에 Raycast
+            var results = new System.Collections.Generic.List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+            
+            return results.Count > 0;
         }
 
         private void PlaceTrap()
@@ -56,16 +110,7 @@ namespace PigeonGame.Gameplay
                 if (registry != null && registry.Traps != null)
                 {
                     var trapData = registry.Traps.GetTrapById(defaultTrapId);
-                    if (trapData != null)
-                    {
-                        // 덫이 이미 해금되어 있으면 구매 불필요 (한 번만 구매하면 계속 사용 가능)
-                        // 또는 매번 구매하려면 아래 주석 해제
-                        // if (!GameManager.Instance.SpendMoney(trapData.cost))
-                        // {
-                        //     Debug.Log($"덫 구매 실패: 돈 부족 (필요: {trapData.cost})");
-                        //     return;
-                        // }
-                    }
+                    // 덫이 이미 해금되어 있으면 구매 불필요 (한 번만 구매하면 계속 사용 가능)
                 }
             }
 
@@ -89,8 +134,6 @@ namespace PigeonGame.Gameplay
                 {
                     foodDisplay = trapObj.AddComponent<UI.TrapFoodDisplay>();
                 }
-
-                // 덫에 현재 먹고 있는 비둘기 표시 UI는 제거 (비둘기 위에 표시하므로)
 
                 // 포획 이벤트 연결
                 trap.OnCaptured += OnPigeonCaptured;

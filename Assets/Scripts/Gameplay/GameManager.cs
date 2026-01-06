@@ -51,6 +51,9 @@ namespace PigeonGame.Gameplay
                 unlockedTraps.Add(trapId);
             }
 
+            // 초기 돈 값 이벤트 발생 (UI 업데이트용)
+            OnMoneyChanged?.Invoke(currentMoney);
+
             Debug.Log($"GameManager 초기화: 시작 돈 {currentMoney}, 해금된 덫 {unlockedTraps.Count}개");
         }
 

@@ -25,8 +25,6 @@ namespace PigeonGame.Gameplay
             {
                 spriteRenderer.sprite = species.icon;
             }
-
-            // 비둘기 상태 UI 추가 (없으면) - Start에서 처리하도록 함
         }
     }
 }

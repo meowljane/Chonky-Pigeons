@@ -550,8 +550,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3313c40e3c1e5e04a88275c49609c12b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.PigeonController
-  ai: {fileID: 0}
-  spriteRenderer: {fileID: 0}
+  ai: {fileID: 1627123271924891322}
+  spriteRenderer: {fileID: 1153266226339589489}
 --- !u!114 &1965305811106822532
 MonoBehaviour:
   m_ObjectHideFlags: 0

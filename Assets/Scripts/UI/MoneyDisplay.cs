@@ -28,12 +28,28 @@ namespace PigeonGame.UI
             if (Gameplay.GameManager.Instance != null)
             {
                 Gameplay.GameManager.Instance.OnMoneyChanged += UpdateMoneyDisplay;
+                // 초기 값 표시
                 UpdateMoneyDisplay(Gameplay.GameManager.Instance.CurrentMoney);
             }
             else
             {
-                Debug.LogWarning("MoneyDisplay: GameManager를 찾을 수 없습니다!");
+                Debug.LogWarning("MoneyDisplay: GameManager를 찾을 수 없습니다! 잠시 후 다시 시도합니다.");
+                // GameManager가 아직 초기화되지 않았을 수 있으므로 코루틴으로 재시도
+                StartCoroutine(WaitForGameManager());
             }
+        }
+
+        private System.Collections.IEnumerator WaitForGameManager()
+        {
+            // GameManager가 초기화될 때까지 대기
+            while (Gameplay.GameManager.Instance == null)
+            {
+                yield return null;
+            }
+
+            // 이벤트 구독 및 초기 값 표시
+            Gameplay.GameManager.Instance.OnMoneyChanged += UpdateMoneyDisplay;
+            UpdateMoneyDisplay(Gameplay.GameManager.Instance.CurrentMoney);
         }
 
         private void OnDestroy()
@@ -49,10 +65,20 @@ namespace PigeonGame.UI
         {
             if (moneyText != null)
             {
-                moneyText.text = string.Format(moneyFormat, money);
+                // moneyFormat이 "{0}" 형식이면 string.Format 사용, 아니면 직접 대체
+                if (moneyFormat.Contains("{0}"))
+                {
+                    moneyText.text = string.Format(moneyFormat, money);
+                }
+                else
+                {
+                    // "0G" 같은 형식의 경우 숫자만 표시
+                    moneyText.text = money.ToString();
+                }
             }
         }
     }
 }
+
 
 

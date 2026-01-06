@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using PigeonGame.Data;
-using PigeonGame.UI;
 
 namespace PigeonGame.Gameplay
 {
@@ -10,15 +9,8 @@ namespace PigeonGame.Gameplay
         [SerializeField] private GameObject pigeonPrefab;
         [SerializeField] private int spawnCount = 5;
         [SerializeField] private float spawnRadius = 3f;
-        [SerializeField] private Transform spawnCenter;
 
         private List<PigeonController> spawnedPigeons = new List<PigeonController>();
-
-        private void Start()
-        {
-            if (spawnCenter == null)
-                spawnCenter = transform;
-        }
 
         public void SpawnPigeonsAtPosition(Vector3 position, FoodTrap trap)
         {
