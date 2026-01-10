@@ -111,6 +111,13 @@ namespace PigeonGame.Gameplay
             var clonedStats = stats.Clone();
             inventory.Add(clonedStats);
             OnPigeonAddedToInventory?.Invoke(clonedStats);
+            
+            // 도감에 기록
+            if (EncyclopediaManager.Instance != null)
+            {
+                EncyclopediaManager.Instance.RecordPigeon(clonedStats);
+            }
+            
             Debug.Log($"인벤토리에 추가: {clonedStats.speciesId} (가격: {clonedStats.price})");
         }
 

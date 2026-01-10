@@ -15,10 +15,9 @@ namespace PigeonGame.UI
         [SerializeField] private GameObject inventoryPanel;
         [SerializeField] private Transform itemContainer;
         [SerializeField] private GameObject itemPrefab;
-        [SerializeField] private Button sellAllButton;
         [SerializeField] private TextMeshProUGUI inventoryCountText;
-        [SerializeField] private Button toggleButton;
         [SerializeField] private Button closeButton;
+        [SerializeField] private Button inventoryButton; // 인벤토리 토글 버튼
 
         private List<GameObject> itemInstances = new List<GameObject>();
         private PigeonShop shop;
@@ -36,32 +35,34 @@ namespace PigeonGame.UI
                 inventoryPanel.SetActive(false);
             }
 
-            if (sellAllButton != null)
+            // 인벤토리 버튼 찾기 및 연결
+            if (inventoryButton == null)
             {
-                sellAllButton.onClick.AddListener(OnSellAllClicked);
+                // "InventoryButton"이라는 이름의 버튼 찾기
+                GameObject buttonObj = GameObject.Find("InventoryButton");
+                if (buttonObj != null)
+                {
+                    inventoryButton = buttonObj.GetComponent<Button>();
+                }
             }
 
-            if (toggleButton != null)
+            if (inventoryButton != null)
             {
-                toggleButton.onClick.AddListener(ToggleInventory);
+                inventoryButton.onClick.RemoveAllListeners();
+                inventoryButton.onClick.AddListener(ToggleInventory);
             }
 
             // 닫기 버튼 찾기 및 연결
             if (closeButton == null && inventoryPanel != null)
             {
-                closeButton = inventoryPanel.GetComponentInChildren<Button>();
-                // CloseButton이라는 이름의 버튼 찾기 (sellAllButton 제외)
-                if (closeButton == null || closeButton == sellAllButton)
+                Transform closeButtonTransform = inventoryPanel.transform.Find("CloseButton");
+                if (closeButtonTransform != null)
                 {
-                    Transform closeButtonTransform = inventoryPanel.transform.Find("CloseButton");
-                    if (closeButtonTransform != null)
-                    {
-                        closeButton = closeButtonTransform.GetComponent<Button>();
-                    }
+                    closeButton = closeButtonTransform.GetComponent<Button>();
                 }
             }
 
-            if (closeButton != null && closeButton != sellAllButton)
+            if (closeButton != null)
             {
                 closeButton.onClick.RemoveAllListeners();
                 closeButton.onClick.AddListener(OnCloseButtonClicked);
@@ -76,17 +77,35 @@ namespace PigeonGame.UI
             UpdateInventoryDisplay();
         }
 
+        /// <summary>
+        /// 인벤토리 패널 토글 (일반 인벤토리 버튼에서 호출)
+        /// </summary>
         public void ToggleInventory()
+        {
+            if (inventoryPanel == null)
+            {
+                Debug.LogWarning("InventoryUI: inventoryPanel이 설정되지 않았습니다!");
+                return;
+            }
+
+            bool isActive = inventoryPanel.activeSelf;
+            inventoryPanel.SetActive(!isActive);
+            
+            if (!isActive)
+            {
+                UpdateInventoryDisplay();
+            }
+        }
+
+        /// <summary>
+        /// 상점 패널 열기 (상호작용 시스템에서 호출)
+        /// </summary>
+        public void OpenShopPanel()
         {
             if (inventoryPanel != null)
             {
-                bool isActive = inventoryPanel.activeSelf;
-                inventoryPanel.SetActive(!isActive);
-                
-                if (!isActive)
-                {
-                    UpdateInventoryDisplay();
-                }
+                inventoryPanel.SetActive(true);
+                UpdateInventoryDisplay();
             }
         }
 
@@ -163,15 +182,19 @@ namespace PigeonGame.UI
                 obesityText.text = $"비만도: {stats.obesity}";
             }
 
-            // 판매 버튼
+            // 판매 버튼 (상점 패널에서만 표시)
             Button sellButton = itemObj.transform.Find("SellButton")?.GetComponent<Button>();
             if (sellButton != null)
             {
-                sellButton.onClick.AddListener(() => OnSellClicked(index));
+                sellButton.onClick.RemoveAllListeners();
+                sellButton.onClick.AddListener(() => SellPigeon(index));
             }
         }
 
-        private void OnSellClicked(int index)
+        /// <summary>
+        /// 비둘기 판매 (상점에서 호출)
+        /// </summary>
+        public void SellPigeon(int index)
         {
             if (shop != null)
             {
@@ -180,7 +203,10 @@ namespace PigeonGame.UI
             }
         }
 
-        private void OnSellAllClicked()
+        /// <summary>
+        /// 모든 비둘기 판매 (상점에서 호출)
+        /// </summary>
+        public void SellAllPigeons()
         {
             if (shop != null)
             {

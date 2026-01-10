@@ -215,8 +215,16 @@ namespace PigeonGame.UI
 
         private void OnInteractionButtonClicked()
         {
-            // 상호작용 버튼 기능 (추후 구현)
-            Debug.Log("상호작용 버튼 클릭");
+            // 상점 상호작용 시스템 찾기
+            ShopInteractionSystem interactionSystem = FindObjectOfType<ShopInteractionSystem>();
+            if (interactionSystem != null)
+            {
+                interactionSystem.OnInteract();
+            }
+            else
+            {
+                Debug.LogWarning("ShopInteractionSystem을 찾을 수 없습니다!");
+            }
         }
 
         private void OnCloseButtonClicked()

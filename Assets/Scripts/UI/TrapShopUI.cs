@@ -15,7 +15,6 @@ namespace PigeonGame.UI
         [SerializeField] private GameObject shopPanel;
         [SerializeField] private Transform trapContainer;
         [SerializeField] private GameObject trapItemPrefab;
-        [SerializeField] private Button toggleButton;
         [SerializeField] private Button closeButton;
 
         private List<GameObject> trapItems = new List<GameObject>();
@@ -32,11 +31,6 @@ namespace PigeonGame.UI
             if (shopPanel != null)
             {
                 shopPanel.SetActive(false);
-            }
-
-            if (toggleButton != null)
-            {
-                toggleButton.onClick.AddListener(ToggleShop);
             }
 
             // 닫기 버튼 찾기 및 연결
@@ -70,17 +64,15 @@ namespace PigeonGame.UI
             UpdateShopDisplay();
         }
 
-        public void ToggleShop()
+        /// <summary>
+        /// 상점 패널 열기 (상호작용 시스템에서 호출)
+        /// </summary>
+        public void OpenShopPanel()
         {
             if (shopPanel != null)
             {
-                bool isActive = shopPanel.activeSelf;
-                shopPanel.SetActive(!isActive);
-                
-                if (!isActive)
-                {
-                    UpdateShopDisplay();
-                }
+                shopPanel.SetActive(true);
+                UpdateShopDisplay();
             }
         }
 
