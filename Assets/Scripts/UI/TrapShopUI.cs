@@ -16,6 +16,7 @@ namespace PigeonGame.UI
         [SerializeField] private Transform trapContainer;
         [SerializeField] private GameObject trapItemPrefab;
         [SerializeField] private Button toggleButton;
+        [SerializeField] private Button closeButton;
 
         private List<GameObject> trapItems = new List<GameObject>();
         private TrapShop shop;
@@ -38,6 +39,27 @@ namespace PigeonGame.UI
                 toggleButton.onClick.AddListener(ToggleShop);
             }
 
+            // 닫기 버튼 찾기 및 연결
+            if (closeButton == null && shopPanel != null)
+            {
+                closeButton = shopPanel.GetComponentInChildren<Button>();
+                // CloseButton이라는 이름의 버튼 찾기
+                if (closeButton == null)
+                {
+                    Transform closeButtonTransform = shopPanel.transform.Find("CloseButton");
+                    if (closeButtonTransform != null)
+                    {
+                        closeButton = closeButtonTransform.GetComponent<Button>();
+                    }
+                }
+            }
+
+            if (closeButton != null)
+            {
+                closeButton.onClick.RemoveAllListeners();
+                closeButton.onClick.AddListener(OnCloseButtonClicked);
+            }
+
             // GameManager 이벤트 구독
             if (GameManager.Instance != null)
             {
@@ -46,15 +68,6 @@ namespace PigeonGame.UI
             }
 
             UpdateShopDisplay();
-        }
-
-        private void OnDestroy()
-        {
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.OnTrapUnlocked -= OnTrapUnlocked;
-                GameManager.Instance.OnMoneyChanged -= OnMoneyChanged;
-            }
         }
 
         public void ToggleShop()
@@ -158,6 +171,28 @@ namespace PigeonGame.UI
             {
                 shop.TryPurchaseTrap(trapId);
                 UpdateShopDisplay();
+            }
+        }
+
+        private void OnCloseButtonClicked()
+        {
+            if (shopPanel != null)
+            {
+                shopPanel.SetActive(false);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnTrapUnlocked -= OnTrapUnlocked;
+                GameManager.Instance.OnMoneyChanged -= OnMoneyChanged;
+            }
+
+            if (closeButton != null)
+            {
+                closeButton.onClick.RemoveAllListeners();
             }
         }
     }

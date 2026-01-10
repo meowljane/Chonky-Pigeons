@@ -18,6 +18,7 @@ namespace PigeonGame.UI
         [SerializeField] private Button sellAllButton;
         [SerializeField] private TextMeshProUGUI inventoryCountText;
         [SerializeField] private Button toggleButton;
+        [SerializeField] private Button closeButton;
 
         private List<GameObject> itemInstances = new List<GameObject>();
         private PigeonShop shop;
@@ -45,6 +46,27 @@ namespace PigeonGame.UI
                 toggleButton.onClick.AddListener(ToggleInventory);
             }
 
+            // 닫기 버튼 찾기 및 연결
+            if (closeButton == null && inventoryPanel != null)
+            {
+                closeButton = inventoryPanel.GetComponentInChildren<Button>();
+                // CloseButton이라는 이름의 버튼 찾기 (sellAllButton 제외)
+                if (closeButton == null || closeButton == sellAllButton)
+                {
+                    Transform closeButtonTransform = inventoryPanel.transform.Find("CloseButton");
+                    if (closeButtonTransform != null)
+                    {
+                        closeButton = closeButtonTransform.GetComponent<Button>();
+                    }
+                }
+            }
+
+            if (closeButton != null && closeButton != sellAllButton)
+            {
+                closeButton.onClick.RemoveAllListeners();
+                closeButton.onClick.AddListener(OnCloseButtonClicked);
+            }
+
             // GameManager 이벤트 구독
             if (GameManager.Instance != null)
             {
@@ -52,14 +74,6 @@ namespace PigeonGame.UI
             }
 
             UpdateInventoryDisplay();
-        }
-
-        private void OnDestroy()
-        {
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.OnPigeonAddedToInventory -= OnPigeonAdded;
-            }
         }
 
         public void ToggleInventory()
@@ -172,6 +186,27 @@ namespace PigeonGame.UI
             {
                 shop.SellAllPigeons();
                 UpdateInventoryDisplay();
+            }
+        }
+
+        private void OnCloseButtonClicked()
+        {
+            if (inventoryPanel != null)
+            {
+                inventoryPanel.SetActive(false);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnPigeonAddedToInventory -= OnPigeonAdded;
+            }
+
+            if (closeButton != null)
+            {
+                closeButton.onClick.RemoveAllListeners();
             }
         }
     }
