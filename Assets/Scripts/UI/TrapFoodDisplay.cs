@@ -130,11 +130,34 @@ namespace PigeonGame.UI
                 return;
 
             // 카메라를 향하도록 회전
-            if (mainCamera != null)
+            if (mainCamera != null && mainCamera.transform != null)
             {
-                Transform canvasTransform = foodText != null ? foodText.canvas.transform : transform;
-                canvasTransform.LookAt(canvasTransform.position + mainCamera.transform.rotation * Vector3.forward,
-                    mainCamera.transform.rotation * Vector3.up);
+                Transform canvasTransform = null;
+                
+                // Canvas 찾기
+                if (foodText != null && foodText.canvas != null)
+                {
+                    canvasTransform = foodText.canvas.transform;
+                }
+                else
+                {
+                    // Canvas를 직접 찾기
+                    Canvas canvas = GetComponentInChildren<Canvas>();
+                    if (canvas != null)
+                    {
+                        canvasTransform = canvas.transform;
+                    }
+                    else
+                    {
+                        canvasTransform = transform;
+                    }
+                }
+
+                if (canvasTransform != null)
+                {
+                    canvasTransform.LookAt(canvasTransform.position + mainCamera.transform.rotation * Vector3.forward,
+                        mainCamera.transform.rotation * Vector3.up);
+                }
             }
 
             // 먹이 양 업데이트
@@ -158,7 +181,7 @@ namespace PigeonGame.UI
             }
 
             // 먹이가 없으면 UI 숨기기
-            if (current <= 0 && foodText != null)
+            if (current <= 0 && foodText != null && foodText.canvas != null)
             {
                 foodText.canvas.gameObject.SetActive(false);
             }

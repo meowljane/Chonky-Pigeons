@@ -36,6 +36,8 @@ namespace PigeonGame.Gameplay
             }
             rb.gravityScale = 0;
             rb.linearDamping = 5f;
+            // 회전 고정 (2D 게임이므로 스프라이트가 회전하지 않도록)
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
             ai = GetComponent<PigeonAI>();
             controller = GetComponent<PigeonController>();

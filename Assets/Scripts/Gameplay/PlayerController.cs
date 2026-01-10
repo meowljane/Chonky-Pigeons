@@ -51,7 +51,7 @@ namespace PigeonGame.Gameplay
         private void Update()
         {
             moveInput = Vector2.zero;
-
+            
             // 모바일 조이스틱 입력 (우선순위)
             if (mobileJoystick != null && mobileJoystick.IsActive)
             {
@@ -63,16 +63,16 @@ namespace PigeonGame.Gameplay
                 Keyboard keyboard = Keyboard.current;
                 if (keyboard != null)
                 {
-                    if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
-                        moveInput.y += 1f;
-                    if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
-                        moveInput.y -= 1f;
-                    if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
-                        moveInput.x += 1f;
-                    if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
-                        moveInput.x -= 1f;
-                    
-                    moveInput.Normalize();
+            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
+                moveInput.y += 1f;
+            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
+                moveInput.y -= 1f;
+            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
+                moveInput.x += 1f;
+            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
+                moveInput.x -= 1f;
+            
+            moveInput.Normalize();
                 }
             }
         }

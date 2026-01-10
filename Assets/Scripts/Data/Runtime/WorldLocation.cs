@@ -1,8 +1,9 @@
 using UnityEngine;
+using System;
 
 namespace PigeonGame.Data
 {
-    [System.Serializable]
+    [Serializable]
     public class LocationDefinition
     {
         public string id;
