@@ -19,14 +19,24 @@ namespace PigeonGame.UI
         [SerializeField] private Button closeButton;
 
         private List<GameObject> itemInstances = new List<GameObject>();
-        private PigeonShop shop;
+        private InventoryUI inventoryUI; // 같은 오브젝트에서 가져옴
 
         private void Start()
         {
-            shop = FindObjectOfType<PigeonShop>();
-            if (shop == null)
+            // 같은 오브젝트에서 InventoryUI 가져오기
+            inventoryUI = GetComponent<InventoryUI>();
+            if (inventoryUI == null)
             {
-                shop = gameObject.AddComponent<PigeonShop>();
+                // 같은 오브젝트에 없으면 씬에서 찾기
+                inventoryUI = FindObjectOfType<InventoryUI>();
+                if (inventoryUI == null)
+                {
+                    Debug.LogError("InventoryUI 컴포넌트를 찾을 수 없습니다! 상세 정보 기능이 작동하지 않습니다.");
+                }
+                else
+                {
+                    Debug.LogWarning("같은 오브젝트에 InventoryUI가 없어서 씬에서 찾았습니다.");
+                }
             }
 
             if (shopPanel != null)
@@ -34,16 +44,7 @@ namespace PigeonGame.UI
                 shopPanel.SetActive(false);
             }
 
-            // 닫기 버튼 찾기 및 연결
-            if (closeButton == null && shopPanel != null)
-            {
-                Transform closeButtonTransform = shopPanel.transform.Find("CloseButton");
-                if (closeButtonTransform != null)
-                {
-                    closeButton = closeButtonTransform.GetComponent<Button>();
-                }
-            }
-
+            // 닫기 버튼 연결
             if (closeButton != null)
             {
                 closeButton.onClick.RemoveAllListeners();
@@ -133,43 +134,28 @@ namespace PigeonGame.UI
 
         private void SetupItemUI(GameObject itemObj, PigeonInstanceStats stats, int index)
         {
-            // 종 이름 표시
-            TextMeshProUGUI nameText = itemObj.transform.Find("NameText")?.GetComponent<TextMeshProUGUI>();
-            if (nameText != null)
+            // ShopItemUI 컴포넌트 사용 (직접 참조 방식)
+            ShopItemUI shopItemUI = itemObj.GetComponent<ShopItemUI>();
+            if (shopItemUI != null)
             {
-                var registry = GameDataRegistry.Instance;
-                if (registry != null && registry.SpeciesSet != null)
-                {
-                    var species = registry.SpeciesSet.GetSpeciesById(stats.speciesId);
-                    nameText.text = species != null ? species.name : stats.speciesId;
-                }
-                else
-                {
-                    nameText.text = stats.speciesId;
-                }
+                shopItemUI.Setup(stats, index, ShowPigeonDetail, SellPigeon);
             }
+            else
+            {
+                // ShopItemUI가 없으면 기존 방식으로 폴백 (하위 호환성)
+                Debug.LogWarning($"ShopItemUI 컴포넌트가 없습니다. {itemObj.name}에 ShopItemUI를 추가하세요.");
+            }
+        }
 
-            // 가격 표시
-            TextMeshProUGUI priceText = itemObj.transform.Find("PriceText")?.GetComponent<TextMeshProUGUI>();
-            if (priceText != null)
-            {
-                priceText.text = $"가격: {stats.price}";
-            }
+        /// <summary>
+        /// 비둘기 상세 정보 표시
+        /// </summary>
+        private void ShowPigeonDetail(PigeonInstanceStats stats)
+        {
+            if (stats == null || inventoryUI == null)
+                return;
 
-            // 비만도 표시
-            TextMeshProUGUI obesityText = itemObj.transform.Find("ObesityText")?.GetComponent<TextMeshProUGUI>();
-            if (obesityText != null)
-            {
-                obesityText.text = $"비만도: {stats.obesity}";
-            }
-
-            // 판매 버튼 (상점 패널에서만 표시)
-            Button sellButton = itemObj.transform.Find("SellButton")?.GetComponent<Button>();
-            if (sellButton != null)
-            {
-                sellButton.onClick.RemoveAllListeners();
-                sellButton.onClick.AddListener(() => SellPigeon(index));
-            }
+            inventoryUI.ShowPigeonDetail(stats);
         }
 
         /// <summary>
@@ -177,9 +163,9 @@ namespace PigeonGame.UI
         /// </summary>
         public void SellPigeon(int index)
         {
-            if (shop != null)
+            if (GameManager.Instance != null)
             {
-                shop.SellPigeon(index);
+                GameManager.Instance.SellPigeon(index);
                 UpdateInventoryDisplay();
             }
         }
@@ -189,9 +175,9 @@ namespace PigeonGame.UI
         /// </summary>
         public void SellAllPigeons()
         {
-            if (shop != null)
+            if (GameManager.Instance != null)
             {
-                shop.SellAllPigeons();
+                GameManager.Instance.SellAllPigeons();
                 UpdateInventoryDisplay();
             }
         }

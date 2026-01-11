@@ -18,16 +18,9 @@ namespace PigeonGame.UI
         [SerializeField] private Button closeButton;
 
         private List<GameObject> trapItems = new List<GameObject>();
-        private TrapShop shop;
 
         private void Start()
         {
-            shop = FindObjectOfType<TrapShop>();
-            if (shop == null)
-            {
-                shop = gameObject.AddComponent<TrapShop>();
-            }
-
             if (shopPanel != null)
             {
                 shopPanel.SetActive(false);
@@ -88,7 +81,7 @@ namespace PigeonGame.UI
 
         private void UpdateShopDisplay()
         {
-            if (shop == null || trapContainer == null || trapItemPrefab == null)
+            if (trapContainer == null || trapItemPrefab == null)
                 return;
 
             // 기존 아이템 제거
@@ -100,8 +93,11 @@ namespace PigeonGame.UI
             trapItems.Clear();
 
             // 모든 덫 표시
-            var allTraps = shop.GetAllTraps();
             var registry = GameDataRegistry.Instance;
+            if (registry == null || registry.Traps == null)
+                return;
+
+            var allTraps = registry.Traps.traps;
 
             foreach (var trapData in allTraps)
             {
@@ -132,7 +128,7 @@ namespace PigeonGame.UI
             TextMeshProUGUI statusText = itemObj.transform.Find("StatusText")?.GetComponent<TextMeshProUGUI>();
             if (statusText != null)
             {
-                bool isUnlocked = shop.IsTrapUnlocked(trapData.id);
+                bool isUnlocked = GameManager.Instance != null && GameManager.Instance.IsTrapUnlocked(trapData.id);
                 statusText.text = isUnlocked ? "해금됨" : "미해금";
                 statusText.color = isUnlocked ? Color.green : Color.red;
             }
@@ -141,8 +137,8 @@ namespace PigeonGame.UI
             Button buyButton = itemObj.transform.Find("BuyButton")?.GetComponent<Button>();
             if (buyButton != null)
             {
-                bool isUnlocked = shop.IsTrapUnlocked(trapData.id);
-                bool canAfford = shop.CanAffordTrap(trapData.id);
+                bool isUnlocked = GameManager.Instance != null && GameManager.Instance.IsTrapUnlocked(trapData.id);
+                bool canAfford = GameManager.Instance != null && GameManager.Instance.CurrentMoney >= trapData.cost;
 
                 buyButton.interactable = !isUnlocked && canAfford;
                 buyButton.onClick.RemoveAllListeners();
@@ -159,9 +155,9 @@ namespace PigeonGame.UI
 
         private void OnBuyClicked(string trapId)
         {
-            if (shop != null)
+            if (GameManager.Instance != null)
             {
-                shop.TryPurchaseTrap(trapId);
+                GameManager.Instance.UnlockTrap(trapId);
                 UpdateShopDisplay();
             }
         }
