@@ -570,6 +570,7 @@ MonoBehaviour:
   wanderRadius: 1
   wanderInterval: 2
   foodDetectionRadius: 0.5
+  eatingRadius: 0.1
   playerDetectionRadius: 1
   crowdDetectionRadius: 1
   randomFlyAwayChance: 0.01

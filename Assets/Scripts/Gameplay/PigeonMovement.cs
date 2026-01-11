@@ -10,7 +10,8 @@ namespace PigeonGame.Gameplay
         [SerializeField] private float fleeSpeed = 4f;
         [SerializeField] private float wanderRadius = 1f;
         [SerializeField] private float wanderInterval = 2f;
-        [SerializeField] private float foodDetectionRadius = 5f;
+        [SerializeField] private float foodDetectionRadius = 5f; // 덫을 탐색하는 반경
+        [SerializeField] private float eatingRadius = 2f; // 실제로 먹을 수 있는 범위 반경
         [SerializeField] private float playerDetectionRadius = 10f;
         [SerializeField] private float crowdDetectionRadius = 2f;
         [SerializeField] private float randomFlyAwayChance = 0.01f; // 초당 화면 밖으로 나갈 확률
@@ -310,7 +311,7 @@ namespace PigeonGame.Gameplay
 
         private void FindNearestFoodTrap()
         {
-            // 모든 덫을 확인하여 attractionRadius 내에 있는 덫 찾기
+            // 모든 덫을 확인하여 foodDetectionRadius 내에 있는 덫 찾기
             FoodTrap[] allTraps = FindObjectsOfType<FoodTrap>();
             FoodTrap nearestTrap = null;
             float nearestDistance = float.MaxValue;
@@ -321,8 +322,8 @@ namespace PigeonGame.Gameplay
                     continue;
 
                 float distance = Vector2.Distance(transform.position, trap.transform.position);
-                // 덫의 attractionRadius 내에 있는지 확인
-                if (distance <= trap.AttractionRadius && distance < nearestDistance)
+                // 비둘기의 foodDetectionRadius 내에 있는지 확인
+                if (distance <= foodDetectionRadius && distance < nearestDistance)
                 {
                     nearestDistance = distance;
                     nearestTrap = trap;
@@ -330,6 +331,14 @@ namespace PigeonGame.Gameplay
             }
 
             targetFoodTrap = nearestTrap;
+        }
+
+        /// <summary>
+        /// 비둘기의 먹기 반경 가져오기 (FoodTrap에서 사용)
+        /// </summary>
+        public float GetEatingRadius()
+        {
+            return eatingRadius;
         }
 
         private void SetNewWanderTarget()
@@ -343,9 +352,13 @@ namespace PigeonGame.Gameplay
             if (!showDebugGizmos)
                 return;
 
-            // 먹이 감지 반경
+            // 먹이 탐색 반경
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(transform.position, foodDetectionRadius);
+
+            // 먹기 반경
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, eatingRadius);
 
             // 플레이어 감지 반경
             Gizmos.color = Color.red;

@@ -8,8 +8,6 @@ namespace PigeonGame.Gameplay
     public class FoodTrap : MonoBehaviour
     {
         [SerializeField] private string trapId;
-        [SerializeField] private float attractionRadius = 5f; // 비둘기를 이끄는 반경
-        [SerializeField] private float eatingRadius = 2f; // 먹을 수 있는 범위 반경
         private TrapDefinition trapData;
         private int currentFeedAmount;
         private List<PigeonAI> nearbyPigeons = new List<PigeonAI>();
@@ -18,10 +16,6 @@ namespace PigeonGame.Gameplay
         private Dictionary<PigeonAI, float> eatingStateTimers = new Dictionary<PigeonAI, float>(); // 먹는 상태 유지 시간
 
         public string TrapId => trapId;
-        public float AttractionRadius => attractionRadius; // 비둘기를 이끄는 반경
-        public float EatingRadius => eatingRadius; // 먹을 수 있는 범위 반경
-        [System.Obsolete("Use EatingRadius instead")]
-        public float DetectionRadius => eatingRadius; // 하위 호환성을 위한 프로퍼티
         public int CurrentFeedAmount => currentFeedAmount;
         public int MaxFeedAmount => trapData != null ? trapData.feedAmount : 20;
         public bool IsDepleted => currentFeedAmount <= 0;
@@ -44,11 +38,6 @@ namespace PigeonGame.Gameplay
                 if (trapData != null)
                 {
                     currentFeedAmount = trapData.feedAmount;
-                    // 데이터에서 반경 값 가져오기 (설정되어 있으면 사용)
-                    if (trapData.attractionRadius > 0)
-                        attractionRadius = trapData.attractionRadius;
-                    if (trapData.eatingRadius > 0)
-                        eatingRadius = trapData.eatingRadius;
                 }
             }
         }
@@ -116,13 +105,26 @@ namespace PigeonGame.Gameplay
         private void UpdateNearbyPigeons()
         {
             nearbyPigeons.Clear();
-            // 먹을 수 있는 범위 반경으로 비둘기 감지
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, eatingRadius);
+            
+            // 충분히 큰 범위로 비둘기 검색 (최대 eatingRadius를 고려하여 넉넉하게)
+            float maxSearchRadius = 10f; // 비둘기들의 최대 eatingRadius를 고려한 검색 범위
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, maxSearchRadius);
             
             foreach (var col in colliders)
             {
                 PigeonAI pigeon = col.GetComponent<PigeonAI>();
-                if (pigeon != null)
+                if (pigeon == null)
+                    continue;
+
+                PigeonMovement movement = pigeon.GetComponent<PigeonMovement>();
+                if (movement == null)
+                    continue;
+
+                float distance = Vector2.Distance(transform.position, pigeon.transform.position);
+                float pigeonEatingRadius = movement.GetEatingRadius();
+                
+                // 비둘기의 eatingRadius 내에 있는지 확인
+                if (distance <= pigeonEatingRadius)
                 {
                     nearbyPigeons.Add(pigeon);
                 }
@@ -169,13 +171,28 @@ namespace PigeonGame.Gameplay
 
         private void OnDrawGizmosSelected()
         {
-            // 비둘기를 이끄는 반경 (녹색)
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(transform.position, attractionRadius);
-            
-            // 먹을 수 있는 범위 반경 (노란색)
+            // 주변 비둘기들의 eatingRadius 표시 (각 비둘기마다 다를 수 있음)
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, eatingRadius);
+            PigeonAI[] allPigeons = FindObjectsOfType<PigeonAI>();
+            
+            foreach (var pigeon in allPigeons)
+            {
+                if (pigeon == null)
+                    continue;
+
+                PigeonMovement movement = pigeon.GetComponent<PigeonMovement>();
+                if (movement == null)
+                    continue;
+
+                float distance = Vector2.Distance(transform.position, pigeon.transform.position);
+                float pigeonEatingRadius = movement.GetEatingRadius();
+                
+                // 이 덫이 비둘기의 eatingRadius 내에 있으면 표시
+                if (distance <= pigeonEatingRadius)
+                {
+                    Gizmos.DrawWireSphere(pigeon.transform.position, pigeonEatingRadius);
+                }
+            }
         }
     }
 }
