@@ -205,24 +205,22 @@ namespace PigeonGame.UI
                 return;
             }
 
-            FoodTrap nearestTrap = null;
-            float nearestDistance = float.MaxValue;
-
+            // 실제로 먹고 있는지 확인
             FoodTrap[] allTraps = FindObjectsOfType<FoodTrap>();
+            isEating = false;
+
             foreach (var trap in allTraps)
             {
-                if (trap.IsDepleted)
+                if (trap == null || trap.IsDepleted)
                     continue;
 
-                float distance = Vector3.Distance(transform.position, trap.transform.position);
-                if (distance <= trap.DetectionRadius && distance < nearestDistance)
+                // 덫에서 실제로 먹고 있는지 확인
+                if (trap.IsPigeonEating(pigeonAI))
                 {
-                    nearestDistance = distance;
-                    nearestTrap = trap;
+                    isEating = true;
+                    break;
                 }
             }
-
-            isEating = nearestTrap != null && nearestTrap.DetectionRadius >= nearestDistance;
 
             if (eatingText != null)
             {

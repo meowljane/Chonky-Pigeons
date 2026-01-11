@@ -13,12 +13,12 @@ namespace PigeonGame.Gameplay
         [SerializeField] private bool showDebugGizmos = true;
 
         private WorldShop nearestShop;
-        private InventoryUI inventoryUI;
+        private PigeonShopUI pigeonShopUI;
         private TrapShopUI trapShopUI;
 
         private void Start()
         {
-            inventoryUI = FindObjectOfType<InventoryUI>();
+            pigeonShopUI = FindObjectOfType<PigeonShopUI>();
             trapShopUI = FindObjectOfType<TrapShopUI>();
         }
 
@@ -76,13 +76,13 @@ namespace PigeonGame.Gameplay
 
         private void OpenPigeonShop()
         {
-            if (inventoryUI != null)
+            if (pigeonShopUI != null)
             {
-                inventoryUI.OpenShopPanel();
+                pigeonShopUI.OpenShopPanel();
             }
             else
             {
-                Debug.LogWarning("InventoryUI를 찾을 수 없습니다!");
+                Debug.LogWarning("PigeonShopUI를 찾을 수 없습니다!");
             }
         }
 

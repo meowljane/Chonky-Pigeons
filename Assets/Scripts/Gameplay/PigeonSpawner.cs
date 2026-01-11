@@ -36,8 +36,17 @@ namespace PigeonGame.Gameplay
             {
                 Vector2 randomOffset = UnityEngine.Random.insideUnitCircle * spawnRadius;
                 Vector3 spawnPos = position + (Vector3)randomOffset;
+                // Z 위치를 0으로 명시적으로 설정 (2D 게임용)
+                Vector3 spawnPosition = new Vector3(spawnPos.x, spawnPos.y, 0);
 
-                GameObject pigeonObj = Instantiate(pigeonPrefab, spawnPos, Quaternion.identity);
+                GameObject pigeonObj = Instantiate(pigeonPrefab, spawnPosition, Quaternion.identity);
+                
+                // 게임 오브젝트가 활성화되어 있는지 확인
+                if (!pigeonObj.activeSelf)
+                {
+                    pigeonObj.SetActive(true);
+                }
+                
                 PigeonController controller = pigeonObj.GetComponent<PigeonController>();
                 
                 if (controller != null)

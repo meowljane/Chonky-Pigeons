@@ -407,7 +407,7 @@ GameObject:
   - component: {fileID: 4486296164914701151}
   - component: {fileID: 3178049951037575978}
   m_Layer: 0
-  m_Name: InventoryItem
+  m_Name: PigeonShopItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -13,6 +13,7 @@ namespace PigeonGame.Gameplay
         [SerializeField] private float foodDetectionRadius = 5f;
         [SerializeField] private float playerDetectionRadius = 10f;
         [SerializeField] private float crowdDetectionRadius = 2f;
+        [SerializeField] private float randomFlyAwayChance = 0.01f; // 초당 화면 밖으로 나갈 확률
         [SerializeField] private bool showDebugGizmos = true;
         
         private Rigidbody2D rb;
@@ -53,6 +54,17 @@ namespace PigeonGame.Gameplay
         {
             if (ai == null || controller == null || controller.Stats == null)
                 return;
+
+            // 플레이어가 가까이 있으면 무조건 뒷걸음질 (alert와 관계없이)
+            if (PlayerController.Instance != null)
+            {
+                float distanceToPlayer = Vector2.Distance(transform.position, PlayerController.Instance.Position);
+                if (distanceToPlayer <= playerDetectionRadius)
+                {
+                    HandleBackOff();
+                    return; // 플레이어가 가까이 있으면 다른 행동 무시
+                }
+            }
 
             // Alert 시스템 업데이트
             UpdateAlertSystem();
@@ -124,6 +136,13 @@ namespace PigeonGame.Gameplay
 
         private void HandleNormalMovement()
         {
+            // 랜덤하게 화면 밖으로 날아가기
+            if (Random.value < randomFlyAwayChance * Time.deltaTime)
+            {
+                FlyAwayFromScreen();
+                return;
+            }
+
             // 덫 찾기
             FindNearestFoodTrap();
 
@@ -154,6 +173,30 @@ namespace PigeonGame.Gameplay
             {
                 rb.linearVelocity = direction * wanderSpeed;
             }
+        }
+
+        /// <summary>
+        /// 화면 밖으로 날아가기
+        /// </summary>
+        private void FlyAwayFromScreen()
+        {
+            if (mainCamera == null)
+                mainCamera = Camera.main;
+
+            if (mainCamera == null)
+                return;
+
+            // 화면 밖 방향 계산
+            Vector2 screenPos = mainCamera.WorldToViewportPoint(transform.position);
+            Vector2 screenCenter = new Vector2(0.5f, 0.5f);
+            Vector2 awayFromCenter = ((Vector2)transform.position - (Vector2)mainCamera.transform.position).normalized;
+
+            // 랜덤한 화면 밖 방향
+            float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
+            Vector2 randomDirection = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+
+            // 화면 밖으로 이동
+            rb.linearVelocity = randomDirection * fleeSpeed;
         }
 
         private void HandleBackOff()
@@ -267,21 +310,22 @@ namespace PigeonGame.Gameplay
 
         private void FindNearestFoodTrap()
         {
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, foodDetectionRadius);
+            // 모든 덫을 확인하여 attractionRadius 내에 있는 덫 찾기
+            FoodTrap[] allTraps = FindObjectsOfType<FoodTrap>();
             FoodTrap nearestTrap = null;
             float nearestDistance = float.MaxValue;
 
-            foreach (var col in colliders)
+            foreach (var trap in allTraps)
             {
-                FoodTrap trap = col.GetComponent<FoodTrap>();
-                if (trap != null && !trap.IsDepleted)
+                if (trap == null || trap.IsDepleted)
+                    continue;
+
+                float distance = Vector2.Distance(transform.position, trap.transform.position);
+                // 덫의 attractionRadius 내에 있는지 확인
+                if (distance <= trap.AttractionRadius && distance < nearestDistance)
                 {
-                    float distance = Vector2.Distance(transform.position, trap.transform.position);
-                    if (distance < nearestDistance)
-                    {
-                        nearestDistance = distance;
-                        nearestTrap = trap;
-                    }
+                    nearestDistance = distance;
+                    nearestTrap = trap;
                 }
             }
 
