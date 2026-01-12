@@ -1,13 +1,15 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
 using PigeonGame.Data;
 
 namespace PigeonGame.Gameplay
 {
-    public class FoodTrap : MonoBehaviour
+    public class FoodTrap : MonoBehaviour, IInteractable
     {
         [SerializeField] private string trapId;
+        [SerializeField] private Sprite capturedTrapSprite; // 포획된 덫의 스프라이트 (Inspector에서 설정)
         private TrapDefinition trapData;
         
         /// <summary>
@@ -33,10 +35,21 @@ namespace PigeonGame.Gameplay
         private HashSet<PigeonAI> currentlyEatingPigeons = new HashSet<PigeonAI>(); // 실제로 먹고 있는 비둘기 목록
         private Dictionary<PigeonAI, float> eatingStateTimers = new Dictionary<PigeonAI, float>(); // 먹는 상태 유지 시간
 
+        // 포획 관련
+        private PigeonInstanceStats capturedPigeonStats; // 포획된 비둘기 정보
+        private bool isCaptured = false; // 포획 상태
+        private SpriteRenderer spriteRenderer;
+        private Image imageComponent;
+        private Sprite originalSprite; // 원래 스프라이트 저장
+        private Collider2D interactionTrigger; // 상호작용 트리거 영역
+        private bool isPlayerInRange = false; // 플레이어가 범위 안에 있는지
+
         public string TrapId => trapId;
         public int CurrentFeedAmount => currentFeedAmount;
         public int MaxFeedAmount => trapData != null ? trapData.feedAmount : 20;
         public bool IsDepleted => currentFeedAmount <= 0;
+        public bool HasCapturedPigeon => isCaptured && capturedPigeonStats != null;
+        public PigeonInstanceStats CapturedPigeonStats => capturedPigeonStats;
         public event System.Action<PigeonAI> OnCaptured;
 
         /// <summary>
@@ -58,10 +71,31 @@ namespace PigeonGame.Gameplay
                     currentFeedAmount = trapData.feedAmount;
                 }
             }
+
+            // 시각적 컴포넌트 찾기 및 원래 스프라이트 저장
+            spriteRenderer = GetComponent<SpriteRenderer>();
+            imageComponent = GetComponent<Image>();
+            
+            // 원래 스프라이트 저장
+            if (spriteRenderer != null)
+            {
+                originalSprite = spriteRenderer.sprite;
+            }
+            else if (imageComponent != null)
+            {
+                originalSprite = imageComponent.sprite;
+            }
+
+            // 상호작용 트리거 설정
+            SetupInteractionTrigger();
         }
 
         private void Update()
         {
+            // 포획된 상태면 더 이상 업데이트하지 않음
+            if (isCaptured)
+                return;
+
             if (IsDepleted)
                 return;
 
@@ -180,13 +214,185 @@ namespace PigeonGame.Gameplay
 
             if (currentFeedAmount <= 0)
             {
-                // 포획!
+                // 포획! (즉시 등록하지 않고 저장만 함)
                 Debug.Log($"포획! {stats.speciesId} (비만도: {stats.obesity}, 얼굴: {stats.faceId})");
+                
+                // 포획된 비둘기 정보 저장
+                capturedPigeonStats = stats.Clone();
+                isCaptured = true;
+                
+                // 덫 시각적 상태 변경
+                ChangeToCapturedState();
+                
+                // 이벤트 발생 (알림용, 실제 등록은 상호작용 시)
                 OnCaptured?.Invoke(pigeon);
+                
+                // 포획된 비둘기 오브젝트 삭제
+                if (pigeon != null)
+                {
+                    Destroy(pigeon.gameObject);
+                }
+                
                 return true;
             }
 
             return true; // 먹이를 먹었으므로 true 반환
+        }
+
+        /// <summary>
+        /// 상호작용 트리거 설정
+        /// </summary>
+        private void SetupInteractionTrigger()
+        {
+            // 기존 콜라이더 찾기
+            interactionTrigger = GetComponent<Collider2D>();
+            
+            // 콜라이더가 없으면 생성
+            if (interactionTrigger == null)
+            {
+                CircleCollider2D circleCollider = gameObject.AddComponent<CircleCollider2D>();
+                circleCollider.radius = 2f; // 상호작용 범위
+                circleCollider.isTrigger = true;
+                interactionTrigger = circleCollider;
+            }
+            else
+            {
+                // 기존 콜라이더를 트리거로 설정
+                interactionTrigger.isTrigger = true;
+            }
+            
+            // 포획되지 않았을 때는 트리거 비활성화
+            if (interactionTrigger != null)
+            {
+                interactionTrigger.enabled = false;
+            }
+        }
+
+        /// <summary>
+        /// 포획된 덫 상태로 시각적 변경
+        /// </summary>
+        private void ChangeToCapturedState()
+        {
+            if (capturedTrapSprite != null)
+            {
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.sprite = capturedTrapSprite;
+                }
+                else if (imageComponent != null)
+                {
+                    imageComponent.sprite = capturedTrapSprite;
+                }
+            }
+            
+            // 포획되면 트리거 활성화
+            if (interactionTrigger != null)
+            {
+                interactionTrigger.enabled = true;
+            }
+        }
+
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            // 포획된 상태가 아니면 무시
+            if (!isCaptured)
+                return;
+
+            // 플레이어인지 확인 (컴포넌트로만 체크)
+            if (other.GetComponent<PlayerController>() != null)
+            {
+                isPlayerInRange = true;
+                // InteractionSystem에 알림
+                if (InteractionSystem.Instance != null)
+                {
+                    InteractionSystem.Instance.RegisterInteractable(this);
+                }
+            }
+        }
+
+        private void OnTriggerExit2D(Collider2D other)
+        {
+            // 포획된 상태가 아니면 무시
+            if (!isCaptured)
+                return;
+
+            // 플레이어인지 확인 (컴포넌트로만 체크)
+            if (other.GetComponent<PlayerController>() != null)
+            {
+                isPlayerInRange = false;
+                // InteractionSystem에서 제거
+                if (InteractionSystem.Instance != null)
+                {
+                    InteractionSystem.Instance.UnregisterInteractable(this);
+                }
+            }
+        }
+
+        // IInteractable 구현
+        public bool CanInteract()
+        {
+            return HasCapturedPigeon && isPlayerInRange;
+        }
+
+        public void OnInteract()
+        {
+            if (!CanInteract())
+                return;
+
+            var pigeonStats = CapturedPigeonStats;
+            if (pigeonStats == null)
+            {
+                Debug.LogWarning("포획된 비둘기 정보를 찾을 수 없습니다!");
+                return;
+            }
+
+            Debug.Log($"비둘기 수집 시작: {pigeonStats.speciesId}");
+
+            // 먼저 인벤토리와 도감에 등록
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.AddPigeonToInventory(pigeonStats);
+            }
+
+            // 비둘기 상세정보 표시
+            var inventoryUI = UnityEngine.Object.FindObjectOfType<UI.InventoryUI>();
+            if (inventoryUI != null)
+            {
+                inventoryUI.ShowPigeonDetail(pigeonStats);
+            }
+
+            // 덫 오브젝트 제거
+            Destroy(gameObject);
+            
+            Debug.Log($"비둘기 수집 완료: {pigeonStats.speciesId}");
+        }
+
+        /// <summary>
+        /// 포획된 비둘기를 수집하고 덫 초기화
+        /// (이미 인벤토리에 등록된 후 호출됨)
+        /// </summary>
+        public void CollectCapturedPigeon()
+        {
+            if (!isCaptured || capturedPigeonStats == null)
+                return;
+
+            // 덫 초기화
+            capturedPigeonStats = null;
+            isCaptured = false;
+            currentFeedAmount = trapData != null ? trapData.feedAmount : 20;
+            
+            // 시각적 상태 복원 (원래 스프라이트로)
+            if (originalSprite != null)
+            {
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.sprite = originalSprite;
+                }
+                else if (imageComponent != null)
+                {
+                    imageComponent.sprite = originalSprite;
+                }
+            }
         }
 
         private void OnDrawGizmosSelected()

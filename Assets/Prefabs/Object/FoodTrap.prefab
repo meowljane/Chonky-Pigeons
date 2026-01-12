@@ -128,7 +128,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.08
+  m_Radius: 0.34770304
 --- !u!114 &7706528658669481188
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -142,5 +142,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.FoodTrap
   trapId: BREAD
-  attractionRadius: 3
-  eatingRadius: 0.1
+  capturedTrapSprite: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}

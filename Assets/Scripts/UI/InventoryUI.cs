@@ -24,18 +24,19 @@ namespace PigeonGame.UI
         [SerializeField] private GameObject detailPanel; // 상세 정보 패널
         [SerializeField] private Image detailIconImage; // 상세 정보 아이콘
         [SerializeField] private TextMeshProUGUI detailNameText; // 상세 정보 종 이름
-        [SerializeField] private TextMeshProUGUI detailSpeciesText; // 상세 정보 종 ID
         [SerializeField] private TextMeshProUGUI detailObesityText; // 상세 정보 비만도
         [SerializeField] private TextMeshProUGUI detailPriceText; // 상세 정보 가격
-        [SerializeField] private TextMeshProUGUI detailFaceText; // 상세 정보 얼굴
         [SerializeField] private TextMeshProUGUI detailRarityText; // 상세 정보 희귀도
-        [SerializeField] private TextMeshProUGUI detailBitePowerText; // 상세 정보 한입값
         [SerializeField] private Button detailCloseButton; // 상세 정보 닫기 버튼
 
         private List<GameObject> slotInstances = new List<GameObject>();
         private const int GRID_WIDTH = 5;
         private const int GRID_HEIGHT = 4;
         private const int MAX_SLOTS = GRID_WIDTH * GRID_HEIGHT; // 20칸
+
+        // 상세정보 패널 닫기 콜백 (덫 상호작용 등에서 사용)
+        private System.Action<PigeonInstanceStats> onDetailPanelClosed;
+        private PigeonInstanceStats currentDetailPigeonStats; // 현재 표시 중인 비둘기 정보
 
         private void Start()
         {
@@ -333,7 +334,9 @@ namespace PigeonGame.UI
         /// <summary>
         /// 비둘기 상세 정보 표시 (public으로 외부에서도 사용 가능)
         /// </summary>
-        public void ShowPigeonDetail(PigeonInstanceStats stats)
+        /// <param name="stats">비둘기 정보</param>
+        /// <param name="onClosed">패널이 닫힐 때 호출될 콜백 (선택사항)</param>
+        public void ShowPigeonDetail(PigeonInstanceStats stats, System.Action<PigeonInstanceStats> onClosed = null)
         {
             if (stats == null || detailPanel == null)
                 return;
@@ -354,6 +357,10 @@ namespace PigeonGame.UI
 
             var face = registry.Faces != null ? registry.Faces.GetFaceById(stats.faceId) : null;
 
+            // 콜백 및 현재 비둘기 정보 저장
+            onDetailPanelClosed = onClosed;
+            currentDetailPigeonStats = stats;
+
             // 상세 정보 패널 표시
             detailPanel.SetActive(true);
 
@@ -368,16 +375,11 @@ namespace PigeonGame.UI
                 detailIconImage.enabled = false;
             }
 
-            // 종 이름
+            // 종 이름 (얼굴 포함)
             if (detailNameText != null)
             {
-                detailNameText.text = species.name;
-            }
-
-            // 종 ID
-            if (detailSpeciesText != null)
-            {
-                detailSpeciesText.text = $"종: {stats.speciesId}";
+                string faceName = face != null ? face.name : stats.faceId;
+                detailNameText.text = $"{species.name}({faceName})";
             }
 
             // 비만도
@@ -392,29 +394,10 @@ namespace PigeonGame.UI
                 detailPriceText.text = $"가격: {stats.price}";
             }
 
-            // 얼굴
-            if (detailFaceText != null)
-            {
-                if (face != null)
-                {
-                    detailFaceText.text = $"얼굴: {face.name}";
-                }
-                else
-                {
-                    detailFaceText.text = $"얼굴: {stats.faceId}";
-                }
-            }
-
-            // 희귀도
+            // 희귀도 (숫자만 표시)
             if (detailRarityText != null)
             {
-                detailRarityText.text = $"희귀도: Tier {species.rarityTier}";
-            }
-
-            // 한입값 (BitePower)
-            if (detailBitePowerText != null)
-            {
-                detailBitePowerText.text = $"한입값: {stats.bitePower}";
+                detailRarityText.text = $"희귀도: {species.rarityTier}";
             }
         }
 
@@ -427,6 +410,16 @@ namespace PigeonGame.UI
             {
                 detailPanel.SetActive(false);
             }
+
+            // 콜백 호출 (있는 경우)
+            if (onDetailPanelClosed != null && currentDetailPigeonStats != null)
+            {
+                var stats = currentDetailPigeonStats;
+                onDetailPanelClosed.Invoke(stats);
+                onDetailPanelClosed = null;
+            }
+
+            currentDetailPigeonStats = null;
         }
 
         private void OnCloseButtonClicked()

@@ -62,8 +62,9 @@ namespace PigeonGame.Gameplay
                     foodDisplay = trapObj.AddComponent<UI.TrapFoodDisplay>();
                 }
 
-                // 포획 이벤트 연결
-                trap.OnCaptured += OnPigeonCaptured;
+                // 포획 이벤트는 더 이상 즉시 등록하지 않음
+                // 상호작용을 통해 수집하도록 변경됨
+                // trap.OnCaptured += OnPigeonCaptured;
 
                 // 비둘기 스폰
                 if (spawner != null)
@@ -77,24 +78,9 @@ namespace PigeonGame.Gameplay
             return false;
         }
 
-        private void OnPigeonCaptured(PigeonAI pigeon)
-        {
-            Debug.Log("비둘기 포획 성공!");
-            
-            // 인벤토리에 추가
-            var controller = pigeon.GetComponent<PigeonController>();
-            if (controller != null && controller.Stats != null)
-            {
-                if (GameManager.Instance != null)
-                {
-                    GameManager.Instance.AddPigeonToInventory(controller.Stats);
-                }
-                else
-                {
-                    Debug.LogWarning("GameManager를 찾을 수 없습니다!");
-                }
-            }
-        }
+        // 포획 이벤트 핸들러 제거됨
+        // 이제 TrapInteractionSystem에서 상호작용을 통해 비둘기를 수집함
+        // private void OnPigeonCaptured(PigeonAI pigeon) { ... }
     }
 }
 

@@ -169,15 +169,24 @@ namespace PigeonGame.UI
 
         private void OnInteractionButtonClicked()
         {
-            // 상점 상호작용 시스템 찾기
-            ShopInteractionSystem interactionSystem = FindObjectOfType<ShopInteractionSystem>();
+            // 통합 상호작용 시스템 사용
+            InteractionSystem interactionSystem = InteractionSystem.Instance;
+            
+            // 인스턴스가 없으면 자동 생성
+            if (interactionSystem == null)
+            {
+                GameObject interactionObj = new GameObject("InteractionSystem");
+                interactionSystem = interactionObj.AddComponent<InteractionSystem>();
+                Debug.Log("InteractionSystem이 자동으로 생성되었습니다.");
+            }
+            
             if (interactionSystem != null)
             {
                 interactionSystem.OnInteract();
             }
             else
             {
-                Debug.LogWarning("ShopInteractionSystem을 찾을 수 없습니다!");
+                Debug.LogWarning("InteractionSystem을 찾을 수 없습니다!");
             }
         }
 
