@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace YaOng.Game
+namespace PigeonGame.Gameplay
 {
     public class CameraFollow : MonoBehaviour
     {

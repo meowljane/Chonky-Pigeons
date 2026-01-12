@@ -135,22 +135,65 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
-        /// 지정된 위치에 비둘기 스폰
+        /// 덫 주변에 비둘기 스폰 (TrapPlacer에서 호출)
         /// </summary>
-        private void SpawnPigeonAtPosition(Vector3 position)
+        public void SpawnPigeonsAtPosition(Vector3 position, FoodTrap trap, int spawnCount = 5, float spawnRadius = 3f)
         {
             if (pigeonPrefab == null)
+            {
+                Debug.LogError("WorldPigeonManager: Pigeon Prefab이 설정되지 않았습니다!");
                 return;
+            }
 
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.SpeciesSet == null || registry.Faces == null)
+            {
+                Debug.LogError("WorldPigeonManager: GameDataRegistry를 찾을 수 없습니다!");
                 return;
+            }
 
             // 랜덤 종 선택
             var allSpecies = registry.SpeciesSet.species;
             if (allSpecies.Length == 0)
                 return;
 
+            for (int i = 0; i < spawnCount; i++)
+            {
+                Vector2 randomOffset = Random.insideUnitCircle * spawnRadius;
+                Vector3 spawnPos = position + (Vector3)randomOffset;
+                SpawnPigeonAtPosition(spawnPos, allSpecies);
+            }
+        }
+
+        /// <summary>
+        /// 지정된 위치에 비둘기 스폰
+        /// </summary>
+        private void SpawnPigeonAtPosition(Vector3 position)
+        {
+            var registry = GameDataRegistry.Instance;
+            if (registry == null || registry.SpeciesSet == null || registry.Faces == null)
+                return;
+
+            var allSpecies = registry.SpeciesSet.species;
+            if (allSpecies.Length == 0)
+                return;
+
+            SpawnPigeonAtPosition(position, allSpecies);
+        }
+
+        /// <summary>
+        /// 지정된 위치에 비둘기 스폰 (내부 메서드)
+        /// </summary>
+        private void SpawnPigeonAtPosition(Vector3 position, SpeciesDefinition[] allSpecies)
+        {
+            if (pigeonPrefab == null)
+                return;
+
+            var registry = GameDataRegistry.Instance;
+            if (registry == null || registry.Faces == null)
+                return;
+
+            // 랜덤 종 선택
             var species = allSpecies[Random.Range(0, allSpecies.Length)];
             int obesity = Random.Range(species.defaultObesityRange.x, species.defaultObesityRange.y + 1);
             

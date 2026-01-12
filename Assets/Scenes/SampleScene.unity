@@ -561,7 +561,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 45691159}
-  - component: {fileID: 45691158}
   - component: {fileID: 45691160}
   m_Layer: 0
   m_Name: PigeonManager
@@ -570,21 +569,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &45691158
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 45691157}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91b4b2fa12942cd479533f33fd4019e8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.PigeonSpawner
-  pigeonPrefab: {fileID: 7369415880916472406, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
-  spawnCount: 5
-  spawnRadius: 3
 --- !u!4 &45691159
 Transform:
   m_ObjectHideFlags: 0
@@ -2621,7 +2605,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.TrapPlacer
   trapPrefab: {fileID: 1046078026758184712, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
-  spawner: {fileID: 45691158}
+  pigeonManager: {fileID: 45691160}
   requirePurchase: 1
 --- !u!1 &415593407
 GameObject:
@@ -7612,7 +7596,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0

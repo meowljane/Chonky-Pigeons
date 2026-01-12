@@ -56,6 +56,9 @@ namespace PigeonGame.Gameplay
             if (ai == null || controller == null || controller.Stats == null)
                 return;
 
+            // Alert 시스템 업데이트 (먼저 실행하여 alert 증가)
+            UpdateAlertSystem();
+
             // 플레이어가 가까이 있으면 무조건 뒷걸음질 (alert와 관계없이)
             if (PlayerController.Instance != null)
             {
@@ -66,9 +69,6 @@ namespace PigeonGame.Gameplay
                     return; // 플레이어가 가까이 있으면 다른 행동 무시
                 }
             }
-
-            // Alert 시스템 업데이트
-            UpdateAlertSystem();
 
             // 상태에 따른 행동 처리
             PigeonState currentState = ai.CurrentState;
@@ -94,16 +94,31 @@ namespace PigeonGame.Gameplay
         {
             float deltaTime = Time.deltaTime;
 
-            // 플레이어 접근 감지 및 Alert 증가
-            if (PlayerController.Instance != null)
+            // 플레이어 접근 감지 및 Alert 증가 (OverlapCircleAll 사용)
+            Collider2D[] playerColliders = Physics2D.OverlapCircleAll(transform.position, playerDetectionRadius);
+            bool playerNearby = false;
+            float minPlayerDistance = float.MaxValue;
+
+            foreach (var col in playerColliders)
             {
-                float distanceToPlayer = Vector2.Distance(transform.position, PlayerController.Instance.Position);
-                if (distanceToPlayer <= playerDetectionRadius)
+                if (col == null)
+                    continue;
+
+                PlayerController player = col.GetComponent<PlayerController>();
+                if (player != null)
                 {
-                    // 거리에 반비례하여 Alert 증가 (가까울수록 더 많이 증가)
-                    float distanceFactor = 1f - (distanceToPlayer / playerDetectionRadius);
-                    ai.AddPlayerAlert(deltaTime * distanceFactor);
+                    playerNearby = true;
+                    float distance = Vector2.Distance(transform.position, col.transform.position);
+                    if (distance < minPlayerDistance)
+                        minPlayerDistance = distance;
                 }
+            }
+
+            if (playerNearby)
+            {
+                // 거리에 반비례하여 Alert 증가 (가까울수록 더 많이 증가)
+                float distanceFactor = 1f - (minPlayerDistance / playerDetectionRadius);
+                ai.AddPlayerAlert(deltaTime * distanceFactor);
             }
 
             // 군집 밀도 계산 및 Alert 증가
@@ -116,15 +131,19 @@ namespace PigeonGame.Gameplay
 
         private int CountNearbyPigeons()
         {
-            if (controller == null || controller.Stats == null)
+            if (ai == null)
                 return 0;
 
-            float detectionRadius = controller.Stats.personalSpaceRadius;
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, detectionRadius);
+            // Physics2D.OverlapCircleAll 사용 (Unity 물리 엔진의 최적화된 공간 분할 활용)
+            // Collider2D가 있는 비둘기만 감지되므로 가장 효율적
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, crowdDetectionRadius);
             int count = 0;
 
             foreach (var col in colliders)
             {
+                if (col == null)
+                    continue;
+
                 PigeonAI otherPigeon = col.GetComponent<PigeonAI>();
                 if (otherPigeon != null && otherPigeon != ai)
                 {
@@ -271,22 +290,25 @@ namespace PigeonGame.Gameplay
 
         private void FindNearestFoodTrap()
         {
-            // 모든 덫을 확인하여 foodDetectionRadius 내에 있는 덫 찾기
-            FoodTrap[] allTraps = FindObjectsOfType<FoodTrap>();
+            // OverlapCircleAll로 foodDetectionRadius 내의 덫 찾기
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, foodDetectionRadius);
             FoodTrap nearestTrap = null;
             float nearestDistance = float.MaxValue;
 
-            foreach (var trap in allTraps)
+            foreach (var col in colliders)
             {
-                if (trap == null || trap.IsDepleted)
+                if (col == null)
                     continue;
 
-                float distance = Vector2.Distance(transform.position, trap.transform.position);
-                // 비둘기의 foodDetectionRadius 내에 있는지 확인
-                if (distance <= foodDetectionRadius && distance < nearestDistance)
+                FoodTrap trap = col.GetComponent<FoodTrap>();
+                if (trap != null && !trap.IsDepleted)
                 {
-                    nearestDistance = distance;
-                    nearestTrap = trap;
+                    float distance = Vector2.Distance(transform.position, col.transform.position);
+                    if (distance < nearestDistance)
+                    {
+                        nearestDistance = distance;
+                        nearestTrap = trap;
+                    }
                 }
             }
 

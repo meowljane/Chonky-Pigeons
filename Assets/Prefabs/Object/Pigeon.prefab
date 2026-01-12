@@ -493,12 +493,12 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.1
+  m_Offset: {x: 0, y: -0.00000011920929}
+  m_Radius: 1.0067607
 --- !u!50 &100087408007329551
 Rigidbody2D:
   serializedVersion: 5
@@ -567,12 +567,12 @@ MonoBehaviour:
   wanderSpeed: 2
   backoffSpeed: 2
   fleeSpeed: 4
-  wanderRadius: 1
+  wanderRadius: 2
   wanderInterval: 2
-  foodDetectionRadius: 0.5
+  foodDetectionRadius: 1
   eatingRadius: 0.1
-  playerDetectionRadius: 1
-  crowdDetectionRadius: 1
+  playerDetectionRadius: 2
+  crowdDetectionRadius: 2
   randomFlyAwayChance: 0.01
   showDebugGizmos: 1
 --- !u!114 &6322197787241388434

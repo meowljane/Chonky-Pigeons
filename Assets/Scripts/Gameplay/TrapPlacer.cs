@@ -6,13 +6,13 @@ namespace PigeonGame.Gameplay
     public class TrapPlacer : MonoBehaviour
     {
         [SerializeField] private GameObject trapPrefab;
-        [SerializeField] private PigeonSpawner spawner;
+        [SerializeField] private WorldPigeonManager pigeonManager;
         [SerializeField] private bool requirePurchase = true; // 덫 설치 시 구매 필요 여부
 
         private void Start()
         {
-            if (spawner == null)
-                spawner = FindObjectOfType<PigeonSpawner>();
+            if (pigeonManager == null)
+                pigeonManager = FindObjectOfType<WorldPigeonManager>();
         }
 
         /// <summary>
@@ -67,9 +67,9 @@ namespace PigeonGame.Gameplay
                 // trap.OnCaptured += OnPigeonCaptured;
 
                 // 비둘기 스폰
-                if (spawner != null)
+                if (pigeonManager != null)
                 {
-                    spawner.SpawnPigeonsAtPosition(position, trap);
+                    pigeonManager.SpawnPigeonsAtPosition(position, trap);
                 }
 
                 return true;
