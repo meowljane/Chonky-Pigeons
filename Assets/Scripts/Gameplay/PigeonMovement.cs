@@ -162,18 +162,7 @@ namespace PigeonGame.Gameplay
                 ? (Vector2)targetFoodTrap.transform.position
                 : wanderTarget;
             
-            Vector2 direction = (targetPos - (Vector2)transform.position).normalized;
-            
-            // 거리가 매우 가까우면 멈춤
-            float distance = Vector2.Distance(transform.position, targetPos);
-            if (distance < 0.1f)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
-            else
-            {
-                rb.linearVelocity = direction * wanderSpeed;
-            }
+            MoveTowardsTarget(targetPos, wanderSpeed);
         }
 
         /// <summary>
@@ -210,51 +199,37 @@ namespace PigeonGame.Gameplay
             // BackOff 목표 설정 (덫에서 멀어지는 방향)
             if (!backoffTargetSet || backoffTimer >= controller.Stats.backoffDuration)
             {
-                Vector2 backoffDirection = Vector2.zero;
-                
-                if (targetFoodTrap != null)
-                {
-                    // 덫에서 멀어지는 방향
-                    Vector2 toTrap = (Vector2)targetFoodTrap.transform.position - (Vector2)transform.position;
-                    if (toTrap.magnitude > 0.1f)
-                    {
-                        backoffDirection = -toTrap.normalized;
-                    }
-                    else
-                    {
-                        backoffDirection = Random.insideUnitCircle.normalized;
-                    }
-                }
-                else
-                {
-                    // 플레이어에서 멀어지는 방향
-                    if (PlayerController.Instance != null)
-                    {
-                        Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
-                        if (toPlayer.magnitude > 0.1f)
-                        {
-                            backoffDirection = -toPlayer.normalized;
-                        }
-                        else
-                        {
-                            backoffDirection = Random.insideUnitCircle.normalized;
-                        }
-                    }
-                    else
-                    {
-                        // 랜덤 방향
-                        backoffDirection = Random.insideUnitCircle.normalized;
-                    }
-                }
-
+                Vector2 backoffDirection = CalculateBackoffDirection();
                 backoffTarget = (Vector2)transform.position + backoffDirection * controller.Stats.backoffDistance;
                 backoffTimer = 0f;
                 backoffTargetSet = true;
             }
 
             // BackOff 목표로 이동
-            Vector2 direction = (backoffTarget - (Vector2)transform.position).normalized;
-            float distance = Vector2.Distance(transform.position, backoffTarget);
+            MoveTowardsTarget(backoffTarget, backoffSpeed);
+        }
+
+        private Vector2 CalculateBackoffDirection()
+        {
+            if (targetFoodTrap != null)
+            {
+                Vector2 toTrap = (Vector2)targetFoodTrap.transform.position - (Vector2)transform.position;
+                return toTrap.magnitude > 0.1f ? -toTrap.normalized : Random.insideUnitCircle.normalized;
+            }
+
+            if (PlayerController.Instance != null)
+            {
+                Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
+                return toPlayer.magnitude > 0.1f ? -toPlayer.normalized : Random.insideUnitCircle.normalized;
+            }
+
+            return Random.insideUnitCircle.normalized;
+        }
+
+        private void MoveTowardsTarget(Vector2 target, float speed)
+        {
+            Vector2 direction = (target - (Vector2)transform.position).normalized;
+            float distance = Vector2.Distance(transform.position, target);
             
             if (distance < 0.1f)
             {
@@ -262,7 +237,7 @@ namespace PigeonGame.Gameplay
             }
             else
             {
-                rb.linearVelocity = direction * backoffSpeed;
+                rb.linearVelocity = direction * speed;
             }
         }
 
@@ -271,42 +246,27 @@ namespace PigeonGame.Gameplay
             if (mainCamera == null)
                 mainCamera = Camera.main;
 
-            Vector2 fleeDirection = Vector2.zero;
+            Vector2 fleeDirection = CalculateFleeDirection();
+            rb.linearVelocity = fleeDirection * fleeSpeed;
+        }
 
-            // 플레이어에서 멀어지는 방향
+        private Vector2 CalculateFleeDirection()
+        {
             if (PlayerController.Instance != null)
             {
                 Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
-                fleeDirection = -toPlayer.normalized;
-            }
-            else
-            {
-                // 화면 밖으로 도망 (카메라 중심에서 멀어지는 방향)
-                if (mainCamera != null)
-                {
-                    Vector2 screenPos = mainCamera.WorldToScreenPoint(transform.position);
-                    Vector2 screenCenter = new Vector2(Screen.width / 2f, Screen.height / 2f);
-                    Vector2 toCenter = screenCenter - screenPos;
-                    fleeDirection = toCenter.normalized;
-                }
-                else
-                {
-                    fleeDirection = Random.insideUnitCircle.normalized;
-                }
+                return -toPlayer.normalized;
             }
 
-            rb.linearVelocity = fleeDirection * fleeSpeed;
-
-            // 화면 밖으로 나가면 제거 (선택사항)
             if (mainCamera != null)
             {
-                Vector2 viewportPos = mainCamera.WorldToViewportPoint(transform.position);
-                if (viewportPos.x < -0.1f || viewportPos.x > 1.1f || viewportPos.y < -0.1f || viewportPos.y > 1.1f)
-                {
-                    // 화면 밖으로 나감 - 제거하거나 비활성화
-                    // Destroy(gameObject);
-                }
+                Vector2 screenPos = mainCamera.WorldToScreenPoint(transform.position);
+                Vector2 screenCenter = new Vector2(Screen.width / 2f, Screen.height / 2f);
+                Vector2 toCenter = screenCenter - screenPos;
+                return toCenter.normalized;
             }
+
+            return Random.insideUnitCircle.normalized;
         }
 
         private void FindNearestFoodTrap()

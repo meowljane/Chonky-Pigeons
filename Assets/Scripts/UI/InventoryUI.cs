@@ -69,11 +69,7 @@ namespace PigeonGame.UI
             // 닫기 버튼 찾기 및 연결
             if (closeButton == null && inventoryPanel != null)
             {
-                Transform closeButtonTransform = inventoryPanel.transform.Find("CloseButton");
-                if (closeButtonTransform != null)
-                {
-                    closeButton = closeButtonTransform.GetComponent<Button>();
-                }
+                closeButton = inventoryPanel.transform.Find("CloseButton")?.GetComponent<Button>();
             }
 
             if (closeButton != null)
@@ -85,11 +81,7 @@ namespace PigeonGame.UI
             // 상세 정보 닫기 버튼 찾기 및 연결
             if (detailCloseButton == null && detailPanel != null)
             {
-                Transform detailCloseButtonTransform = detailPanel.transform.Find("CloseButton");
-                if (detailCloseButtonTransform != null)
-                {
-                    detailCloseButton = detailCloseButtonTransform.GetComponent<Button>();
-                }
+                detailCloseButton = detailPanel.transform.Find("CloseButton")?.GetComponent<Button>();
             }
 
             if (detailCloseButton != null)
@@ -167,13 +159,7 @@ namespace PigeonGame.UI
             if (GameManager.Instance == null)
                 return;
 
-            // 기존 슬롯 제거
-            foreach (var slot in slotInstances)
-            {
-                if (slot != null)
-                    Destroy(slot);
-            }
-            slotInstances.Clear();
+            ClearItemList(slotInstances);
 
             if (gridContainer == null || slotPrefab == null)
                 return;
@@ -199,13 +185,7 @@ namespace PigeonGame.UI
                 SetupEmptySlot(slotObj);
             }
 
-            // Canvas 강제 업데이트
-            Canvas.ForceUpdateCanvases();
-            
-            if (gridContainer is RectTransform rectContainer)
-            {
-                LayoutRebuilder.ForceRebuildLayoutImmediate(rectContainer);
-            }
+            UpdateCanvasLayout(gridContainer);
 
             // 인벤토리 개수 업데이트 (현재/최대 형식)
             UpdateInventoryCountText(inventory.Count);
@@ -458,6 +438,25 @@ namespace PigeonGame.UI
             
             // 인벤토리 닫을 때 상세 정보도 함께 닫기
             CloseDetailPanel();
+        }
+
+        private void ClearItemList(List<GameObject> list)
+        {
+            foreach (var item in list)
+            {
+                if (item != null)
+                    Destroy(item);
+            }
+            list.Clear();
+        }
+
+        private void UpdateCanvasLayout(Transform container)
+        {
+            Canvas.ForceUpdateCanvases();
+            if (container is RectTransform rectContainer)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rectContainer);
+            }
         }
 
         private void OnDestroy()

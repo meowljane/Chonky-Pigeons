@@ -9,6 +9,24 @@ namespace PigeonGame.Gameplay
     {
         [SerializeField] private string trapId;
         private TrapDefinition trapData;
+        
+        /// <summary>
+        /// TrapId 설정 (외부에서 호출 가능)
+        /// </summary>
+        public void SetTrapId(string id)
+        {
+            trapId = id;
+            // trapData 재로드
+            var registry = GameDataRegistry.Instance;
+            if (registry != null)
+            {
+                trapData = registry.Traps.GetTrapById(trapId);
+                if (trapData != null)
+                {
+                    currentFeedAmount = trapData.feedAmount;
+                }
+            }
+        }
         private int currentFeedAmount;
         private List<PigeonAI> nearbyPigeons = new List<PigeonAI>();
         private Dictionary<PigeonAI, float> pigeonEatTimers = new Dictionary<PigeonAI, float>();
@@ -51,30 +69,7 @@ namespace PigeonGame.Gameplay
             UpdateNearbyPigeons();
 
             // 먹는 상태 타이머 업데이트 (먹는 중 표시 유지 시간)
-            foreach (var pigeon in currentlyEatingPigeons.ToArray())
-            {
-                if (pigeon == null)
-                {
-                    currentlyEatingPigeons.Remove(pigeon);
-                    if (eatingStateTimers.ContainsKey(pigeon))
-                        eatingStateTimers.Remove(pigeon);
-                    continue;
-                }
-
-                if (!eatingStateTimers.ContainsKey(pigeon))
-                {
-                    eatingStateTimers[pigeon] = 0f;
-                }
-
-                eatingStateTimers[pigeon] += Time.deltaTime;
-                
-                // 0.5초 동안 "먹는 중" 상태 유지
-                if (eatingStateTimers[pigeon] >= 0.5f)
-                {
-                    currentlyEatingPigeons.Remove(pigeon);
-                    eatingStateTimers.Remove(pigeon);
-                }
-            }
+            UpdateEatingStateTimers();
 
             // 각 비둘기의 EatTick 처리
             foreach (var pigeon in nearbyPigeons.ToArray())
@@ -98,6 +93,34 @@ namespace PigeonGame.Gameplay
                 {
                     pigeonEatTimers[pigeon] = 0f;
                     TryEat(pigeon);
+                }
+            }
+        }
+
+        private void UpdateEatingStateTimers()
+        {
+            const float EATING_STATE_DURATION = 0.5f;
+            
+            foreach (var pigeon in currentlyEatingPigeons.ToArray())
+            {
+                if (pigeon == null)
+                {
+                    currentlyEatingPigeons.Remove(pigeon);
+                    eatingStateTimers.Remove(pigeon);
+                    continue;
+                }
+
+                if (!eatingStateTimers.ContainsKey(pigeon))
+                {
+                    eatingStateTimers[pigeon] = 0f;
+                }
+
+                eatingStateTimers[pigeon] += Time.deltaTime;
+                
+                if (eatingStateTimers[pigeon] >= EATING_STATE_DURATION)
+                {
+                    currentlyEatingPigeons.Remove(pigeon);
+                    eatingStateTimers.Remove(pigeon);
                 }
             }
         }
@@ -148,10 +171,7 @@ namespace PigeonGame.Gameplay
 
             // 실제로 먹이를 먹음 - "먹는 중" 상태로 표시
             currentlyEatingPigeons.Add(pigeon);
-            if (!eatingStateTimers.ContainsKey(pigeon))
-            {
-                eatingStateTimers[pigeon] = 0f;
-            }
+            eatingStateTimers[pigeon] = 0f;
 
             int bitePower = stats.bitePower;
             currentFeedAmount -= bitePower;

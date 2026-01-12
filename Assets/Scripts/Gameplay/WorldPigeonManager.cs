@@ -30,41 +30,7 @@ namespace PigeonGame.Gameplay
             // 맵 콜라이더가 없으면 자동으로 찾기
             if (mapColliders == null || mapColliders.Length == 0)
             {
-                List<Collider2D> foundColliders = new List<Collider2D>();
-                
-                // "Map" 태그로 찾기
-                GameObject[] mapObjects = GameObject.FindGameObjectsWithTag("Map");
-                foreach (GameObject mapObj in mapObjects)
-                {
-                    Collider2D col = mapObj.GetComponent<Collider2D>();
-                    if (col == null)
-                        col = mapObj.GetComponentInChildren<Collider2D>();
-                    if (col != null && !foundColliders.Contains(col))
-                        foundColliders.Add(col);
-                }
-                
-                // 이름으로 찾기 (Map1, Map2 등)
-                if (foundColliders.Count == 0)
-                {
-                    for (int i = 1; i <= 10; i++) // Map1부터 Map10까지 찾기
-                    {
-                        GameObject mapObj = GameObject.Find($"Map{i}");
-                        if (mapObj != null)
-                        {
-                            Collider2D col = mapObj.GetComponent<Collider2D>();
-                            if (col == null)
-                                col = mapObj.GetComponentInChildren<Collider2D>();
-                            if (col != null && !foundColliders.Contains(col))
-                                foundColliders.Add(col);
-                        }
-                    }
-                }
-                
-                if (foundColliders.Count > 0)
-                {
-                    mapColliders = foundColliders.ToArray();
-                    Debug.Log($"WorldPigeonManager: {foundColliders.Count}개의 맵 콜라이더를 자동으로 찾았습니다.");
-                }
+                mapColliders = FindMapColliders();
             }
 
             // 게임 시작 시 초기 비둘기 스폰
@@ -89,6 +55,45 @@ namespace PigeonGame.Gameplay
                     SpawnPigeonFromOffScreen();
                 }
             }
+        }
+
+        /// <summary>
+        /// 맵 콜라이더 자동 찾기
+        /// </summary>
+        private Collider2D[] FindMapColliders()
+        {
+            List<Collider2D> foundColliders = new List<Collider2D>();
+            
+            // "Map" 태그로 찾기
+            GameObject[] mapObjects = GameObject.FindGameObjectsWithTag("Map");
+            foreach (GameObject mapObj in mapObjects)
+            {
+                Collider2D col = mapObj.GetComponent<Collider2D>() ?? mapObj.GetComponentInChildren<Collider2D>();
+                if (col != null && !foundColliders.Contains(col))
+                    foundColliders.Add(col);
+            }
+            
+            // 이름으로 찾기 (Map1, Map2 등)
+            if (foundColliders.Count == 0)
+            {
+                for (int i = 1; i <= 10; i++)
+                {
+                    GameObject mapObj = GameObject.Find($"Map{i}");
+                    if (mapObj != null)
+                    {
+                        Collider2D col = mapObj.GetComponent<Collider2D>() ?? mapObj.GetComponentInChildren<Collider2D>();
+                        if (col != null && !foundColliders.Contains(col))
+                            foundColliders.Add(col);
+                    }
+                }
+            }
+            
+            if (foundColliders.Count > 0)
+            {
+                Debug.Log($"WorldPigeonManager: {foundColliders.Count}개의 맵 콜라이더를 자동으로 찾았습니다.");
+            }
+            
+            return foundColliders.ToArray();
         }
 
         /// <summary>
@@ -333,33 +338,19 @@ namespace PigeonGame.Gameplay
             if (collider == null)
                 return false;
 
-            Vector2 pos2D = new Vector2(position.x, position.y);
-
-            // BoxCollider2D나 CircleCollider2D의 경우
-            if (collider is BoxCollider2D || collider is CircleCollider2D)
+            // 대부분의 콜라이더는 bounds 체크로 충분
+            if (collider is BoxCollider2D || collider is CircleCollider2D || collider is EdgeCollider2D)
             {
                 return collider.bounds.Contains(position);
             }
 
-            // PolygonCollider2D의 경우
+            // PolygonCollider2D만 특별 처리
             if (collider is PolygonCollider2D polygonCollider)
             {
+                Vector2 pos2D = new Vector2(position.x, position.y);
                 return IsPointInPolygon(pos2D, polygonCollider.points, polygonCollider.transform);
             }
 
-            // EdgeCollider2D의 경우 - Raycast를 사용해서 내부인지 확인
-            if (collider is EdgeCollider2D)
-            {
-                // EdgeCollider2D는 경계선만 있으므로, bounds 내부이고 경계선과의 거리를 확인
-                if (!collider.bounds.Contains(position))
-                    return false;
-
-                // 경계선에서 멀리 떨어진 위치인지 확인 (간단한 방법)
-                // 더 정확한 방법은 필요시 Raycast 사용
-                return true;
-            }
-
-            // 기본적으로 bounds 체크
             return collider.bounds.Contains(position);
         }
 

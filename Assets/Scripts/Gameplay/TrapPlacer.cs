@@ -5,17 +5,12 @@ namespace PigeonGame.Gameplay
 {
     public class TrapPlacer : MonoBehaviour
     {
-        [SerializeField] private Camera mainCamera;
         [SerializeField] private GameObject trapPrefab;
         [SerializeField] private PigeonSpawner spawner;
-        [SerializeField] private string defaultTrapId = "BREAD";
         [SerializeField] private bool requirePurchase = true; // 덫 설치 시 구매 필요 여부
 
         private void Start()
         {
-            if (mainCamera == null)
-                mainCamera = Camera.main;
-            
             if (spawner == null)
                 spawner = FindObjectOfType<PigeonSpawner>();
         }
@@ -57,13 +52,8 @@ namespace PigeonGame.Gameplay
             
             if (trap != null)
             {
-                // TrapId 설정 (리플렉션 사용)
-                var trapType = typeof(FoodTrap).GetField("trapId", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (trapType != null)
-                {
-                    trapType.SetValue(trap, trapId);
-                }
+                // TrapId 설정
+                trap.SetTrapId(trapId);
 
                 // 덫에 먹이 표시 UI 추가 (없으면)
                 var foodDisplay = trapObj.GetComponent<UI.TrapFoodDisplay>();

@@ -82,13 +82,7 @@ namespace PigeonGame.UI
             if (GameManager.Instance == null)
                 return;
 
-            // 기존 아이템 제거
-            foreach (var item in itemInstances)
-            {
-                if (item != null)
-                    Destroy(item);
-            }
-            itemInstances.Clear();
+            ClearItemList(itemInstances);
 
             // 인벤토리 아이템 표시
             var inventory = GameManager.Instance.Inventory;
@@ -99,31 +93,13 @@ namespace PigeonGame.UI
                     int index = i; // 클로저를 위한 로컬 변수
                     var pigeon = inventory[index];
                     
-                    // worldPositionStays를 false로 설정하여 로컬 좌표계로 배치
                     GameObject itemObj = Instantiate(itemPrefab, itemContainer, false);
                     itemInstances.Add(itemObj);
-
-                    // RectTransform 강제 업데이트
-                    RectTransform rectTransform = itemObj.GetComponent<RectTransform>();
-                    if (rectTransform != null)
-                    {
-                        rectTransform.localScale = Vector3.one;
-                        rectTransform.localPosition = Vector3.zero;
-                    }
-
-                    // 아이템 정보 설정
                     SetupItemUI(itemObj, pigeon, index);
                 }
             }
 
-            // Canvas 강제 업데이트 (레이아웃 재계산)
-            Canvas.ForceUpdateCanvases();
-            
-            // Layout Group이 있다면 강제로 레이아웃 재구성
-            if (itemContainer is RectTransform rectContainer)
-            {
-                LayoutRebuilder.ForceRebuildLayoutImmediate(rectContainer);
-            }
+            UpdateCanvasLayout(itemContainer);
 
             // 인벤토리 개수 업데이트
             if (inventoryCountText != null)
@@ -187,6 +163,25 @@ namespace PigeonGame.UI
             if (shopPanel != null)
             {
                 shopPanel.SetActive(false);
+            }
+        }
+
+        private void ClearItemList(List<GameObject> list)
+        {
+            foreach (var item in list)
+            {
+                if (item != null)
+                    Destroy(item);
+            }
+            list.Clear();
+        }
+
+        private void UpdateCanvasLayout(Transform container)
+        {
+            Canvas.ForceUpdateCanvases();
+            if (container is RectTransform rectContainer)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rectContainer);
             }
         }
 

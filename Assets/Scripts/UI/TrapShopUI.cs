@@ -30,14 +30,9 @@ namespace PigeonGame.UI
             if (closeButton == null && shopPanel != null)
             {
                 closeButton = shopPanel.GetComponentInChildren<Button>();
-                // CloseButton이라는 이름의 버튼 찾기
                 if (closeButton == null)
                 {
-                    Transform closeButtonTransform = shopPanel.transform.Find("CloseButton");
-                    if (closeButtonTransform != null)
-                    {
-                        closeButton = closeButtonTransform.GetComponent<Button>();
-                    }
+                    closeButton = shopPanel.transform.Find("CloseButton")?.GetComponent<Button>();
                 }
             }
 

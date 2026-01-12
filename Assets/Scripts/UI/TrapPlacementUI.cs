@@ -62,14 +62,9 @@ namespace PigeonGame.UI
             if (closeButton == null && trapSelectionPanel != null)
             {
                 closeButton = trapSelectionPanel.GetComponentInChildren<Button>();
-                // CloseButton이라는 이름의 버튼 찾기
                 if (closeButton == null)
                 {
-                    Transform closeButtonTransform = trapSelectionPanel.transform.Find("CloseButton");
-                    if (closeButtonTransform != null)
-                    {
-                        closeButton = closeButtonTransform.GetComponent<Button>();
-                    }
+                    closeButton = trapSelectionPanel.transform.Find("CloseButton")?.GetComponent<Button>();
                 }
             }
 
@@ -85,8 +80,12 @@ namespace PigeonGame.UI
 
         private void CreateTrapGrid()
         {
-            if (trapGridContainer == null)
+            if (trapGridContainer == null || trapItemPrefab == null)
+            {
+                if (trapItemPrefab == null)
+                    Debug.LogError("TrapPlacementUI: trapItemPrefab이 설정되지 않았습니다!");
                 return;
+            }
 
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.Traps == null)
@@ -95,78 +94,27 @@ namespace PigeonGame.UI
                 return;
             }
 
-            // 기존 아이템 제거
-            foreach (var item in trapItemObjects)
-            {
-                if (item != null)
-                    Destroy(item);
-            }
-            trapItemObjects.Clear();
+            ClearItemList(trapItemObjects);
 
             // 모든 덫 표시
             var allTraps = registry.Traps.traps;
             foreach (var trapData in allTraps)
             {
-                GameObject itemObj = null;
-
-                // 프리팹이 있으면 사용, 없으면 동적 생성
-                if (trapItemPrefab != null)
-                {
-                    itemObj = Instantiate(trapItemPrefab, trapGridContainer);
-                }
-                else
-                {
-                    itemObj = CreateTrapItemUI(trapData);
-                    itemObj.transform.SetParent(trapGridContainer, false);
-                }
-
-                if (itemObj != null)
-                {
-                    SetupTrapItem(itemObj, trapData);
-                    trapItemObjects.Add(itemObj);
-                }
+                GameObject itemObj = Instantiate(trapItemPrefab, trapGridContainer, false);
+                SetupTrapItem(itemObj, trapData);
+                trapItemObjects.Add(itemObj);
             }
-        }
-
-        private GameObject CreateTrapItemUI(TrapDefinition trapData)
-        {
-            // 기본 버튼 생성
-            GameObject itemObj = new GameObject($"TrapItem_{trapData.id}");
-            RectTransform rect = itemObj.AddComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(100, 100);
-
-            Image bg = itemObj.AddComponent<Image>();
-            bg.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
-
-            Button button = itemObj.AddComponent<Button>();
-
-            // 텍스트 추가
-            GameObject textObj = new GameObject("Text");
-            textObj.transform.SetParent(itemObj.transform, false);
-            TextMeshProUGUI text = textObj.AddComponent<TextMeshProUGUI>();
-            text.text = trapData.name;
-            text.fontSize = 14;
-            text.color = Color.white;
-            text.alignment = TextAlignmentOptions.Center;
-
-            RectTransform textRect = text.GetComponent<RectTransform>();
-            textRect.anchorMin = Vector2.zero;
-            textRect.anchorMax = Vector2.one;
-            textRect.sizeDelta = Vector2.zero;
-            textRect.anchoredPosition = Vector2.zero;
-
-            return itemObj;
         }
 
         private void SetupTrapItem(GameObject itemObj, TrapDefinition trapData)
         {
-            Button button = itemObj.GetComponent<Button>();
-            if (button == null)
-                button = itemObj.AddComponent<Button>();
-
             // 버튼 클릭 이벤트
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => OnTrapSelected(trapData.id));
+            Button button = itemObj.GetComponent<Button>();
+            if (button != null)
+            {
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => OnTrapSelected(trapData.id));
+            }
 
             // 해금 상태에 따른 색상 설정
             bool isUnlocked = GameManager.Instance != null && 
@@ -179,7 +127,10 @@ namespace PigeonGame.UI
             }
 
             // 텍스트 업데이트
-            TextMeshProUGUI text = itemObj.GetComponentInChildren<TextMeshProUGUI>();
+            TextMeshProUGUI text = itemObj.transform.Find("Text")?.GetComponent<TextMeshProUGUI>();
+            if (text == null)
+                text = itemObj.GetComponentInChildren<TextMeshProUGUI>();
+            
             if (text != null)
             {
                 if (isUnlocked)
@@ -195,7 +146,10 @@ namespace PigeonGame.UI
             }
 
             // 버튼 활성화/비활성화
-            button.interactable = isUnlocked;
+            if (button != null)
+            {
+                button.interactable = isUnlocked;
+            }
         }
 
         private void OnTrapPlacementButtonClicked()
@@ -269,6 +223,16 @@ namespace PigeonGame.UI
                     SetupTrapItem(trapItemObjects[i], allTraps[i]);
                 }
             }
+        }
+
+        private void ClearItemList(List<GameObject> list)
+        {
+            foreach (var item in list)
+            {
+                if (item != null)
+                    Destroy(item);
+            }
+            list.Clear();
         }
 
         private void OnDestroy()

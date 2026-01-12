@@ -102,20 +102,18 @@ namespace PigeonGame.UI
 
         private void UpdateSpeciesList()
         {
-            if (speciesGridContainer == null)
+            if (speciesGridContainer == null || speciesItemPrefab == null)
+            {
+                if (speciesItemPrefab == null)
+                    Debug.LogError("EncyclopediaUI: speciesItemPrefab이 설정되지 않았습니다!");
                 return;
+            }
 
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.SpeciesSet == null)
                 return;
 
-            // 기존 아이템 제거
-            foreach (var item in speciesItemObjects)
-            {
-                if (item != null)
-                    Destroy(item);
-            }
-            speciesItemObjects.Clear();
+            ClearItemList(speciesItemObjects);
 
             // Species 목록 가져오기 (최대 9개)
             var allSpecies = registry.SpeciesSet.species;
@@ -125,68 +123,16 @@ namespace PigeonGame.UI
             for (int i = 0; i < maxSpecies; i++)
             {
                 var species = allSpecies[i];
-                GameObject itemObj = CreateSpeciesItem(species);
-                if (itemObj != null)
-                {
-                    itemObj.transform.SetParent(speciesGridContainer, false);
-                    speciesItemObjects.Add(itemObj);
-                }
+                GameObject itemObj = Instantiate(speciesItemPrefab, speciesGridContainer, false);
+                SetupSpeciesItem(itemObj, species);
+                speciesItemObjects.Add(itemObj);
             }
         }
 
-        private GameObject CreateSpeciesItem(SpeciesDefinition species)
+        private void SetupSpeciesItem(GameObject itemObj, SpeciesDefinition species)
         {
-            GameObject itemObj = null;
-            Image bg = null;
-            Button button = null;
-
-            if (speciesItemPrefab != null)
-            {
-                itemObj = Instantiate(speciesItemPrefab, speciesGridContainer);
-            }
-            else
-            {
-                itemObj = new GameObject($"SpeciesItem_{species.speciesId}");
-                RectTransform rect = itemObj.AddComponent<RectTransform>();
-                rect.sizeDelta = new Vector2(100, 100);
-
-                bg = itemObj.AddComponent<Image>();
-                bg.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
-
-                button = itemObj.AddComponent<Button>();
-
-                // 아이콘
-                GameObject iconObj = new GameObject("Icon");
-                iconObj.transform.SetParent(itemObj.transform, false);
-                Image icon = iconObj.AddComponent<Image>();
-                if (species.icon != null)
-                    icon.sprite = species.icon;
-
-                RectTransform iconRect = icon.GetComponent<RectTransform>();
-                iconRect.anchorMin = new Vector2(0.1f, 0.3f);
-                iconRect.anchorMax = new Vector2(0.9f, 0.9f);
-                iconRect.sizeDelta = Vector2.zero;
-                iconRect.anchoredPosition = Vector2.zero;
-
-                // 이름
-                GameObject nameObj = new GameObject("Name");
-                nameObj.transform.SetParent(itemObj.transform, false);
-                TextMeshProUGUI nameText = nameObj.AddComponent<TextMeshProUGUI>();
-                nameText.text = species.name;
-                nameText.fontSize = 12;
-                nameText.color = Color.white;
-                nameText.alignment = TextAlignmentOptions.Center;
-
-                RectTransform nameRect = nameText.GetComponent<RectTransform>();
-                nameRect.anchorMin = new Vector2(0, 0);
-                nameRect.anchorMax = new Vector2(1, 0.3f);
-                nameRect.sizeDelta = Vector2.zero;
-                nameRect.anchoredPosition = Vector2.zero;
-            }
-
             // 버튼 이벤트 연결
-            if (button == null)
-                button = itemObj.GetComponent<Button>();
+            Button button = itemObj.GetComponent<Button>();
             if (button != null)
             {
                 button.onClick.RemoveAllListeners();
@@ -200,35 +146,37 @@ namespace PigeonGame.UI
 
             bool isUnlocked = encyclopediaData != null && encyclopediaData.isUnlocked;
 
-            // 색상 설정
-            if (bg == null)
-                bg = itemObj.GetComponent<Image>();
+            // 배경 색상 설정
+            Image bg = itemObj.GetComponent<Image>();
             if (bg != null)
             {
                 bg.color = isUnlocked ? unlockedColor : lockedColor;
             }
 
-            // 잠금 표시
-            if (!isUnlocked)
+            // 아이콘 설정
+            Transform iconTransform = itemObj.transform.Find("Icon");
+            if (iconTransform != null)
             {
-                // 잠금 오버레이 추가
-                Transform lockOverlay = itemObj.transform.Find("LockOverlay");
-                if (lockOverlay == null)
+                Image icon = iconTransform.GetComponent<Image>();
+                if (icon != null && species.icon != null)
                 {
-                    GameObject lockObj = new GameObject("LockOverlay");
-                    lockObj.transform.SetParent(itemObj.transform, false);
-                    Image lockImage = lockObj.AddComponent<Image>();
-                    lockImage.color = new Color(0, 0, 0, 0.7f);
-
-                    RectTransform lockRect = lockImage.GetComponent<RectTransform>();
-                    lockRect.anchorMin = Vector2.zero;
-                    lockRect.anchorMax = Vector2.one;
-                    lockRect.sizeDelta = Vector2.zero;
-                    lockRect.anchoredPosition = Vector2.zero;
+                    icon.sprite = species.icon;
                 }
             }
 
-            return itemObj;
+            // 이름 설정
+            TextMeshProUGUI nameText = itemObj.GetComponentInChildren<TextMeshProUGUI>();
+            if (nameText != null)
+            {
+                nameText.text = species.name;
+            }
+
+            // 잠금 오버레이 표시/숨김
+            Transform lockOverlay = itemObj.transform.Find("LockOverlay");
+            if (lockOverlay != null)
+            {
+                lockOverlay.gameObject.SetActive(!isUnlocked);
+            }
         }
 
         private void ShowSpeciesDetail(SpeciesDefinition species)
@@ -273,16 +221,14 @@ namespace PigeonGame.UI
 
         private void UpdateFaceList(SpeciesDefinition species)
         {
-            if (faceGridContainer == null)
-                return;
-
-            // 기존 아이템 제거
-            foreach (var item in faceItemObjects)
+            if (faceGridContainer == null || faceItemPrefab == null)
             {
-                if (item != null)
-                    Destroy(item);
+                if (faceItemPrefab == null)
+                    Debug.LogError("EncyclopediaUI: faceItemPrefab이 설정되지 않았습니다!");
+                return;
             }
-            faceItemObjects.Clear();
+
+            ClearItemList(faceItemObjects);
 
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.Faces == null)
@@ -295,34 +241,14 @@ namespace PigeonGame.UI
 
             foreach (var face in allFaces)
             {
-                GameObject itemObj = CreateFaceItem(face, species.speciesId, speciesData);
-                if (itemObj != null)
-                {
-                    itemObj.transform.SetParent(faceGridContainer, false);
-                    faceItemObjects.Add(itemObj);
-                }
+                GameObject itemObj = Instantiate(faceItemPrefab, faceGridContainer, false);
+                SetupFaceItem(itemObj, face, speciesData);
+                faceItemObjects.Add(itemObj);
             }
         }
 
-        private GameObject CreateFaceItem(FaceDefinition face, string speciesId, EncyclopediaManager.SpeciesEncyclopediaData speciesData)
+        private void SetupFaceItem(GameObject itemObj, FaceDefinition face, EncyclopediaManager.SpeciesEncyclopediaData speciesData)
         {
-            GameObject itemObj = null;
-            Image bg = null;
-
-            if (faceItemPrefab != null)
-            {
-                itemObj = Instantiate(faceItemPrefab, faceGridContainer);
-            }
-            else
-            {
-                itemObj = new GameObject($"FaceItem_{face.id}");
-                RectTransform rect = itemObj.AddComponent<RectTransform>();
-                rect.sizeDelta = new Vector2(80, 100);
-
-                bg = itemObj.AddComponent<Image>();
-                bg.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
-            }
-
             // Face 데이터 확인
             var faceData = speciesData != null && speciesData.faces.ContainsKey(face.id)
                 ? speciesData.faces[face.id]
@@ -330,83 +256,47 @@ namespace PigeonGame.UI
 
             bool isUnlocked = faceData != null && faceData.isUnlocked;
 
-            // 색상 설정
-            if (bg == null)
-                bg = itemObj.GetComponent<Image>();
+            // 배경 색상 설정
+            Image bg = itemObj.GetComponent<Image>();
             if (bg != null)
             {
                 bg.color = isUnlocked ? unlockedColor : lockedColor;
             }
 
             // 이름 표시
-            TextMeshProUGUI nameText = itemObj.GetComponentInChildren<TextMeshProUGUI>();
+            TextMeshProUGUI nameText = itemObj.transform.Find("Name")?.GetComponent<TextMeshProUGUI>();
             if (nameText == null)
+                nameText = itemObj.GetComponentInChildren<TextMeshProUGUI>();
+            
+            if (nameText != null)
             {
-                GameObject nameObj = new GameObject("Name");
-                nameObj.transform.SetParent(itemObj.transform, false);
-                nameText = nameObj.AddComponent<TextMeshProUGUI>();
-                nameText.fontSize = 12;
-                nameText.alignment = TextAlignmentOptions.Center;
-
-                RectTransform nameRect = nameText.GetComponent<RectTransform>();
-                nameRect.anchorMin = new Vector2(0, 0);
-                nameRect.anchorMax = new Vector2(1, 0.3f);
-                nameRect.sizeDelta = Vector2.zero;
-                nameRect.anchoredPosition = Vector2.zero;
+                nameText.text = face.name;
+                nameText.color = isUnlocked ? Color.white : Color.gray;
             }
-
-            nameText.text = face.name;
-            nameText.color = isUnlocked ? Color.white : Color.gray;
 
             // 무게 정보 표시
             TextMeshProUGUI weightText = itemObj.transform.Find("WeightText")?.GetComponent<TextMeshProUGUI>();
-            if (weightText == null)
+            if (weightText != null)
             {
-                GameObject weightObj = new GameObject("WeightText");
-                weightObj.transform.SetParent(itemObj.transform, false);
-                weightText = weightObj.AddComponent<TextMeshProUGUI>();
-                weightText.fontSize = 10;
-                weightText.alignment = TextAlignmentOptions.Center;
-
-                RectTransform weightRect = weightText.GetComponent<RectTransform>();
-                weightRect.anchorMin = new Vector2(0, 0.3f);
-                weightRect.anchorMax = new Vector2(1, 0.6f);
-                weightRect.sizeDelta = Vector2.zero;
-                weightRect.anchoredPosition = Vector2.zero;
-            }
-
-            if (isUnlocked && faceData != null && 
-                faceData.minWeight != int.MaxValue && faceData.maxWeight != int.MinValue)
-            {
-                weightText.text = $"무게: {faceData.minWeight}~{faceData.maxWeight}";
-                weightText.color = Color.yellow;
-            }
-            else
-            {
-                weightText.text = "미발견";
-                weightText.color = Color.gray;
-            }
-
-            // 잠금 오버레이
-            if (!isUnlocked)
-            {
-                Transform lockOverlay = itemObj.transform.Find("LockOverlay");
-                if (lockOverlay == null)
+                if (isUnlocked && faceData != null && 
+                    faceData.minWeight != int.MaxValue && faceData.maxWeight != int.MinValue)
                 {
-                    GameObject lockObj = new GameObject("LockOverlay");
-                    lockObj.transform.SetParent(itemObj.transform, false);
-                    Image lockImage = lockObj.AddComponent<Image>();
-                    lockImage.color = new Color(0, 0, 0, 0.7f);
-
-                    RectTransform lockRect = lockImage.GetComponent<RectTransform>();
-                    lockRect.anchorMin = Vector2.zero;
-                    lockRect.anchorMax = Vector2.one;
-                    lockRect.sizeDelta = Vector2.zero;
-                    lockRect.anchoredPosition = Vector2.zero;
+                    weightText.text = $"무게: {faceData.minWeight}~{faceData.maxWeight}";
+                    weightText.color = Color.yellow;
+                }
+                else
+                {
+                    weightText.text = "미발견";
+                    weightText.color = Color.gray;
                 }
             }
 
-            return itemObj;
+            // 잠금 오버레이 표시/숨김
+            Transform lockOverlay = itemObj.transform.Find("LockOverlay");
+            if (lockOverlay != null)
+            {
+                lockOverlay.gameObject.SetActive(!isUnlocked);
+            }
         }
 
         private void BackToSpeciesList()
@@ -415,6 +305,16 @@ namespace PigeonGame.UI
                 speciesListPanel.SetActive(true);
             if (speciesDetailPanel != null)
                 speciesDetailPanel.SetActive(false);
+        }
+
+        private void ClearItemList(List<GameObject> list)
+        {
+            foreach (var item in list)
+            {
+                if (item != null)
+                    Destroy(item);
+            }
+            list.Clear();
         }
 
         private void OnDestroy()
