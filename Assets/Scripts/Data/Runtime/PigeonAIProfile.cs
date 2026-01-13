@@ -34,8 +34,7 @@ namespace PigeonGame.Data
         public float fleeThreshold;
         public float backoffDuration;
         public float backoffDistance;
-        public float crowdWeight;
-        public float playerWeight;
+        public float alertWeight; // 플레이어 및 군집 Alert 가중치 (통일)
     }
 
     [CreateAssetMenu(fileName = "AIProfiles", menuName = "PigeonGame/AI Profiles")]

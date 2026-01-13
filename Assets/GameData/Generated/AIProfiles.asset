@@ -35,8 +35,7 @@ MonoBehaviour:
     fleeThreshold: 110
     backoffDuration: 0.7
     backoffDistance: 0.7
-    crowdWeight: 0.4
-    playerWeight: 1
+    alertWeight: 1
   - eatInterval: 0.85
     eatChance: 0.88
     personalSpaceRadius: 0.6
@@ -48,8 +47,7 @@ MonoBehaviour:
     fleeThreshold: 110
     backoffDuration: 0.85
     backoffDistance: 0.8
-    crowdWeight: 0.45
-    playerWeight: 1
+    alertWeight: 1
   - eatInterval: 1.1
     eatChance: 0.75
     personalSpaceRadius: 0.75
@@ -61,8 +59,7 @@ MonoBehaviour:
     fleeThreshold: 105
     backoffDuration: 1.15
     backoffDistance: 1.05
-    crowdWeight: 0.65
-    playerWeight: 1
+    alertWeight: 1
   - eatInterval: 1.35
     eatChance: 0.65
     personalSpaceRadius: 0.9
@@ -74,8 +71,7 @@ MonoBehaviour:
     fleeThreshold: 100
     backoffDuration: 1.35
     backoffDistance: 1.25
-    crowdWeight: 0.75
-    playerWeight: 1
+    alertWeight: 1
   - eatInterval: 1.55
     eatChance: 0.55
     personalSpaceRadius: 1.1
@@ -87,5 +83,4 @@ MonoBehaviour:
     fleeThreshold: 95
     backoffDuration: 1.55
     backoffDistance: 1.45
-    crowdWeight: 0.85
-    playerWeight: 1
+    alertWeight: 1

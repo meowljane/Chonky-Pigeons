@@ -37,8 +37,7 @@
       "fleeThreshold": 110,
       "backoffDuration": 0.7,
       "backoffDistance": 0.7,
-      "crowdWeight": 0.4,
-      "playerWeight": 1.0
+      "alertWeight": 1.0
     },
     "2": {
       "eatInterval": 0.85,
@@ -52,8 +51,7 @@
       "fleeThreshold": 110,
       "backoffDuration": 0.85,
       "backoffDistance": 0.8,
-      "crowdWeight": 0.45,
-      "playerWeight": 1.0
+      "alertWeight": 1.0
     },
     "3": {
       "eatInterval": 1.1,
@@ -67,8 +65,7 @@
       "fleeThreshold": 105,
       "backoffDuration": 1.15,
       "backoffDistance": 1.05,
-      "crowdWeight": 0.65,
-      "playerWeight": 1.0
+      "alertWeight": 1.0
     },
     "4": {
       "eatInterval": 1.35,
@@ -82,8 +79,7 @@
       "fleeThreshold": 100,
       "backoffDuration": 1.35,
       "backoffDistance": 1.25,
-      "crowdWeight": 0.75,
-      "playerWeight": 1.0
+      "alertWeight": 1.0
     },
     "5": {
       "eatInterval": 1.55,
@@ -97,8 +93,7 @@
       "fleeThreshold": 95,
       "backoffDuration": 1.55,
       "backoffDistance": 1.45,
-      "crowdWeight": 0.85,
-      "playerWeight": 1.0
+      "alertWeight": 1.0
     }
   },
   "stressToEatModifier": {

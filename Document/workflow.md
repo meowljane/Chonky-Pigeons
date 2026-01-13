@@ -158,7 +158,7 @@ rarityTier → AI 프리셋
 
 8) 개발 루프 예시 (너가 실제로 하게 될 흐름)
 
-Cursor에서 pigeon_ai_profiles.json에서 T3의 crowdWeight를 0.65→0.75로 변경
+Cursor에서 pigeon_ai_profiles.json에서 T3의 alertWeight를 조절 (기본값 1.0)
 
 Unity에서 Import AI Profiles 클릭
 

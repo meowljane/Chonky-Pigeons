@@ -57,8 +57,7 @@ rarityTier별 기본 파라미터 + obesity(비만도)로 eatInterval 보정 규
       "fleeThreshold": 110,
       "backoffDuration": 0.7,
       "backoffDistance": 0.7,
-      "crowdWeight": 0.4,
-      "playerWeight": 1.0
+      "alertWeight": 1.0
     },
     "2": {
       "eatInterval": 0.85,
@@ -72,8 +71,7 @@ rarityTier별 기본 파라미터 + obesity(비만도)로 eatInterval 보정 규
       "fleeThreshold": 110,
       "backoffDuration": 0.85,
       "backoffDistance": 0.8,
-      "crowdWeight": 0.45,
-      "playerWeight": 1.0
+      "alertWeight": 1.0
     },
     "3": {
       "eatInterval": 1.1,
@@ -87,8 +85,7 @@ rarityTier별 기본 파라미터 + obesity(비만도)로 eatInterval 보정 규
       "fleeThreshold": 105,
       "backoffDuration": 1.15,
       "backoffDistance": 1.05,
-      "crowdWeight": 0.65,
-      "playerWeight": 1.0
+      "alertWeight": 1.0
     },
     "4": {
       "eatInterval": 1.35,
@@ -102,8 +99,7 @@ rarityTier별 기본 파라미터 + obesity(비만도)로 eatInterval 보정 규
       "fleeThreshold": 100,
       "backoffDuration": 1.35,
       "backoffDistance": 1.25,
-      "crowdWeight": 0.75,
-      "playerWeight": 1.0
+      "alertWeight": 1.0
     },
     "5": {
       "eatInterval": 1.55,
@@ -117,8 +113,7 @@ rarityTier별 기본 파라미터 + obesity(비만도)로 eatInterval 보정 규
       "fleeThreshold": 95,
       "backoffDuration": 1.55,
       "backoffDistance": 1.45,
-      "crowdWeight": 0.85,
-      "playerWeight": 1.0
+      "alertWeight": 1.0
     }
   },
   "stressToEatModifier": {

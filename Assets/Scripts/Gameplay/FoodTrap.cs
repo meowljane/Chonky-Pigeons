@@ -41,7 +41,8 @@ namespace PigeonGame.Gameplay
         private SpriteRenderer spriteRenderer;
         private Image imageComponent;
         private Sprite originalSprite; // 원래 스프라이트 저장
-        private Collider2D interactionTrigger; // 상호작용 트리거 영역
+        private Collider2D detectionCollider; // 비둘기 감지용 콜라이더 (항상 활성화)
+        private Collider2D interactionTrigger; // 상호작용 트리거 영역 (포획 후에만 활성화)
         private bool isPlayerInRange = false; // 플레이어가 범위 안에 있는지
 
         public string TrapId => trapId;
@@ -240,24 +241,56 @@ namespace PigeonGame.Gameplay
         /// </summary>
         private void SetupInteractionTrigger()
         {
+            // 비둘기 감지용 콜라이더 설정 (항상 활성화되어야 함)
+            Collider2D[] allColliders = GetComponents<Collider2D>();
+            detectionCollider = null;
+            interactionTrigger = null;
+
             // 기존 콜라이더 찾기
-            interactionTrigger = GetComponent<Collider2D>();
-            
-            // 콜라이더가 없으면 생성
+            foreach (var col in allColliders)
+            {
+                if (col.isTrigger)
+                {
+                    // 트리거 콜라이더는 상호작용용으로 사용
+                    interactionTrigger = col;
+                }
+                else
+                {
+                    // 일반 콜라이더는 감지용으로 사용
+                    detectionCollider = col;
+                }
+            }
+
+            // 비둘기 감지용 콜라이더가 없으면 생성 (비둘기들이 덫을 찾을 수 있도록)
+            if (detectionCollider == null)
+            {
+                CircleCollider2D detectionCol = gameObject.AddComponent<CircleCollider2D>();
+                detectionCol.radius = 1f; // 감지 범위
+                detectionCol.isTrigger = false; // 트리거가 아니어야 OverlapCircleAll에서 감지됨
+                detectionCollider = detectionCol;
+            }
+
+            // 상호작용 트리거가 없으면 생성 (포획 후 플레이어 상호작용용)
             if (interactionTrigger == null)
             {
-                CircleCollider2D circleCollider = gameObject.AddComponent<CircleCollider2D>();
-                circleCollider.radius = 2f; // 상호작용 범위
-                circleCollider.isTrigger = true;
-                interactionTrigger = circleCollider;
+                CircleCollider2D interactionCol = gameObject.AddComponent<CircleCollider2D>();
+                interactionCol.radius = 2f; // 상호작용 범위
+                interactionCol.isTrigger = true;
+                interactionTrigger = interactionCol;
             }
             else
             {
-                // 기존 콜라이더를 트리거로 설정
+                // 기존 트리거를 상호작용용으로 설정
                 interactionTrigger.isTrigger = true;
             }
             
-            // 포획되지 않았을 때는 트리거 비활성화
+            // 비둘기 감지용 콜라이더는 항상 활성화
+            if (detectionCollider != null)
+            {
+                detectionCollider.enabled = true;
+            }
+
+            // 포획되지 않았을 때는 상호작용 트리거 비활성화
             if (interactionTrigger != null)
             {
                 interactionTrigger.enabled = false;

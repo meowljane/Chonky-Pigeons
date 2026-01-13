@@ -12,10 +12,12 @@ namespace PigeonGame.Gameplay
         [SerializeField] private float wanderInterval = 2f;
         [SerializeField] private float foodDetectionRadius = 5f; // 덫을 탐색하는 반경
         [SerializeField] private float eatingRadius = 2f; // 실제로 먹을 수 있는 범위 반경
-        [SerializeField] private float playerDetectionRadius = 10f;
-        [SerializeField] private float crowdDetectionRadius = 2f;
+        [SerializeField] private float alertDetectionRadius = 10f; // 플레이어 및 군집 감지 반경
         [SerializeField] private float randomFlyAwayChance = 0.01f; // 초당 화면 밖으로 나갈 확률
+        [SerializeField] private float alertWeightMultiplier = 1.0f; // Alert 가중치 배율 (플레이어 조절 가능)
         [SerializeField] private bool showDebugGizmos = true;
+
+        public static float GlobalAlertWeightMultiplier { get; private set; } = 1.0f;
         
         private Rigidbody2D rb;
         private PigeonAI ai;
@@ -27,6 +29,9 @@ namespace PigeonGame.Gameplay
         private Vector2 backoffTarget;
         private bool backoffTargetSet = false;
         private Camera mainCamera;
+        private bool backoffCausedByPlayer = false; // BackOff 원인 추적 (플레이어 vs 군집)
+        private float lastPlayerAlertIncrease = 0f; // 이전 프레임의 플레이어 Alert 증가량
+        private float lastCrowdAlertIncrease = 0f; // 이전 프레임의 군집 Alert 증가량
 
         private void Awake()
         {
@@ -49,6 +54,17 @@ namespace PigeonGame.Gameplay
         private void Start()
         {
             SetNewWanderTarget();
+            // 전역 Alert 가중치 배율 업데이트 (첫 번째 인스턴스가 설정)
+            if (GlobalAlertWeightMultiplier == 1.0f)
+            {
+                GlobalAlertWeightMultiplier = alertWeightMultiplier;
+            }
+        }
+
+        private void OnValidate()
+        {
+            // Inspector에서 값이 변경되면 전역 값도 업데이트
+            GlobalAlertWeightMultiplier = alertWeightMultiplier;
         }
 
         private void Update()
@@ -70,7 +86,7 @@ namespace PigeonGame.Gameplay
             }
 
             // 플레이어가 가까이 있으면 무조건 뒷걸음질 (alert와 관계없이) - OverlapCircleAll 사용
-            Collider2D[] playerColliders = Physics2D.OverlapCircleAll(transform.position, playerDetectionRadius);
+            Collider2D[] playerColliders = Physics2D.OverlapCircleAll(transform.position, alertDetectionRadius);
             bool playerTooClose = false;
             
             foreach (var col in playerColliders)
@@ -88,6 +104,8 @@ namespace PigeonGame.Gameplay
 
             if (playerTooClose)
             {
+                // 플레이어 강제 BackOff → 플레이어 원인으로 설정
+                backoffCausedByPlayer = true;
                 HandleBackOff();
                 return; // 플레이어가 가까이 있으면 다른 행동 무시
             }
@@ -95,10 +113,24 @@ namespace PigeonGame.Gameplay
             // BackOff 상태 처리
             if (currentState == PigeonState.BackOff)
             {
+                // Alert 기반 BackOff → 원인 판단
+                // 이전 프레임의 Alert 증가량 비교
+                if (lastPlayerAlertIncrease > lastCrowdAlertIncrease)
+                {
+                    backoffCausedByPlayer = true;
+                }
+                else if (lastCrowdAlertIncrease > lastPlayerAlertIncrease)
+                {
+                    backoffCausedByPlayer = false;
+                }
+                // 같거나 둘 다 0이면 이전 값 유지
+                
                 HandleBackOff();
             }
             else
             {
+                // BackOff 상태가 아니면 원인 플래그 리셋 및 정상 이동
+                backoffCausedByPlayer = false;
                 HandleNormalMovement();
                 // Normal 상태로 돌아오면 BackOff 관련 변수 리셋
                 backoffTargetSet = false;
@@ -108,10 +140,17 @@ namespace PigeonGame.Gameplay
 
         private void UpdateAlertSystem()
         {
+            if (controller == null || controller.Stats == null || ai == null)
+                return;
+
             float deltaTime = Time.deltaTime;
 
+            // 이전 프레임의 Alert 증가량 초기화
+            lastPlayerAlertIncrease = 0f;
+            lastCrowdAlertIncrease = 0f;
+
             // 플레이어 접근 감지 및 Alert 증가 (OverlapCircleAll 사용)
-            Collider2D[] playerColliders = Physics2D.OverlapCircleAll(transform.position, playerDetectionRadius);
+            Collider2D[] playerColliders = Physics2D.OverlapCircleAll(transform.position, alertDetectionRadius);
             bool playerNearby = false;
             float minPlayerDistance = float.MaxValue;
 
@@ -133,7 +172,9 @@ namespace PigeonGame.Gameplay
             if (playerNearby)
             {
                 // 거리에 반비례하여 Alert 증가 (가까울수록 더 많이 증가)
-                float distanceFactor = 1f - (minPlayerDistance / playerDetectionRadius);
+                float distanceFactor = 1f - (minPlayerDistance / alertDetectionRadius);
+                float alertIncrease = controller.Stats.playerAlertPerSec * controller.Stats.alertWeight * PigeonMovement.GlobalAlertWeightMultiplier * deltaTime * distanceFactor;
+                lastPlayerAlertIncrease = alertIncrease;
                 ai.AddPlayerAlert(deltaTime * distanceFactor);
             }
 
@@ -141,6 +182,8 @@ namespace PigeonGame.Gameplay
             int neighborCount = CountNearbyPigeons();
             if (neighborCount > 0)
             {
+                float alertIncrease = controller.Stats.crowdAlertPerNeighborPerSec * controller.Stats.alertWeight * PigeonMovement.GlobalAlertWeightMultiplier * neighborCount * deltaTime;
+                lastCrowdAlertIncrease = alertIncrease;
                 ai.AddCrowdAlert(neighborCount, deltaTime);
             }
         }
@@ -152,7 +195,7 @@ namespace PigeonGame.Gameplay
 
             // Physics2D.OverlapCircleAll 사용 (Unity 물리 엔진의 최적화된 공간 분할 활용)
             // Collider2D가 있는 비둘기만 감지되므로 가장 효율적
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, crowdDetectionRadius);
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, alertDetectionRadius);
             int count = 0;
 
             foreach (var col in colliders)
@@ -165,7 +208,7 @@ namespace PigeonGame.Gameplay
                 {
                     // 거리 확인 (디버깅용)
                     float distance = Vector2.Distance(transform.position, col.transform.position);
-                    if (distance <= crowdDetectionRadius)
+                    if (distance <= alertDetectionRadius)
                     {
                         count++;
                     }
@@ -236,7 +279,7 @@ namespace PigeonGame.Gameplay
 
             backoffTimer += Time.deltaTime;
 
-            // BackOff 목표 설정 (덫에서 멀어지는 방향)
+            // BackOff 목표 설정 (플레이어에서 멀어지는 방향)
             if (!backoffTargetSet || backoffTimer >= controller.Stats.backoffDuration)
             {
                 Vector2 backoffDirection = CalculateBackoffDirection();
@@ -251,19 +294,63 @@ namespace PigeonGame.Gameplay
 
         private Vector2 CalculateBackoffDirection()
         {
-            if (targetFoodTrap != null)
+            // 원인에 따라 다른 방향으로 후퇴
+            if (backoffCausedByPlayer)
             {
-                Vector2 toTrap = (Vector2)targetFoodTrap.transform.position - (Vector2)transform.position;
-                return toTrap.magnitude > 0.1f ? -toTrap.normalized : Random.insideUnitCircle.normalized;
+                // 플레이어 원인 → 플레이어에서만 후퇴
+                if (PlayerController.Instance != null)
+                {
+                    Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
+                    if (toPlayer.magnitude > 0.1f)
+                    {
+                        return -toPlayer.normalized;
+                    }
+                }
+            }
+            else
+            {
+                // 군집 원인 → 비둘기 군집에서만 후퇴
+                Vector2 crowdAwayVector = CalculateCrowdAwayDirection();
+                if (crowdAwayVector.magnitude > 0.1f)
+                {
+                    return crowdAwayVector;
+                }
             }
 
-            if (PlayerController.Instance != null)
-            {
-                Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
-                return toPlayer.magnitude > 0.1f ? -toPlayer.normalized : Random.insideUnitCircle.normalized;
-            }
-
+            // 원인을 찾을 수 없으면 랜덤 방향
             return Random.insideUnitCircle.normalized;
+        }
+
+        /// <summary>
+        /// 주변 비둘기 군집에서 멀어지는 방향 계산
+        /// </summary>
+        private Vector2 CalculateCrowdAwayDirection()
+        {
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, alertDetectionRadius);
+            Vector2 crowdCenter = Vector2.zero;
+            int count = 0;
+
+            foreach (var col in colliders)
+            {
+                if (col == null)
+                    continue;
+
+                PigeonAI otherPigeon = col.GetComponent<PigeonAI>();
+                if (otherPigeon != null && otherPigeon != ai)
+                {
+                    crowdCenter += (Vector2)col.transform.position;
+                    count++;
+                }
+            }
+
+            if (count > 0)
+            {
+                crowdCenter /= count; // 평균 위치
+                Vector2 toCrowd = crowdCenter - (Vector2)transform.position;
+                return toCrowd.magnitude > 0.1f ? -toCrowd.normalized : Vector2.zero;
+            }
+
+            return Vector2.zero;
         }
 
         private void MoveTowardsTarget(Vector2 target, float speed)
@@ -363,9 +450,9 @@ namespace PigeonGame.Gameplay
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(transform.position, eatingRadius);
 
-            // 플레이어 감지 반경
+            // Alert 감지 반경 (플레이어 및 군집)
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, playerDetectionRadius);
+            Gizmos.DrawWireSphere(transform.position, alertDetectionRadius);
 
             // 군집 감지 반경
             if (controller != null && controller.Stats != null)

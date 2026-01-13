@@ -455,7 +455,7 @@ SpriteRenderer:
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7570297664874631939, guid: 17f497e5f57044d47832f59861a4fd20, type: 3}
   m_Color: {r: 0.3660378, g: 0.3660378, b: 0.3660378, a: 1}
-  m_FlipX: 0
+  m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 0.16, y: 0.16}
@@ -571,9 +571,9 @@ MonoBehaviour:
   wanderInterval: 2
   foodDetectionRadius: 1
   eatingRadius: 0.1
-  playerDetectionRadius: 2
-  crowdDetectionRadius: 2
+  alertDetectionRadius: 2
   randomFlyAwayChance: 0.01
+  alertWeightMultiplier: 2.5
   showDebugGizmos: 1
 --- !u!114 &6322197787241388434
 MonoBehaviour:

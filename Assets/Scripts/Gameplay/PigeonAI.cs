@@ -39,12 +39,12 @@ namespace PigeonGame.Gameplay
 
         public void AddPlayerAlert(float deltaTime)
         {
-            alert += stats.playerAlertPerSec * stats.playerWeight * deltaTime;
+            alert += stats.playerAlertPerSec * stats.alertWeight * PigeonMovement.GlobalAlertWeightMultiplier * deltaTime;
         }
 
         public void AddCrowdAlert(int neighborCount, float deltaTime)
         {
-            alert += stats.crowdAlertPerNeighborPerSec * stats.crowdWeight * neighborCount * deltaTime;
+            alert += stats.crowdAlertPerNeighborPerSec * stats.alertWeight * PigeonMovement.GlobalAlertWeightMultiplier * neighborCount * deltaTime;
         }
 
         private void UpdateState()

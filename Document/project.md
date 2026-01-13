@@ -139,8 +139,8 @@ bitePower = obesity
 alert는 단일 값이지만 두 출처를 가진다.
 
 alert =
-(playerAlert × playerWeight)
-+ (crowdAlert × crowdWeight)
+(playerAlert × alertWeight)
++ (crowdAlert × alertWeight)
 
 증가 원인
 

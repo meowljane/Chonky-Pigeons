@@ -19,8 +19,7 @@ namespace PigeonGame.Data
         public float fleeThreshold;
         public float backoffDuration;
         public float backoffDistance;
-        public float crowdWeight;
-        public float playerWeight;
+        public float alertWeight; // 플레이어 및 군집 Alert 가중치 (통일)
         public int price;
 
         /// <summary>
@@ -45,8 +44,7 @@ namespace PigeonGame.Data
                 fleeThreshold = this.fleeThreshold,
                 backoffDuration = this.backoffDuration,
                 backoffDistance = this.backoffDistance,
-                crowdWeight = this.crowdWeight,
-                playerWeight = this.playerWeight,
+                alertWeight = this.alertWeight,
                 price = this.price
             };
         }

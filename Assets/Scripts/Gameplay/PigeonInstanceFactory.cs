@@ -82,8 +82,7 @@ namespace PigeonGame.Gameplay
             stats.fleeThreshold = tierProfile.fleeThreshold;
             stats.backoffDuration = tierProfile.backoffDuration;
             stats.backoffDistance = tierProfile.backoffDistance;
-            stats.crowdWeight = tierProfile.crowdWeight;
-            stats.playerWeight = tierProfile.playerWeight;
+            stats.alertWeight = tierProfile.alertWeight;
 
             // 가격 계산
             int basePrice = aiProfile.rarityBasePrice.ContainsKey(species.rarityTier) 
