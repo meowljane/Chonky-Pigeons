@@ -33,7 +33,7 @@ namespace PigeonGame.UI
         private void Start()
         {
             // TrapPlacer 찾기
-            trapPlacer = FindObjectOfType<TrapPlacer>();
+            trapPlacer = FindFirstObjectByType<TrapPlacer>();
             if (trapPlacer == null)
             {
                 Debug.LogError("TrapPlacementUI: TrapPlacer를 찾을 수 없습니다!");
@@ -177,7 +177,6 @@ namespace PigeonGame.UI
             {
                 GameObject interactionObj = new GameObject("InteractionSystem");
                 interactionSystem = interactionObj.AddComponent<InteractionSystem>();
-                Debug.Log("InteractionSystem이 자동으로 생성되었습니다.");
             }
             
             if (interactionSystem != null)

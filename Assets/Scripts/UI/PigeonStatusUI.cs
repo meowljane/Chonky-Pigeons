@@ -49,7 +49,7 @@ namespace PigeonGame.UI
             mainCamera = Camera.main;
             if (mainCamera == null)
             {
-                mainCamera = FindObjectOfType<Camera>();
+                mainCamera = FindFirstObjectByType<Camera>();
             }
 
             if (alertBar == null || alertBarBackground == null)
@@ -180,8 +180,8 @@ namespace PigeonGame.UI
                 return;
 
             float alert = pigeonAI.Alert;
-            float maxAlert = pigeonController.Stats.fleeThreshold;
-            float fillAmount = maxAlert > 0 ? Mathf.Clamp01(alert / maxAlert) : 0f;
+            // alert 값을 0-100 범위로 정규화
+            float fillAmount = Mathf.Clamp01(alert / 100.0f);
 
             alertBar.fillAmount = fillAmount;
 
@@ -206,7 +206,7 @@ namespace PigeonGame.UI
             }
 
             // 실제로 먹고 있는지 확인
-            FoodTrap[] allTraps = FindObjectsOfType<FoodTrap>();
+            FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
             isEating = false;
 
             foreach (var trap in allTraps)

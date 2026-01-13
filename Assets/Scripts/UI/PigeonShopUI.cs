@@ -28,7 +28,7 @@ namespace PigeonGame.UI
             if (inventoryUI == null)
             {
                 // 같은 오브젝트에 없으면 씬에서 찾기
-                inventoryUI = FindObjectOfType<InventoryUI>();
+                inventoryUI = FindFirstObjectByType<InventoryUI>();
                 if (inventoryUI == null)
                 {
                     Debug.LogError("InventoryUI 컴포넌트를 찾을 수 없습니다! 상세 정보 기능이 작동하지 않습니다.");
@@ -142,18 +142,6 @@ namespace PigeonGame.UI
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.SellPigeon(index);
-                UpdateInventoryDisplay();
-            }
-        }
-
-        /// <summary>
-        /// 모든 비둘기 판매 (상점에서 호출)
-        /// </summary>
-        public void SellAllPigeons()
-        {
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.SellAllPigeons();
                 UpdateInventoryDisplay();
             }
         }

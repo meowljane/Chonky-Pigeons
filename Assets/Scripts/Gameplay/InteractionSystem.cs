@@ -30,9 +30,9 @@ namespace PigeonGame.Gameplay
 
         private void Start()
         {
-            inventoryUI = FindObjectOfType<InventoryUI>();
-            pigeonShopUI = FindObjectOfType<PigeonShopUI>();
-            trapShopUI = FindObjectOfType<TrapShopUI>();
+            inventoryUI = FindFirstObjectByType<InventoryUI>();
+            pigeonShopUI = FindFirstObjectByType<PigeonShopUI>();
+            trapShopUI = FindFirstObjectByType<TrapShopUI>();
         }
 
         private void OnDestroy()
@@ -54,7 +54,6 @@ namespace PigeonGame.Gameplay
                 if (currentInteractable == null)
                 {
                     currentInteractable = interactable;
-                    Debug.Log($"상호작용 가능한 오브젝트 등록: {interactable}");
                 }
             }
         }
@@ -67,7 +66,6 @@ namespace PigeonGame.Gameplay
             if (currentInteractable == interactable)
             {
                 currentInteractable = null;
-                Debug.Log($"상호작용 가능한 오브젝트 제거: {interactable}");
             }
         }
 
@@ -78,13 +76,11 @@ namespace PigeonGame.Gameplay
         {
             if (currentInteractable == null)
             {
-                Debug.Log("상호작용 가능한 오브젝트가 없습니다.");
                 return;
             }
 
             if (!currentInteractable.CanInteract())
             {
-                Debug.Log("상호작용이 불가능한 상태입니다.");
                 return;
             }
 

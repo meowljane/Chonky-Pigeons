@@ -210,13 +210,9 @@ namespace PigeonGame.Gameplay
             int bitePower = stats.bitePower;
             currentFeedAmount -= bitePower;
 
-            Debug.Log($"{stats.speciesId}가 {bitePower}만큼 먹음! 남은 먹이: {currentFeedAmount}");
-
             if (currentFeedAmount <= 0)
             {
                 // 포획! (즉시 등록하지 않고 저장만 함)
-                Debug.Log($"포획! {stats.speciesId} (비만도: {stats.obesity}, 얼굴: {stats.faceId})");
-                
                 // 포획된 비둘기 정보 저장
                 capturedPigeonStats = stats.Clone();
                 isCaptured = true;
@@ -346,8 +342,6 @@ namespace PigeonGame.Gameplay
                 return;
             }
 
-            Debug.Log($"비둘기 수집 시작: {pigeonStats.speciesId}");
-
             // 먼저 인벤토리와 도감에 등록
             if (GameManager.Instance != null)
             {
@@ -355,7 +349,7 @@ namespace PigeonGame.Gameplay
             }
 
             // 비둘기 상세정보 표시
-            var inventoryUI = UnityEngine.Object.FindObjectOfType<UI.InventoryUI>();
+            var inventoryUI = UnityEngine.Object.FindFirstObjectByType<UI.InventoryUI>();
             if (inventoryUI != null)
             {
                 inventoryUI.ShowPigeonDetail(pigeonStats);
@@ -363,8 +357,6 @@ namespace PigeonGame.Gameplay
 
             // 덫 오브젝트 제거
             Destroy(gameObject);
-            
-            Debug.Log($"비둘기 수집 완료: {pigeonStats.speciesId}");
         }
 
         /// <summary>
@@ -399,7 +391,7 @@ namespace PigeonGame.Gameplay
         {
             // 주변 비둘기들의 eatingRadius 표시 (각 비둘기마다 다를 수 있음)
             Gizmos.color = Color.yellow;
-            PigeonAI[] allPigeons = FindObjectsOfType<PigeonAI>();
+            PigeonAI[] allPigeons = FindObjectsByType<PigeonAI>(FindObjectsSortMode.None);
             
             foreach (var pigeon in allPigeons)
             {

@@ -12,7 +12,7 @@ namespace PigeonGame.Gameplay
         private void Start()
         {
             if (pigeonManager == null)
-                pigeonManager = FindObjectOfType<WorldPigeonManager>();
+                pigeonManager = FindFirstObjectByType<WorldPigeonManager>();
         }
 
         /// <summary>
@@ -41,7 +41,6 @@ namespace PigeonGame.Gameplay
             {
                 if (!GameManager.Instance.IsTrapUnlocked(trapId))
                 {
-                    Debug.Log($"해금되지 않은 덫: {trapId}");
                     return false;
                 }
             }

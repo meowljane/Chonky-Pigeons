@@ -53,8 +53,6 @@ namespace PigeonGame.Gameplay
 
             // 초기 돈 값 이벤트 발생 (UI 업데이트용)
             OnMoneyChanged?.Invoke(currentMoney);
-
-            Debug.Log($"GameManager 초기화: 시작 돈 {currentMoney}, 해금된 덫 {unlockedTraps.Count}개");
         }
 
         /// <summary>
@@ -70,7 +68,6 @@ namespace PigeonGame.Gameplay
 
             currentMoney += amount;
             OnMoneyChanged?.Invoke(currentMoney);
-            Debug.Log($"돈 추가: +{amount} (현재: {currentMoney})");
         }
 
         /// <summary>
@@ -86,13 +83,11 @@ namespace PigeonGame.Gameplay
 
             if (currentMoney < amount)
             {
-                Debug.Log($"돈 부족: 필요 {amount}, 현재 {currentMoney}");
                 return false;
             }
 
             currentMoney -= amount;
             OnMoneyChanged?.Invoke(currentMoney);
-            Debug.Log($"돈 차감: -{amount} (현재: {currentMoney})");
             return true;
         }
 
@@ -117,8 +112,6 @@ namespace PigeonGame.Gameplay
             {
                 EncyclopediaManager.Instance.RecordPigeon(clonedStats);
             }
-            
-            Debug.Log($"인벤토리에 추가: {clonedStats.speciesId} (가격: {clonedStats.price})");
         }
 
         /// <summary>
@@ -138,7 +131,6 @@ namespace PigeonGame.Gameplay
             inventory.RemoveAt(index);
             AddMoney(price);
             
-            Debug.Log($"비둘기 판매: {pigeon.speciesId} (가격: {price})");
             return true;
         }
 
@@ -156,7 +148,6 @@ namespace PigeonGame.Gameplay
             inventory.Clear();
             AddMoney(totalPrice);
             
-            Debug.Log($"모든 비둘기 판매: 총 {totalPrice}");
             return totalPrice;
         }
 
@@ -175,7 +166,6 @@ namespace PigeonGame.Gameplay
         {
             if (unlockedTraps.Contains(trapId))
             {
-                Debug.Log($"이미 해금된 덫: {trapId}");
                 return false;
             }
 
@@ -202,7 +192,6 @@ namespace PigeonGame.Gameplay
             // 해금
             unlockedTraps.Add(trapId);
             OnTrapUnlocked?.Invoke(trapId);
-            Debug.Log($"덫 해금: {trapData.name} ({trapId})");
             return true;
         }
 

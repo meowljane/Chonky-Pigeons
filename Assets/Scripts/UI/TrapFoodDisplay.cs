@@ -39,7 +39,7 @@ namespace PigeonGame.UI
             mainCamera = Camera.main;
             if (mainCamera == null)
             {
-                mainCamera = FindObjectOfType<Camera>();
+                mainCamera = FindFirstObjectByType<Camera>();
             }
 
             // UI가 없으면 자동 생성

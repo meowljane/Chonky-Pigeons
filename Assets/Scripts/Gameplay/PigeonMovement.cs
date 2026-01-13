@@ -59,25 +59,41 @@ namespace PigeonGame.Gameplay
             // Alert 시스템 업데이트 (먼저 실행하여 alert 증가)
             UpdateAlertSystem();
 
-            // 플레이어가 가까이 있으면 무조건 뒷걸음질 (alert와 관계없이)
-            if (PlayerController.Instance != null)
-            {
-                float distanceToPlayer = Vector2.Distance(transform.position, PlayerController.Instance.Position);
-                if (distanceToPlayer <= playerDetectionRadius)
-                {
-                    HandleBackOff();
-                    return; // 플레이어가 가까이 있으면 다른 행동 무시
-                }
-            }
-
             // 상태에 따른 행동 처리
             PigeonState currentState = ai.CurrentState;
             
+            // Flee 상태는 최우선으로 처리 (다른 모든 행동 무시)
             if (currentState == PigeonState.Flee)
             {
                 HandleFlee();
+                return;
             }
-            else if (currentState == PigeonState.BackOff)
+
+            // 플레이어가 가까이 있으면 무조건 뒷걸음질 (alert와 관계없이) - OverlapCircleAll 사용
+            Collider2D[] playerColliders = Physics2D.OverlapCircleAll(transform.position, playerDetectionRadius);
+            bool playerTooClose = false;
+            
+            foreach (var col in playerColliders)
+            {
+                if (col == null)
+                    continue;
+
+                PlayerController player = col.GetComponent<PlayerController>();
+                if (player != null)
+                {
+                    playerTooClose = true;
+                    break;
+                }
+            }
+
+            if (playerTooClose)
+            {
+                HandleBackOff();
+                return; // 플레이어가 가까이 있으면 다른 행동 무시
+            }
+
+            // BackOff 상태 처리
+            if (currentState == PigeonState.BackOff)
             {
                 HandleBackOff();
             }
@@ -147,7 +163,12 @@ namespace PigeonGame.Gameplay
                 PigeonAI otherPigeon = col.GetComponent<PigeonAI>();
                 if (otherPigeon != null && otherPigeon != ai)
                 {
-                    count++;
+                    // 거리 확인 (디버깅용)
+                    float distance = Vector2.Distance(transform.position, col.transform.position);
+                    if (distance <= crowdDetectionRadius)
+                    {
+                        count++;
+                    }
                 }
             }
 

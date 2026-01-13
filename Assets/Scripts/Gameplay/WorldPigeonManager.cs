@@ -25,7 +25,7 @@ namespace PigeonGame.Gameplay
         {
             mainCamera = Camera.main;
             if (mainCamera == null)
-                mainCamera = FindObjectOfType<Camera>();
+                mainCamera = FindFirstObjectByType<Camera>();
 
             // 맵 콜라이더가 없으면 자동으로 찾기
             if (mapColliders == null || mapColliders.Length == 0)
@@ -86,11 +86,6 @@ namespace PigeonGame.Gameplay
                             foundColliders.Add(col);
                     }
                 }
-            }
-            
-            if (foundColliders.Count > 0)
-            {
-                Debug.Log($"WorldPigeonManager: {foundColliders.Count}개의 맵 콜라이더를 자동으로 찾았습니다.");
             }
             
             return foundColliders.ToArray();

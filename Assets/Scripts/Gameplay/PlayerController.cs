@@ -36,7 +36,7 @@ namespace PigeonGame.Gameplay
             // 조이스틱 자동 찾기 (씬에 하나만 있다고 가정)
             if (mobileJoystick == null)
             {
-                mobileJoystick = FindObjectOfType<MobileJoystick>();
+                mobileJoystick = FindFirstObjectByType<MobileJoystick>();
             }
         }
 
@@ -59,7 +59,7 @@ namespace PigeonGame.Gameplay
             }
             else
             {
-                // 테스트용 WASD 입력 (조이스틱이 없을 때만)
+                // 키보드 입력 (조이스틱이 없을 때)
                 Keyboard keyboard = Keyboard.current;
                 if (keyboard != null)
                 {
