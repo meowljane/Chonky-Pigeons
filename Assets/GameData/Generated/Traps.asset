@@ -17,7 +17,7 @@ MonoBehaviour:
   - id: BREAD
     name: "\uBC14\uC0AD\uBE75\uB36B"
     cost: 10
-    feedAmount: 20
+    feedAmount: 20000
     pigeonSpawnCount: 3
   - id: SEEDS
     name: "\uD1A1\uD1A1\uC528\uC557\uB36B"

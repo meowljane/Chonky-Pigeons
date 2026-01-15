@@ -18,6 +18,9 @@ namespace PigeonGame.Gameplay
         [SerializeField] private float despawnChance = 0.1f; // 비둘기가 나가는 확률 (초당)
         [SerializeField] private float forceFleeDespawnTime = 5f; // forceFlee 상태인 비둘기가 제거되기까지의 시간 (초)
         [SerializeField] private Collider2D[] mapColliders; // 맵 콜라이더 배열
+        
+        public static WorldPigeonManager Instance { get; private set; }
+        public Collider2D[] MapColliders => mapColliders;
 
         // 맵 콜라이더별 비둘기 관리
         private Dictionary<Collider2D, List<PigeonController>> pigeonsByMap = new Dictionary<Collider2D, List<PigeonController>>();
@@ -26,16 +29,28 @@ namespace PigeonGame.Gameplay
         private float spawnCheckTimer = 0f;
         private TerrainArea[] allTerrainAreas; // 모든 terrain 영역
 
+        private void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+            else
+            {
+                Debug.LogWarning("Multiple WorldPigeonManager instances detected!");
+            }
+        }
+
         private void Start()
         {
             mainCamera = Camera.main;
             if (mainCamera == null)
                 mainCamera = FindFirstObjectByType<Camera>();
 
-            // 맵 콜라이더가 없으면 자동으로 찾기
+            // 맵 콜라이더가 설정되지 않았으면 경고
             if (mapColliders == null || mapColliders.Length == 0)
             {
-                mapColliders = FindMapColliders();
+                Debug.LogError("WorldPigeonManager: 맵 콜라이더가 설정되지 않았습니다! Inspector에서 Map Colliders를 할당해주세요.");
             }
 
             // 모든 terrain 영역 찾기
@@ -71,39 +86,6 @@ namespace PigeonGame.Gameplay
             }
         }
 
-        /// <summary>
-        /// 맵 콜라이더 자동 찾기
-        /// </summary>
-        private Collider2D[] FindMapColliders()
-        {
-            List<Collider2D> foundColliders = new List<Collider2D>();
-            
-            // "Map" 태그로 찾기
-            GameObject[] mapObjects = GameObject.FindGameObjectsWithTag("Map");
-            foreach (GameObject mapObj in mapObjects)
-            {
-                Collider2D col = mapObj.GetComponent<Collider2D>() ?? mapObj.GetComponentInChildren<Collider2D>();
-                if (col != null && !foundColliders.Contains(col))
-                    foundColliders.Add(col);
-            }
-            
-            // 이름으로 찾기 (Map1, Map2 등)
-            if (foundColliders.Count == 0)
-            {
-                for (int i = 1; i <= 10; i++)
-                {
-                    GameObject mapObj = GameObject.Find($"Map{i}");
-                    if (mapObj != null)
-                    {
-                        Collider2D col = mapObj.GetComponent<Collider2D>() ?? mapObj.GetComponentInChildren<Collider2D>();
-                        if (col != null && !foundColliders.Contains(col))
-                            foundColliders.Add(col);
-                    }
-                }
-            }
-            
-            return foundColliders.ToArray();
-        }
 
         /// <summary>
         /// 게임 시작 시 각 맵에 초기 비둘기 스폰
@@ -234,6 +216,52 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
+        /// 종별 가중치 계산 (단순화된 로직: 각 종마다 좋아하는 덫과 terrain 하나씩만)
+        /// </summary>
+        private float CalculateSpeciesWeight(SpeciesDefinition species, List<FoodTrap> activeTraps)
+        {
+            if (species == null || activeTraps == null || activeTraps.Count == 0)
+                return species != null ? species.baseSpawnWeight : 0f;
+
+            float weight = species.baseSpawnWeight;
+            
+            // 각 덫을 확인하여 가중치 증가
+            int matchingTrapCount = 0; // 좋아하는 덫 개수
+            int matchingTerrainCount = 0; // 좋아하는 terrain 개수
+            int perfectMatchCount = 0; // 덫과 terrain 둘 다 맞는 개수
+            
+            foreach (var trap in activeTraps)
+            {
+                bool isFavoriteTrap = !string.IsNullOrEmpty(species.favoriteTrap) && 
+                                      trap.TrapId == species.favoriteTrap;
+                bool isFavoriteTerrain = false;
+                
+                string terrainType = GetTerrainTypeAtPosition(trap.transform.position);
+                if (!string.IsNullOrEmpty(species.favoriteTerrain) && 
+                    !string.IsNullOrEmpty(terrainType) && 
+                    terrainType == species.favoriteTerrain)
+                {
+                    isFavoriteTerrain = true;
+                }
+                
+                if (isFavoriteTrap)
+                    matchingTrapCount++;
+                if (isFavoriteTerrain)
+                    matchingTerrainCount++;
+                if (isFavoriteTrap && isFavoriteTerrain)
+                    perfectMatchCount++;
+            }
+            
+            // 가중치 증가: 덫 하나당 2배, terrain 하나당 2배, 둘 다 맞으면 3배
+            // 예: 좋아하는 덫 3개, 좋아하는 terrain 2개, 둘 다 맞는 것 1개
+            // → 가중치 = baseWeight × (1 + 3×2 + 2×2 + 1×3) = baseWeight × 14
+            float bonus = 1f + (matchingTrapCount * 2f) + (matchingTerrainCount * 2f) + (perfectMatchCount * 3f);
+            weight *= bonus;
+
+            return weight;
+        }
+
+        /// <summary>
         /// 덫 선호도 기반으로 비둘기 종 선택 (확률 보정)
         /// </summary>
         private SpeciesDefinition SelectSpeciesWithPreference(SpeciesDefinition[] allSpecies, Vector3 position, bool applyBonus)
@@ -254,41 +282,22 @@ namespace PigeonGame.Gameplay
                 return allSpecies[Random.Range(0, allSpecies.Length)];
             }
 
-            // 위치의 terrain 타입 확인
-            string terrainType = GetTerrainTypeAtPosition(position);
-
-            // 각 종의 가중치 계산
+            // 각 종의 가중치 계산 (공통 로직 사용)
             List<float> weights = new List<float>();
             foreach (var species in allSpecies)
             {
-                float weight = species.baseSpawnWeight; // 종별 초기 확률 가중치
-
-                // 덫 종류 선호도 보정
-                float trapPreferenceSum = 0f;
-                int trapCount = 0;
-                foreach (var trap in activeTraps)
-                {
-                    int preference = GetTrapPreference(species, trap.TrapId);
-                    trapPreferenceSum += preference;
-                    trapCount++;
-                }
-                if (trapCount > 0)
-                {
-                    weight *= (trapPreferenceSum / trapCount) / 100f; // 0-1 범위로 정규화
-                }
-
-                // Terrain 타입 선호도 보정
-                if (species.terrainPreference != null && !string.IsNullOrEmpty(terrainType))
-                {
-                    int terrainPreference = GetTerrainPreference(species, terrainType);
-                    weight *= terrainPreference / 100f; // 0-1 범위로 정규화
-                }
-
+                float weight = CalculateSpeciesWeight(species, activeTraps);
                 weights.Add(weight);
             }
 
             // 가중치 기반 랜덤 선택
             float totalWeight = weights.Sum();
+            if (totalWeight <= 0f)
+            {
+                // 폴백
+                return allSpecies[Random.Range(0, allSpecies.Length)];
+            }
+
             float randomValue = Random.Range(0f, totalWeight);
             float currentWeight = 0f;
 
@@ -305,44 +314,6 @@ namespace PigeonGame.Gameplay
             return allSpecies[Random.Range(0, allSpecies.Length)];
         }
 
-        /// <summary>
-        /// 덫 종류 선호도 가져오기
-        /// </summary>
-        private int GetTrapPreference(SpeciesDefinition species, string trapId)
-        {
-            if (species.trapPreference == null)
-                return 50; // 기본값
-
-            return trapId switch
-            {
-                "BREAD" => species.trapPreference.BREAD,
-                "SEEDS" => species.trapPreference.SEEDS,
-                "CORN" => species.trapPreference.CORN,
-                "PELLET" => species.trapPreference.PELLET,
-                "SHINY" => species.trapPreference.SHINY,
-                _ => 50
-            };
-        }
-
-        /// <summary>
-        /// Terrain 타입 선호도 가져오기
-        /// </summary>
-        private int GetTerrainPreference(SpeciesDefinition species, string terrainType)
-        {
-            if (species.terrainPreference == null)
-                return 50; // 기본값
-
-            return terrainType switch
-            {
-                "default" => species.terrainPreference.sand, // default는 sand로 매핑
-                "sand" => species.terrainPreference.sand, // sand는 기본값
-                "grass" => species.terrainPreference.grass,
-                "water" => species.terrainPreference.water,
-                "flower" => species.terrainPreference.flower, // 기존 sand는 flower로
-                "wetland" => species.terrainPreference.wetland,
-                _ => species.terrainPreference.sand // 알 수 없는 타입도 sand(기본값)로 처리
-            };
-        }
 
         /// <summary>
         /// 위치의 terrain 타입 확인 (public 메서드)
@@ -555,9 +526,9 @@ namespace PigeonGame.Gameplay
                     }
 
         /// <summary>
-        /// 현재 맵의 종별 스폰 확률 계산 (UI 표시용)
+        /// 현재 맵의 종별 스폰 확률 계산 (UI 표시용) - 덫 위치 기반
         /// </summary>
-        public Dictionary<string, float> GetSpeciesSpawnProbabilities(Vector3 position)
+        public Dictionary<string, float> GetSpeciesSpawnProbabilities()
         {
             var registry = GameDataRegistry.Instance;
             if (registry == null)
@@ -583,10 +554,25 @@ namespace PigeonGame.Gameplay
             FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
             List<FoodTrap> activeTraps = allTraps.Where(t => t != null && !t.HasCapturedPigeon && !t.IsDepleted).ToList();
 
-            // 위치의 terrain 타입 확인
-            string terrainType = GetTerrainTypeAtPosition(position);
+            if (activeTraps.Count == 0)
+            {
+                // 덫이 없으면 기본 확률 반환 (baseSpawnWeight 기반)
+                Dictionary<string, float> defaultProbabilities = new Dictionary<string, float>();
+                float defaultTotalWeight = allSpecies.Sum(s => s != null ? s.baseSpawnWeight : 0f);
+                if (defaultTotalWeight > 0f)
+                {
+                    foreach (var species in allSpecies)
+                    {
+                        if (species != null && !string.IsNullOrEmpty(species.speciesId))
+                        {
+                            defaultProbabilities[species.speciesId] = (species.baseSpawnWeight / defaultTotalWeight) * 100f;
+                        }
+                    }
+                }
+                return defaultProbabilities;
+            }
 
-            // 각 종의 가중치 계산
+            // 각 종의 가중치 계산 (공통 로직 사용)
             Dictionary<string, float> weights = new Dictionary<string, float>();
             foreach (var species in allSpecies)
             {
@@ -596,45 +582,14 @@ namespace PigeonGame.Gameplay
                     continue;
                 }
 
-                float weight = species.baseSpawnWeight;
-                Debug.Log($"[DEBUG] {species.name}: baseSpawnWeight = {weight}");
-
-                // 덫 종류 선호도 보정
-                if (activeTraps.Count > 0)
-                {
-                    float trapPreferenceSum = 0f;
-                    foreach (var trap in activeTraps)
-                    {
-                        int preference = GetTrapPreference(species, trap.TrapId);
-                        trapPreferenceSum += preference;
-                    }
-                    float trapMultiplier = (trapPreferenceSum / activeTraps.Count) / 100f;
-                    Debug.Log($"[DEBUG] {species.name}: trapPreferenceSum = {trapPreferenceSum}, trapCount = {activeTraps.Count}, trapMultiplier = {trapMultiplier}");
-                    weight *= trapMultiplier;
-                }
-
-                // Terrain 타입 선호도 보정
-                if (species.terrainPreference != null && !string.IsNullOrEmpty(terrainType))
-                {
-                    int terrainPreference = GetTerrainPreference(species, terrainType);
-                    float terrainMultiplier = terrainPreference / 100f;
-                    Debug.Log($"[DEBUG] {species.name}: terrainType = {terrainType}, terrainPreference = {terrainPreference}, terrainMultiplier = {terrainMultiplier}");
-                    Debug.Log($"[DEBUG] {species.name}: terrainPreference object = {(species.terrainPreference != null ? "not null" : "null")}, sand = {species.terrainPreference?.sand}, flower = {species.terrainPreference?.flower}");
-                    weight *= terrainMultiplier;
-                }
-                else
-                {
-                    Debug.Log($"[DEBUG] {species.name}: terrainPreference is null or terrainType is empty. terrainPreference = {(species.terrainPreference != null ? "not null" : "null")}, terrainType = {terrainType}");
-                }
-
-                Debug.Log($"[DEBUG] {species.name}: final weight = {weight}");
+                float weight = CalculateSpeciesWeight(species, activeTraps);
                 weights[species.speciesId] = weight;
             }
 
             // 가중치를 확률(%)로 변환
             float totalWeight = weights.Values.Sum();
             if (totalWeight <= 0f)
-                    {
+            {
                 Debug.LogWarning("WorldPigeonManager: 총 가중치가 0 이하입니다.");
                 return null;
             }
@@ -643,7 +598,7 @@ namespace PigeonGame.Gameplay
             foreach (var kvp in weights)
             {
                 probabilities[kvp.Key] = (kvp.Value / totalWeight) * 100f;
-                    }
+            }
 
             return probabilities;
         }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 using PigeonGame.UI;
 
 namespace PigeonGame.Gameplay
@@ -11,6 +12,7 @@ namespace PigeonGame.Gameplay
         [SerializeField] private MobileJoystick mobileJoystick; // 모바일 조이스틱 참조
         private Rigidbody2D rb;
         private Vector2 moveInput;
+        private Collider2D[] mapColliders; // 맵 경계 체크용
 
         public static PlayerController Instance { get; private set; }
         public Vector2 Position => (Vector2)transform.position;
@@ -37,6 +39,23 @@ namespace PigeonGame.Gameplay
             if (mobileJoystick == null)
             {
                 mobileJoystick = FindFirstObjectByType<MobileJoystick>();
+            }
+            
+            // 맵 콜라이더 찾기
+            FindMapColliders();
+        }
+        
+        private void FindMapColliders()
+        {
+            // WorldPigeonManager에서 맵 콜라이더 가져오기
+            if (WorldPigeonManager.Instance != null)
+            {
+                mapColliders = WorldPigeonManager.Instance.MapColliders;
+            }
+            
+            if (mapColliders == null || mapColliders.Length == 0)
+            {
+                Debug.LogWarning("PlayerController: 맵 콜라이더를 찾을 수 없습니다!");
             }
         }
 
@@ -80,7 +99,46 @@ namespace PigeonGame.Gameplay
         private void FixedUpdate()
         {
             // 이동
-            rb.linearVelocity = moveInput * moveSpeed;
+            Vector2 newVelocity = moveInput * moveSpeed;
+            Vector2 newPosition = (Vector2)transform.position + newVelocity * Time.fixedDeltaTime;
+            
+            // 맵 경계 체크
+            newPosition = ClampToMapBounds(newPosition);
+            
+            // 위치 직접 설정 (경계를 벗어나지 않도록)
+            rb.MovePosition(newPosition);
+        }
+        
+        private Vector2 ClampToMapBounds(Vector2 position)
+        {
+            if (mapColliders == null || mapColliders.Length == 0)
+                return position;
+            
+            // 모든 맵 콜라이더의 bounds를 합친 영역 계산
+            Bounds? combinedBounds = null;
+            foreach (var col in mapColliders)
+            {
+                if (col != null)
+                {
+                    if (combinedBounds == null)
+                        combinedBounds = col.bounds;
+                    else
+                    {
+                        Bounds bounds = combinedBounds.Value;
+                        bounds.Encapsulate(col.bounds);
+                        combinedBounds = bounds;
+                    }
+                }
+            }
+            
+            if (combinedBounds.HasValue)
+            {
+                Bounds bounds = combinedBounds.Value;
+                position.x = Mathf.Clamp(position.x, bounds.min.x, bounds.max.x);
+                position.y = Mathf.Clamp(position.y, bounds.min.y, bounds.max.y);
+            }
+            
+            return position;
         }
     }
 }

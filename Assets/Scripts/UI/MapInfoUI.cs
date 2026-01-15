@@ -88,8 +88,8 @@ namespace PigeonGame.UI
             }
             probabilityItemObjects.Clear();
 
-            // 현재 맵의 종별 스폰 확률 가져오기
-            var probabilities = pigeonManager.GetSpeciesSpawnProbabilities(PlayerController.Instance.Position);
+            // 현재 맵의 종별 스폰 확률 가져오기 (덫 위치 기반)
+            var probabilities = pigeonManager.GetSpeciesSpawnProbabilities();
             if (probabilities == null || probabilities.Count == 0)
             {
                 Debug.LogWarning("MapInfoUI: 스폰 확률 데이터를 가져올 수 없습니다.");
@@ -141,14 +141,14 @@ namespace PigeonGame.UI
             TextMeshProUGUI textMesh = itemObj.GetComponentInChildren<TextMeshProUGUI>();
             if (textMesh != null)
             {
-                textMesh.text = $"{speciesName}: {probability:F1}%";
+                textMesh.text = $"{speciesName}: {probability:F0}%";
                 return;
             }
 
             Text textComponent = itemObj.GetComponentInChildren<Text>();
             if (textComponent != null)
             {
-                textComponent.text = $"{speciesName}: {probability:F1}%";
+                textComponent.text = $"{speciesName}: {probability:F0}%";
             }
         }
 
@@ -171,7 +171,7 @@ namespace PigeonGame.UI
             textRect.anchoredPosition = Vector2.zero;
 
             TextMeshProUGUI textMesh = textObj.AddComponent<TextMeshProUGUI>();
-            textMesh.text = $"{speciesName}: {probability:F1}%";
+            textMesh.text = $"{speciesName}: {probability:F0}%";
             textMesh.fontSize = 14f;
             textMesh.color = Color.white;
 
