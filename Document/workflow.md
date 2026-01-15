@@ -15,14 +15,14 @@ Assets/
       pigeon_ai_profiles.json
       pigeon_faces.json
       pigeon_species.json
-      world_locations.json
+      terrain_types.json
       trap_types.json
 
     Generated/           // 생성된 ScriptableObject 에셋
       AIProfiles.asset
       Faces.asset
       SpeciesSet.asset
-      Locations.asset
+      TerrainTypes.asset
       Traps.asset
 
   Art/
@@ -79,7 +79,7 @@ Faces.asset
 
 SpeciesSet.asset
 
-Locations.asset
+TerrainTypes.asset
 
 Traps.asset
 

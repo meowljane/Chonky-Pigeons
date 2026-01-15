@@ -4,11 +4,49 @@ using System.Collections.Generic;
 namespace PigeonGame.Data
 {
     [System.Serializable]
+    public class ObesityProfile
+    {
+        public float eatIntervalMultiplier;
+        public float eatChanceMultiplier;
+        public float priceDiscount;
+    }
+
+    [System.Serializable]
     public class ObesityRule
     {
         public bool bitePowerEqualsObesity;
-        public Dictionary<int, float> eatIntervalMultiplierByObesity;
-        public Dictionary<int, float> obesityPriceDiscount;
+        public Dictionary<int, ObesityProfile> obesityProfiles;
+        
+        [SerializeField] private List<int> obesityKeys;
+        [SerializeField] private List<ObesityProfile> obesityValues;
+
+        public void OnAfterDeserialize()
+        {
+            obesityProfiles = new Dictionary<int, ObesityProfile>();
+
+            if (obesityKeys != null && obesityValues != null)
+            {
+                for (int i = 0; i < obesityKeys.Count && i < obesityValues.Count; i++)
+                {
+                    obesityProfiles[obesityKeys[i]] = obesityValues[i];
+                }
+            }
+        }
+
+        public void OnBeforeSerialize()
+        {
+            obesityKeys = new List<int>();
+            obesityValues = new List<ObesityProfile>();
+
+            if (obesityProfiles != null)
+            {
+                foreach (var kvp in obesityProfiles)
+                {
+                    obesityKeys.Add(kvp.Key);
+                    obesityValues.Add(kvp.Value);
+                }
+            }
+        }
     }
 
     [System.Serializable]
@@ -23,18 +61,11 @@ namespace PigeonGame.Data
     [System.Serializable]
     public class RarityTierProfile
     {
-        public float eatInterval;
-        public float eatChance;
-        public float personalSpaceRadius;
+        // eatInterval, eatChance, alertDecayPerSec는 비만도 기반으로 계산하거나 통일된 값 사용 (base 값은 Tier 1 값으로 통일)
         public float playerAlertPerSec;
         public float crowdAlertPerNeighborPerSec;
-        public float alertDecayPerSec;
-        public float warnThreshold;
-        public float backoffThreshold;
-        public float fleeThreshold;
-        public float backoffDuration;
-        public float backoffDistance;
-        public float alertWeight; // 플레이어 및 군집 Alert 가중치 (통일)
+        public int basePrice; // tier별 기본 가격
+        // detectionRadius, warnThreshold, backoffThreshold, fleeThreshold, alertWeight, backoffDistance, alertDecayPerSec는 PigeonMovement에서 관리 (모든 tier 통일)
     }
 
     [CreateAssetMenu(fileName = "AIProfiles", menuName = "PigeonGame/AI Profiles")]
@@ -42,27 +73,63 @@ namespace PigeonGame.Data
     {
         public int version;
         public ObesityRule obesityRule;
-        public Dictionary<int, int> rarityBasePrice;
         public Dictionary<int, RarityTierProfile> tiers;
         public StressToEatModifier stressToEatModifier;
 
-        [SerializeField] private List<int> rarityBasePriceKeys;
-        [SerializeField] private List<int> rarityBasePriceValues;
         [SerializeField] private List<int> tierKeys;
         [SerializeField] private List<RarityTierProfile> tierValues;
 
-        public void OnAfterDeserialize()
+        private void OnEnable()
         {
-            rarityBasePrice = new Dictionary<int, int>();
-            tiers = new Dictionary<int, RarityTierProfile>();
+            InitializeData();
+        }
 
-            if (rarityBasePriceKeys != null && rarityBasePriceValues != null)
+        private void InitializeData()
+        {
+            if (tiers == null || tiers.Count == 0)
             {
-                for (int i = 0; i < rarityBasePriceKeys.Count && i < rarityBasePriceValues.Count; i++)
+                version = 1;
+
+                // ObesityRule 초기화
+                obesityRule = new ObesityRule
                 {
-                    rarityBasePrice[rarityBasePriceKeys[i]] = rarityBasePriceValues[i];
+                    bitePowerEqualsObesity = true,
+                    obesityProfiles = new Dictionary<int, ObesityProfile>
+                    {
+                        { 1, new ObesityProfile { eatIntervalMultiplier = 1.08f, eatChanceMultiplier = 0.85f, priceDiscount = 1.1f } },
+                        { 2, new ObesityProfile { eatIntervalMultiplier = 1.0f, eatChanceMultiplier = 0.9f, priceDiscount = 1.0f } },
+                        { 3, new ObesityProfile { eatIntervalMultiplier = 0.92f, eatChanceMultiplier = 0.95f, priceDiscount = 0.9f } },
+                        { 4, new ObesityProfile { eatIntervalMultiplier = 0.85f, eatChanceMultiplier = 1.0f, priceDiscount = 0.8f } },
+                        { 5, new ObesityProfile { eatIntervalMultiplier = 0.8f, eatChanceMultiplier = 1.05f, priceDiscount = 0.7f } }
+                    }
+                };
+
+                // Tiers 초기화
+                tiers = new Dictionary<int, RarityTierProfile>
+                {
+                    { 1, new RarityTierProfile { playerAlertPerSec = 38f, crowdAlertPerNeighborPerSec = 6f, basePrice = 8 } },
+                    { 2, new RarityTierProfile { playerAlertPerSec = 30f, crowdAlertPerNeighborPerSec = 7f, basePrice = 18 } },
+                    { 3, new RarityTierProfile { playerAlertPerSec = 22f, crowdAlertPerNeighborPerSec = 11f, basePrice = 40 } },
+                    { 4, new RarityTierProfile { playerAlertPerSec = 18f, crowdAlertPerNeighborPerSec = 14f, basePrice = 90 } },
+                    { 5, new RarityTierProfile { playerAlertPerSec = 14f, crowdAlertPerNeighborPerSec = 16f, basePrice = 180 } }
+                };
+
+                // StressToEatModifier 초기화
+                stressToEatModifier = new StressToEatModifier
+                {
+                    enabled = true,
+                    warnEatChanceMultiplier = 0.65f,
+                    warnEatIntervalMultiplier = 1.25f,
+                    backoffStopsEating = true
+                };
+
+                OnBeforeSerialize();
                 }
             }
+
+        public void OnAfterDeserialize()
+        {
+            tiers = new Dictionary<int, RarityTierProfile>();
 
             if (tierKeys != null && tierValues != null)
             {
@@ -71,23 +138,18 @@ namespace PigeonGame.Data
                     tiers[tierKeys[i]] = tierValues[i];
                 }
             }
+
+            // ObesityRule도 초기화
+            if (obesityRule != null)
+            {
+                obesityRule.OnAfterDeserialize();
+            }
         }
 
         public void OnBeforeSerialize()
         {
-            rarityBasePriceKeys = new List<int>();
-            rarityBasePriceValues = new List<int>();
             tierKeys = new List<int>();
             tierValues = new List<RarityTierProfile>();
-
-            if (rarityBasePrice != null)
-            {
-                foreach (var kvp in rarityBasePrice)
-                {
-                    rarityBasePriceKeys.Add(kvp.Key);
-                    rarityBasePriceValues.Add(kvp.Value);
-                }
-            }
 
             if (tiers != null)
             {
@@ -96,6 +158,12 @@ namespace PigeonGame.Data
                     tierKeys.Add(kvp.Key);
                     tierValues.Add(kvp.Value);
                 }
+            }
+
+            // ObesityRule도 직렬화
+            if (obesityRule != null)
+            {
+                obesityRule.OnBeforeSerialize();
             }
         }
     }

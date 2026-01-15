@@ -12,7 +12,7 @@
      - `AIProfiles.asset` → AI Profiles
      - `Faces.asset` → Faces
      - `SpeciesSet.asset` → Species Set
-     - `Locations.asset` → Locations
+     - `TerrainTypes.asset` → Terrain Types
      - `Traps.asset` → Traps
 
 ## 2. 플레이어 설정

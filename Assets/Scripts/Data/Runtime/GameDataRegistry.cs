@@ -8,7 +8,7 @@ namespace PigeonGame.Data
         [SerializeField] private PigeonAIProfile aiProfiles;
         [SerializeField] private PigeonFace faces;
         [SerializeField] private PigeonSpeciesSet speciesSet;
-        [SerializeField] private WorldLocationSet locations;
+        [SerializeField] private TerrainTypeSet terrainTypes;
         [SerializeField] private TrapTypeSet traps;
 
         public static GameDataRegistry Instance { get; private set; }
@@ -16,7 +16,7 @@ namespace PigeonGame.Data
         public PigeonAIProfile AIProfiles => aiProfiles;
         public PigeonFace Faces => faces;
         public PigeonSpeciesSet SpeciesSet => speciesSet;
-        public WorldLocationSet Locations => locations;
+        public TerrainTypeSet TerrainTypes => terrainTypes;
         public TrapTypeSet Traps => traps;
 
         private void Awake()

@@ -18,67 +18,161 @@ MonoBehaviour:
     name: "\uB3C4\uC2DC\uD68C\uC0C9"
     rarityTier: 1
     defaultObesityRange: {x: 4, y: 5}
-    locationPreference:
-      PARK: 70
-      PLAZA: 80
-      ALLEY: 60
-      HARBOR: 40
-      ROOFTOP: 30
+    baseSpawnWeight: 5
     trapPreference:
       BREAD: 90
       SEEDS: 60
       CORN: 70
       PELLET: 20
       SHINY: 10
+    terrainPreference:
+      sand: 90
+      grass: 80
+      water: 30
+      flower: 70
+      wetland: 20
     icon: {fileID: 0}
   - speciesId: SP07
     name: "\uBE75\uC911\uB3C5"
     rarityTier: 1
     defaultObesityRange: {x: 5, y: 5}
-    locationPreference:
-      PARK: 60
-      PLAZA: 90
-      ALLEY: 50
-      HARBOR: 30
-      ROOFTOP: 20
+    baseSpawnWeight: 5
     trapPreference:
       BREAD: 100
       SEEDS: 40
       CORN: 60
       PELLET: 10
       SHINY: 10
+    terrainPreference:
+      sand: 90
+      grass: 90
+      water: 20
+      flower: 80
+      wetland: 10
     icon: {fileID: 0}
   - speciesId: SP14
     name: "\uBB34\uC9C0\uAC1C\uAE30\uB984\uAD11"
     rarityTier: 3
     defaultObesityRange: {x: 1, y: 2}
-    locationPreference:
-      PARK: 60
-      PLAZA: 70
-      ALLEY: 40
-      HARBOR: 45
-      ROOFTOP: 50
+    baseSpawnWeight: 1.5
     trapPreference:
       BREAD: 55
       SEEDS: 60
       CORN: 60
       PELLET: 55
       SHINY: 45
+    terrainPreference:
+      sand: 30
+      grass: 60
+      water: 55
+      flower: 65
+      wetland: 50
     icon: {fileID: 0}
   - speciesId: SP20
     name: "\uC655\uAD00\uBE44\uB458\uAE30"
     rarityTier: 5
     defaultObesityRange: {x: 1, y: 1}
-    locationPreference:
-      PARK: 20
-      PLAZA: 60
-      ALLEY: 15
-      HARBOR: 50
-      ROOFTOP: 100
+    baseSpawnWeight: 0.3
     trapPreference:
       BREAD: 10
       SEEDS: 25
       CORN: 35
       PELLET: 85
       SHINY: 80
+    terrainPreference:
+      sand: 10
+      grass: 40
+      water: 60
+      flower: 30
+      wetland: 90
+    icon: {fileID: 0}
+  - speciesId: SP02
+    name: "\uD68C\uC0C9\uB3C4\uC2DC"
+    rarityTier: 1
+    defaultObesityRange: {x: 3, y: 4}
+    baseSpawnWeight: 5
+    trapPreference:
+      BREAD: 85
+      SEEDS: 55
+      CORN: 65
+      PELLET: 15
+      SHINY: 5
+    terrainPreference:
+      sand: 85
+      grass: 75
+      water: 35
+      flower: 65
+      wetland: 25
+    icon: {fileID: 0}
+  - speciesId: SP03
+    name: "\uAC80\uC740\uBE44\uB458\uAE30"
+    rarityTier: 2
+    defaultObesityRange: {x: 3, y: 5}
+    baseSpawnWeight: 3
+    trapPreference:
+      BREAD: 70
+      SEEDS: 70
+      CORN: 80
+      PELLET: 30
+      SHINY: 20
+    terrainPreference:
+      sand: 60
+      grass: 50
+      water: 50
+      flower: 70
+      wetland: 50
+    icon: {fileID: 0}
+  - speciesId: SP08
+    name: "\uD770\uBE44\uB458\uAE30"
+    rarityTier: 2
+    defaultObesityRange: {x: 2, y: 3}
+    baseSpawnWeight: 3
+    trapPreference:
+      BREAD: 75
+      SEEDS: 65
+      CORN: 70
+      PELLET: 40
+      SHINY: 30
+    terrainPreference:
+      sand: 60
+      grass: 85
+      water: 70
+      flower: 40
+      wetland: 35
+    icon: {fileID: 0}
+  - speciesId: SP15
+    name: "\uBB34\uC9C0\uAC1C\uBE44\uB458\uAE30"
+    rarityTier: 4
+    defaultObesityRange: {x: 1, y: 3}
+    baseSpawnWeight: 0.8
+    trapPreference:
+      BREAD: 60
+      SEEDS: 65
+      CORN: 65
+      PELLET: 60
+      SHINY: 50
+    terrainPreference:
+      sand: 20
+      grass: 70
+      water: 60
+      flower: 55
+      wetland: 60
+    icon: {fileID: 0}
+  - speciesId: SP21
+    name: "\uD669\uAE08\uBE44\uB458\uAE30"
+    rarityTier: 5
+    defaultObesityRange: {x: 1, y: 2}
+    baseSpawnWeight: 0.3
+    trapPreference:
+      BREAD: 15
+      SEEDS: 30
+      CORN: 40
+      PELLET: 90
+      SHINY: 90
+    terrainPreference:
+      sand: 10
+      grass: 30
+      water: 70
+      flower: 40
+      wetland: 90
     icon: {fileID: 0}

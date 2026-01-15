@@ -1,0 +1,181 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using System.Collections.Generic;
+using System.Linq;
+using PigeonGame.Data;
+using PigeonGame.Gameplay;
+
+namespace PigeonGame.UI
+{
+    /// <summary>
+    /// 상단바에 현재 맵 정보 표시 (종별 스폰 확률, 현재 terrain 타입)
+    /// </summary>
+    public class MapInfoUI : MonoBehaviour
+    {
+        [SerializeField] private Text terrainTypeText; // 현재 terrain 타입 표시 (Legacy Text)
+        [SerializeField] private TextMeshProUGUI terrainTypeTextMesh; // 현재 terrain 타입 표시 (TextMeshPro)
+        [SerializeField] private Transform speciesProbabilityContainer; // 종별 확률 표시 컨테이너
+        [SerializeField] private GameObject speciesProbabilityItemPrefab; // 종별 확률 아이템 프리팹
+        [SerializeField] private float updateInterval = 0.5f; // 업데이트 간격 (초)
+
+        private WorldPigeonManager pigeonManager;
+        private float updateTimer = 0f;
+        private List<GameObject> probabilityItemObjects = new List<GameObject>();
+
+        private void Start()
+        {
+            pigeonManager = FindFirstObjectByType<WorldPigeonManager>();
+        }
+
+        private void Update()
+        {
+            updateTimer += Time.deltaTime;
+            if (updateTimer >= updateInterval)
+            {
+                updateTimer = 0f;
+                UpdateMapInfo();
+            }
+        }
+
+        private void UpdateMapInfo()
+        {
+            if (PlayerController.Instance == null || pigeonManager == null)
+                return;
+
+            // 현재 플레이어 위치의 terrain 타입 표시
+            string currentTerrain = pigeonManager.GetTerrainTypeAtPosition(PlayerController.Instance.Position);
+            string terrainDisplay = $"Terrain: {currentTerrain ?? "sand"}";
+            
+            if (terrainTypeText != null)
+            {
+                terrainTypeText.text = terrainDisplay;
+            }
+            if (terrainTypeTextMesh != null)
+            {
+                terrainTypeTextMesh.text = terrainDisplay;
+            }
+
+            // 현재 맵의 종별 스폰 확률 표시
+            UpdateSpeciesProbabilities();
+        }
+
+        private void UpdateSpeciesProbabilities()
+        {
+            if (PlayerController.Instance == null)
+            {
+                Debug.LogWarning("MapInfoUI: PlayerController.Instance가 null입니다.");
+                return;
+            }
+
+            if (pigeonManager == null)
+            {
+                Debug.LogWarning("MapInfoUI: WorldPigeonManager를 찾을 수 없습니다.");
+                return;
+            }
+
+            if (speciesProbabilityContainer == null)
+            {
+                Debug.LogWarning("MapInfoUI: SpeciesProbabilityContainer가 할당되지 않았습니다.");
+                return;
+            }
+
+            // 기존 아이템 제거
+            foreach (var obj in probabilityItemObjects)
+            {
+                if (obj != null)
+                    Destroy(obj);
+            }
+            probabilityItemObjects.Clear();
+
+            // 현재 맵의 종별 스폰 확률 가져오기
+            var probabilities = pigeonManager.GetSpeciesSpawnProbabilities(PlayerController.Instance.Position);
+            if (probabilities == null || probabilities.Count == 0)
+            {
+                Debug.LogWarning("MapInfoUI: 스폰 확률 데이터를 가져올 수 없습니다.");
+                return;
+            }
+
+            var registry = GameDataRegistry.Instance;
+            if (registry == null || registry.SpeciesSet == null)
+            {
+                Debug.LogWarning("MapInfoUI: GameDataRegistry 또는 SpeciesSet을 찾을 수 없습니다.");
+                return;
+            }
+
+            // 확률이 높은 순으로 정렬
+            var sortedProbabilities = probabilities.OrderByDescending(kvp => kvp.Value).ToList();
+
+            // 각 종별 확률 표시
+            foreach (var kvp in sortedProbabilities)
+            {
+                var species = registry.SpeciesSet.GetSpeciesById(kvp.Key);
+                if (species == null)
+                {
+                    Debug.LogWarning($"MapInfoUI: 종 ID '{kvp.Key}'에 해당하는 종을 찾을 수 없습니다.");
+                    continue;
+                }
+
+                if (speciesProbabilityItemPrefab != null)
+                {
+                    GameObject itemObj = Instantiate(speciesProbabilityItemPrefab, speciesProbabilityContainer, false);
+                    SetupProbabilityItem(itemObj, species.name, kvp.Value);
+                    probabilityItemObjects.Add(itemObj);
+                }
+                else
+                {
+                    // 프리팹이 없으면 직접 생성
+                    GameObject itemObj = CreateProbabilityItemFallback(species.name, kvp.Value);
+                    if (itemObj != null)
+                    {
+                        itemObj.transform.SetParent(speciesProbabilityContainer, false);
+                        probabilityItemObjects.Add(itemObj);
+                    }
+                }
+            }
+        }
+
+        private void SetupProbabilityItem(GameObject itemObj, string speciesName, float probability)
+        {
+            // TextMeshProUGUI 우선, 없으면 Legacy Text 사용
+            TextMeshProUGUI textMesh = itemObj.GetComponentInChildren<TextMeshProUGUI>();
+            if (textMesh != null)
+            {
+                textMesh.text = $"{speciesName}: {probability:F1}%";
+                return;
+            }
+
+            Text textComponent = itemObj.GetComponentInChildren<Text>();
+            if (textComponent != null)
+            {
+                textComponent.text = $"{speciesName}: {probability:F1}%";
+            }
+        }
+
+        /// <summary>
+        /// 프리팹이 없을 때 대체 아이템 생성
+        /// </summary>
+        private GameObject CreateProbabilityItemFallback(string speciesName, float probability)
+        {
+            GameObject itemObj = new GameObject($"ProbabilityItem_{speciesName}");
+            RectTransform rect = itemObj.AddComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(290f, 25f);
+
+            GameObject textObj = new GameObject("Text");
+            textObj.transform.SetParent(itemObj.transform, false);
+            
+            RectTransform textRect = textObj.AddComponent<RectTransform>();
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.sizeDelta = Vector2.zero;
+            textRect.anchoredPosition = Vector2.zero;
+
+            TextMeshProUGUI textMesh = textObj.AddComponent<TextMeshProUGUI>();
+            textMesh.text = $"{speciesName}: {probability:F1}%";
+            textMesh.fontSize = 14f;
+            textMesh.color = Color.white;
+
+            return itemObj;
+        }
+    }
+}

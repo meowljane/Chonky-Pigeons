@@ -39,7 +39,7 @@ namespace PigeonGame.Gameplay
             }
 
             // Dictionary 초기화 확인
-            if (aiProfile.tiers == null || aiProfile.rarityBasePrice == null)
+            if (aiProfile.tiers == null)
             {
                 aiProfile.OnAfterDeserialize();
             }
@@ -61,40 +61,41 @@ namespace PigeonGame.Gameplay
             // BitePower = Obesity
             stats.bitePower = obesity;
 
-            // EatInterval 계산
-            float obesityMultiplier = 1.0f;
-            if (aiProfile.obesityRule != null && 
-                aiProfile.obesityRule.eatIntervalMultiplierByObesity != null &&
-                aiProfile.obesityRule.eatIntervalMultiplierByObesity.ContainsKey(obesity))
+            // EatInterval 계산 (비만도 기반, tier 1 base 값 사용)
+            float baseEatInterval = 0.65f; // tier 1 값으로 통일
+            float obesityIntervalMultiplier = 1.0f;
+            
+            // EatChance 계산 (비만도 기반)
+            float baseEatChance = 0.95f; // tier 1 값으로 통일
+            float obesityChanceMultiplier = 1.0f;
+            
+            // 비만도별 설정 가져오기
+            if (aiProfile.obesityRule != null && aiProfile.obesityRule.obesityProfiles != null)
             {
-                obesityMultiplier = aiProfile.obesityRule.eatIntervalMultiplierByObesity[obesity];
+                if (aiProfile.obesityRule.obesityProfiles.ContainsKey(obesity))
+            {
+                    var obesityProfile = aiProfile.obesityRule.obesityProfiles[obesity];
+                    obesityIntervalMultiplier = obesityProfile.eatIntervalMultiplier;
+                    obesityChanceMultiplier = obesityProfile.eatChanceMultiplier;
             }
-            stats.eatInterval = tierProfile.eatInterval * obesityMultiplier;
-
-            // AI 파라미터 복사
-            stats.eatChance = tierProfile.eatChance;
-            stats.personalSpaceRadius = tierProfile.personalSpaceRadius;
+            }
+            
+            stats.eatInterval = baseEatInterval * obesityIntervalMultiplier;
+            stats.eatChance = baseEatChance * obesityChanceMultiplier;
             stats.playerAlertPerSec = tierProfile.playerAlertPerSec;
             stats.crowdAlertPerNeighborPerSec = tierProfile.crowdAlertPerNeighborPerSec;
-            stats.alertDecayPerSec = tierProfile.alertDecayPerSec;
-            stats.warnThreshold = tierProfile.warnThreshold;
-            stats.backoffThreshold = tierProfile.backoffThreshold;
-            stats.fleeThreshold = tierProfile.fleeThreshold;
-            stats.backoffDuration = tierProfile.backoffDuration;
-            stats.backoffDistance = tierProfile.backoffDistance;
-            stats.alertWeight = tierProfile.alertWeight;
+            // detectionRadius, warnThreshold, backoffThreshold, fleeThreshold, alertWeight, backoffDistance, alertDecayPerSec는 PigeonMovement에서 관리 (모든 tier 통일)
 
             // 가격 계산
-            int basePrice = aiProfile.rarityBasePrice.ContainsKey(species.rarityTier) 
-                ? aiProfile.rarityBasePrice[species.rarityTier] 
-                : 10;
-
+            int basePrice = tierProfile.basePrice;
             float obesityDiscount = 1.0f;
-            if (aiProfile.obesityRule != null && 
-                aiProfile.obesityRule.obesityPriceDiscount != null &&
-                aiProfile.obesityRule.obesityPriceDiscount.ContainsKey(obesity))
+            
+            if (aiProfile.obesityRule != null && aiProfile.obesityRule.obesityProfiles != null)
             {
-                obesityDiscount = aiProfile.obesityRule.obesityPriceDiscount[obesity];
+                if (aiProfile.obesityRule.obesityProfiles.ContainsKey(obesity))
+                {
+                    obesityDiscount = aiProfile.obesityRule.obesityProfiles[obesity].priceDiscount;
+                }
             }
 
             stats.price = Mathf.RoundToInt(basePrice * obesityDiscount * face.priceMultiplier);

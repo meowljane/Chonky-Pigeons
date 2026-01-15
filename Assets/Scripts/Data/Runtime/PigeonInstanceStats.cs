@@ -10,16 +10,10 @@ namespace PigeonGame.Data
         public int bitePower;
         public float eatInterval;
         public float eatChance;
-        public float personalSpaceRadius;
         public float playerAlertPerSec;
         public float crowdAlertPerNeighborPerSec;
-        public float alertDecayPerSec;
-        public float warnThreshold;
-        public float backoffThreshold;
-        public float fleeThreshold;
-        public float backoffDuration;
-        public float backoffDistance;
-        public float alertWeight; // 플레이어 및 군집 Alert 가중치 (통일)
+        // detectionRadius, warnThreshold, backoffThreshold, fleeThreshold, backoffDistance, alertDecayPerSec는 PigeonMovement에서 관리 (모든 tier 통일)
+        // alertWeight는 PigeonMovement에서 관리 (모든 비둘기 공통)
         public int price;
 
         /// <summary>
@@ -35,16 +29,10 @@ namespace PigeonGame.Data
                 bitePower = this.bitePower,
                 eatInterval = this.eatInterval,
                 eatChance = this.eatChance,
-                personalSpaceRadius = this.personalSpaceRadius,
                 playerAlertPerSec = this.playerAlertPerSec,
                 crowdAlertPerNeighborPerSec = this.crowdAlertPerNeighborPerSec,
-                alertDecayPerSec = this.alertDecayPerSec,
-                warnThreshold = this.warnThreshold,
-                backoffThreshold = this.backoffThreshold,
-                fleeThreshold = this.fleeThreshold,
-                backoffDuration = this.backoffDuration,
-                backoffDistance = this.backoffDistance,
-                alertWeight = this.alertWeight,
+                // detectionRadius, warnThreshold, backoffThreshold, fleeThreshold, backoffDistance, alertDecayPerSec는 PigeonMovement에서 관리
+                // alertWeight는 PigeonMovement에서 관리
                 price = this.price
             };
         }

@@ -6,18 +6,22 @@ namespace PigeonGame.Gameplay
     public class PigeonMovement : MonoBehaviour
     {
         [SerializeField] private float wanderSpeed = 2f;
-        [SerializeField] private float backoffSpeed = 3f;
+        [SerializeField] private float backoffSpeed = 2f;
         [SerializeField] private float fleeSpeed = 4f;
-        [SerializeField] private float wanderRadius = 1f;
+        [SerializeField] private float wanderRadius = 2f;
         [SerializeField] private float wanderInterval = 2f;
-        [SerializeField] private float foodDetectionRadius = 5f; // 덫을 탐색하는 반경
-        [SerializeField] private float eatingRadius = 2f; // 실제로 먹을 수 있는 범위 반경
-        [SerializeField] private float alertDetectionRadius = 10f; // 플레이어 및 군집 감지 반경
-        [SerializeField] private float randomFlyAwayChance = 0.01f; // 초당 화면 밖으로 나갈 확률
-        [SerializeField] private float alertWeightMultiplier = 1.0f; // Alert 가중치 배율 (플레이어 조절 가능)
+        [SerializeField] private float eatingRadius = 0.1f;
+        [SerializeField] private float detectionRadius = 2f; // 모든 비둘기 공통 감지 반경
+        [SerializeField] private float alertWeight = 2.0f;
+        [SerializeField] private float warnThreshold = 45f;
+        [SerializeField] private float backoffThreshold = 70f;
+        [SerializeField] private float fleeThreshold = 100f;
         [SerializeField] private bool showDebugGizmos = true;
-
-        public static float GlobalAlertWeightMultiplier { get; private set; } = 1.0f;
+        
+        public float WarnThreshold => warnThreshold;
+        public float BackoffThreshold => backoffThreshold;
+        public float FleeThreshold => fleeThreshold;
+        public float AlertWeight => alertWeight;
         
         private Rigidbody2D rb;
         private PigeonAI ai;
@@ -25,13 +29,13 @@ namespace PigeonGame.Gameplay
         private Vector2 wanderTarget;
         private float wanderTimer;
         private FoodTrap targetFoodTrap;
-        private float backoffTimer = 0f;
         private Vector2 backoffTarget;
         private bool backoffTargetSet = false;
+        private Vector2 backoffStartPosition; // BackOff 시작 위치
         private Camera mainCamera;
-        private bool backoffCausedByPlayer = false; // BackOff 원인 추적 (플레이어 vs 군집)
-        private float lastPlayerAlertIncrease = 0f; // 이전 프레임의 플레이어 Alert 증가량
-        private float lastCrowdAlertIncrease = 0f; // 이전 프레임의 군집 Alert 증가량
+        private bool backoffCausedByPlayer = false;
+        private float backoffEndTime = 0f; // BackOff 종료 시간
+        private const float BACKOFF_COOLDOWN = 2f; // BackOff 종료 후 먹이 탐색 금지 시간 (초)
 
         private void Awake()
         {
@@ -43,7 +47,6 @@ namespace PigeonGame.Gameplay
             }
             rb.gravityScale = 0;
             rb.linearDamping = 5f;
-            // 회전 고정 (2D 게임이므로 스프라이트가 회전하지 않도록)
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
             ai = GetComponent<PigeonAI>();
@@ -54,17 +57,6 @@ namespace PigeonGame.Gameplay
         private void Start()
         {
             SetNewWanderTarget();
-            // 전역 Alert 가중치 배율 업데이트 (첫 번째 인스턴스가 설정)
-            if (GlobalAlertWeightMultiplier == 1.0f)
-            {
-                GlobalAlertWeightMultiplier = alertWeightMultiplier;
-            }
-        }
-
-        private void OnValidate()
-        {
-            // Inspector에서 값이 변경되면 전역 값도 업데이트
-            GlobalAlertWeightMultiplier = alertWeightMultiplier;
         }
 
         private void Update()
@@ -72,69 +64,55 @@ namespace PigeonGame.Gameplay
             if (ai == null || controller == null || controller.Stats == null)
                 return;
 
-            // Alert 시스템 업데이트 (먼저 실행하여 alert 증가)
-            UpdateAlertSystem();
-
-            // 상태에 따른 행동 처리
-            PigeonState currentState = ai.CurrentState;
-            
-            // Flee 상태는 최우선으로 처리 (다른 모든 행동 무시)
-            if (currentState == PigeonState.Flee)
+            // Flee 상태는 최우선 처리
+            if (ai.CurrentState == PigeonState.Flee)
             {
                 HandleFlee();
                 return;
             }
 
-            // 플레이어가 가까이 있으면 무조건 뒷걸음질 (alert와 관계없이) - OverlapCircleAll 사용
-            Collider2D[] playerColliders = Physics2D.OverlapCircleAll(transform.position, alertDetectionRadius);
-            bool playerTooClose = false;
-            
-            foreach (var col in playerColliders)
-            {
-                if (col == null)
-                    continue;
+            // Alert 시스템 업데이트 (플레이어 감지 및 alert 증가) - 항상 호출
+            UpdateAlertSystem();
 
-                PlayerController player = col.GetComponent<PlayerController>();
-                if (player != null)
+            // 상태에 따른 행동 처리
+            PigeonState state = ai.CurrentState;
+
+            // BackOff 목표가 설정되어 있으면 목표에 도달할 때까지 BackOff 유지
+            if (backoffTargetSet)
+            {
+                float distanceToTarget = Vector2.Distance(transform.position, backoffTarget);
+                if (distanceToTarget >= 0.2f)
                 {
-                    playerTooClose = true;
-                    break;
+                    // 목표에 아직 도달하지 않았으면 BackOff 계속
+                    HandleBackOff();
+                    return;
+                }
+                else
+                {
+                    // 목표에 도달했으면 BackOff 목표 초기화
+                    backoffTargetSet = false;
+                    backoffCausedByPlayer = false; // BackOff 종료 시 초기화
+                    targetFoodTrap = null; // BackOff 종료 시 먹이 타겟 초기화
+                    backoffEndTime = Time.time; // BackOff 종료 시간 기록
                 }
             }
 
-            if (playerTooClose)
+            // 플레이어가 가까이 있으면 무조건 BackOff
+            if (IsPlayerNearby())
             {
-                // 플레이어 강제 BackOff → 플레이어 원인으로 설정
                 backoffCausedByPlayer = true;
                 HandleBackOff();
-                return; // 플레이어가 가까이 있으면 다른 행동 무시
+                return;
             }
 
             // BackOff 상태 처리
-            if (currentState == PigeonState.BackOff)
+            if (state == PigeonState.BackOff)
             {
-                // Alert 기반 BackOff → 원인 판단
-                // 이전 프레임의 Alert 증가량 비교
-                if (lastPlayerAlertIncrease > lastCrowdAlertIncrease)
-                {
-                    backoffCausedByPlayer = true;
-                }
-                else if (lastCrowdAlertIncrease > lastPlayerAlertIncrease)
-                {
-                    backoffCausedByPlayer = false;
-                }
-                // 같거나 둘 다 0이면 이전 값 유지
-                
                 HandleBackOff();
             }
             else
             {
-                // BackOff 상태가 아니면 원인 플래그 리셋 및 정상 이동
-                backoffCausedByPlayer = false;
                 HandleNormalMovement();
-                // Normal 상태로 돌아오면 BackOff 관련 변수 리셋
-                backoffTargetSet = false;
-                backoffTimer = 0f;
             }
         }
 
@@ -143,102 +121,50 @@ namespace PigeonGame.Gameplay
             if (controller == null || controller.Stats == null || ai == null)
                 return;
 
-            float deltaTime = Time.deltaTime;
+            // Flee 상태일 때는 alert 업데이트 안 함
+            if (ai.CurrentState == PigeonState.Flee)
+                return;
 
-            // 이전 프레임의 Alert 증가량 초기화
-            lastPlayerAlertIncrease = 0f;
-            lastCrowdAlertIncrease = 0f;
-
-            // 플레이어 접근 감지 및 Alert 증가 (OverlapCircleAll 사용)
-            Collider2D[] playerColliders = Physics2D.OverlapCircleAll(transform.position, alertDetectionRadius);
-            bool playerNearby = false;
-            float minPlayerDistance = float.MaxValue;
-
-            foreach (var col in playerColliders)
+            // 플레이어 감지 및 Alert 증가
+            if (PlayerController.Instance != null)
             {
-                if (col == null)
-                    continue;
-
-                PlayerController player = col.GetComponent<PlayerController>();
-                if (player != null)
+                float distance = Vector2.Distance(transform.position, PlayerController.Instance.Position);
+                if (distance <= detectionRadius)
                 {
-                    playerNearby = true;
-                    float distance = Vector2.Distance(transform.position, col.transform.position);
-                    if (distance < minPlayerDistance)
-                        minPlayerDistance = distance;
+                    float distanceFactor = Mathf.Clamp01(1f - (distance / detectionRadius));
+                    ai.AddPlayerAlert(Time.deltaTime * distanceFactor);
                 }
-            }
-
-            if (playerNearby)
-            {
-                // 거리에 반비례하여 Alert 증가 (가까울수록 더 많이 증가)
-                float distanceFactor = 1f - (minPlayerDistance / alertDetectionRadius);
-                float alertIncrease = controller.Stats.playerAlertPerSec * controller.Stats.alertWeight * PigeonMovement.GlobalAlertWeightMultiplier * deltaTime * distanceFactor;
-                lastPlayerAlertIncrease = alertIncrease;
-                ai.AddPlayerAlert(deltaTime * distanceFactor);
-            }
-
-            // 군집 밀도 계산 및 Alert 증가
-            int neighborCount = CountNearbyPigeons();
-            if (neighborCount > 0)
-            {
-                float alertIncrease = controller.Stats.crowdAlertPerNeighborPerSec * controller.Stats.alertWeight * PigeonMovement.GlobalAlertWeightMultiplier * neighborCount * deltaTime;
-                lastCrowdAlertIncrease = alertIncrease;
-                ai.AddCrowdAlert(neighborCount, deltaTime);
             }
         }
 
-        private int CountNearbyPigeons()
+        private bool IsPlayerNearby()
         {
-            if (ai == null)
-                return 0;
+            if (PlayerController.Instance == null)
+                return false;
 
-            // Physics2D.OverlapCircleAll 사용 (Unity 물리 엔진의 최적화된 공간 분할 활용)
-            // Collider2D가 있는 비둘기만 감지되므로 가장 효율적
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, alertDetectionRadius);
-            int count = 0;
-
-            foreach (var col in colliders)
-            {
-                if (col == null)
-                    continue;
-
-                PigeonAI otherPigeon = col.GetComponent<PigeonAI>();
-                if (otherPigeon != null && otherPigeon != ai)
-                {
-                    // 거리 확인 (디버깅용)
-                    float distance = Vector2.Distance(transform.position, col.transform.position);
-                    if (distance <= alertDetectionRadius)
-                    {
-                        count++;
-                    }
-                }
-            }
-
-            return count;
+            float distance = Vector2.Distance(transform.position, PlayerController.Instance.Position);
+            return distance <= detectionRadius;
         }
 
         private void HandleNormalMovement()
         {
-            // 랜덤하게 화면 밖으로 날아가기
-            if (Random.value < randomFlyAwayChance * Time.deltaTime)
+            // BackOff 종료 후 일정 시간 동안은 먹이 탐색 금지
+            if (Time.time - backoffEndTime >= BACKOFF_COOLDOWN)
             {
-                FlyAwayFromScreen();
-                return;
+                FindNearestFoodTrap();
+            }
+            else
+            {
+                targetFoodTrap = null; // 쿨다운 중에는 먹이 타겟 초기화
             }
 
-            // 덫 찾기
-            FindNearestFoodTrap();
-
             wanderTimer += Time.deltaTime;
-            
             if (wanderTimer >= wanderInterval)
             {
                 SetNewWanderTarget();
                 wanderTimer = 0f;
             }
 
-            // 목표 지점으로 이동
             if (rb == null) return;
 
             Vector2 targetPos = targetFoodTrap != null && !targetFoodTrap.IsDepleted
@@ -248,124 +174,48 @@ namespace PigeonGame.Gameplay
             MoveTowardsTarget(targetPos, wanderSpeed);
         }
 
-        /// <summary>
-        /// 화면 밖으로 날아가기
-        /// </summary>
-        private void FlyAwayFromScreen()
-        {
-            if (mainCamera == null)
-                mainCamera = Camera.main;
-
-            if (mainCamera == null)
-                return;
-
-            // 화면 밖 방향 계산
-            Vector2 screenPos = mainCamera.WorldToViewportPoint(transform.position);
-            Vector2 screenCenter = new Vector2(0.5f, 0.5f);
-            Vector2 awayFromCenter = ((Vector2)transform.position - (Vector2)mainCamera.transform.position).normalized;
-
-            // 랜덤한 화면 밖 방향
-            float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
-            Vector2 randomDirection = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-
-            // 화면 밖으로 이동
-            rb.linearVelocity = randomDirection * fleeSpeed;
-        }
-
         private void HandleBackOff()
         {
             if (controller == null || controller.Stats == null)
                 return;
 
-            backoffTimer += Time.deltaTime;
+            // 먹이 경쟁으로 인한 BackOff는 2배 멀어짐
+            float backoffDistance = backoffCausedByPlayer ? detectionRadius : detectionRadius * 2f;
 
-            // BackOff 목표 설정 (플레이어에서 멀어지는 방향)
-            if (!backoffTargetSet || backoffTimer >= controller.Stats.backoffDuration)
+            // BackOff 시작 위치 기록 (처음 BackOff 상태가 되었을 때)
+            if (!backoffTargetSet)
             {
+                backoffStartPosition = transform.position;
                 Vector2 backoffDirection = CalculateBackoffDirection();
-                backoffTarget = (Vector2)transform.position + backoffDirection * controller.Stats.backoffDistance;
-                backoffTimer = 0f;
+                backoffTarget = backoffStartPosition + backoffDirection * backoffDistance;
                 backoffTargetSet = true;
             }
 
-            // BackOff 목표로 이동
+            // 목표에 도달했는지 확인 (더 큰 거리로 판단)
+            float distanceToTarget = Vector2.Distance(transform.position, backoffTarget);
+            if (distanceToTarget < 0.2f)
+            {
+                // 목표에 도달했으면 현재 위치에서 더 멀리 떨어진 새로운 목표 설정
+                Vector2 backoffDirection = CalculateBackoffDirection();
+                backoffTarget = (Vector2)transform.position + backoffDirection * backoffDistance;
+            }
+
             MoveTowardsTarget(backoffTarget, backoffSpeed);
         }
 
         private Vector2 CalculateBackoffDirection()
         {
-            // 원인에 따라 다른 방향으로 후퇴
-            if (backoffCausedByPlayer)
+            if (backoffCausedByPlayer && PlayerController.Instance != null)
             {
-                // 플레이어 원인 → 플레이어에서만 후퇴
-                if (PlayerController.Instance != null)
+                Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
+                if (toPlayer.magnitude > 0.1f)
                 {
-                    Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
-                    if (toPlayer.magnitude > 0.1f)
-                    {
-                        return -toPlayer.normalized;
-                    }
-                }
-            }
-            else
-            {
-                // 군집 원인 → 비둘기 군집에서만 후퇴
-                Vector2 crowdAwayVector = CalculateCrowdAwayDirection();
-                if (crowdAwayVector.magnitude > 0.1f)
-                {
-                    return crowdAwayVector;
+                    return -toPlayer.normalized;
                 }
             }
 
-            // 원인을 찾을 수 없으면 랜덤 방향
+            // 먹이 경쟁으로 인한 BackOff는 랜덤 방향으로 멀어짐
             return Random.insideUnitCircle.normalized;
-        }
-
-        /// <summary>
-        /// 주변 비둘기 군집에서 멀어지는 방향 계산
-        /// </summary>
-        private Vector2 CalculateCrowdAwayDirection()
-        {
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, alertDetectionRadius);
-            Vector2 crowdCenter = Vector2.zero;
-            int count = 0;
-
-            foreach (var col in colliders)
-            {
-                if (col == null)
-                    continue;
-
-                PigeonAI otherPigeon = col.GetComponent<PigeonAI>();
-                if (otherPigeon != null && otherPigeon != ai)
-                {
-                    crowdCenter += (Vector2)col.transform.position;
-                    count++;
-                }
-            }
-
-            if (count > 0)
-            {
-                crowdCenter /= count; // 평균 위치
-                Vector2 toCrowd = crowdCenter - (Vector2)transform.position;
-                return toCrowd.magnitude > 0.1f ? -toCrowd.normalized : Vector2.zero;
-            }
-
-            return Vector2.zero;
-        }
-
-        private void MoveTowardsTarget(Vector2 target, float speed)
-        {
-            Vector2 direction = (target - (Vector2)transform.position).normalized;
-            float distance = Vector2.Distance(transform.position, target);
-            
-            if (distance < 0.1f)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
-            else
-            {
-                rb.linearVelocity = direction * speed;
-            }
         }
 
         private void HandleFlee()
@@ -396,10 +246,24 @@ namespace PigeonGame.Gameplay
             return Random.insideUnitCircle.normalized;
         }
 
+        private void MoveTowardsTarget(Vector2 target, float speed)
+        {
+            Vector2 direction = (target - (Vector2)transform.position).normalized;
+            float distance = Vector2.Distance(transform.position, target);
+            
+            if (distance < 0.1f)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+            else
+            {
+                rb.linearVelocity = direction * speed;
+            }
+        }
+
         private void FindNearestFoodTrap()
         {
-            // OverlapCircleAll로 foodDetectionRadius 내의 덫 찾기
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, foodDetectionRadius);
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, detectionRadius);
             FoodTrap nearestTrap = null;
             float nearestDistance = float.MaxValue;
 
@@ -423,9 +287,6 @@ namespace PigeonGame.Gameplay
             targetFoodTrap = nearestTrap;
         }
 
-        /// <summary>
-        /// 비둘기의 먹기 반경 가져오기 (FoodTrap에서 사용)
-        /// </summary>
         public float GetEatingRadius()
         {
             return eatingRadius;
@@ -442,26 +303,12 @@ namespace PigeonGame.Gameplay
             if (!showDebugGizmos)
                 return;
 
-            // 먹이 탐색 반경
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, foodDetectionRadius);
+            Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-            // 먹기 반경
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(transform.position, eatingRadius);
 
-            // Alert 감지 반경 (플레이어 및 군집)
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, alertDetectionRadius);
-
-            // 군집 감지 반경
-            if (controller != null && controller.Stats != null)
-            {
-                Gizmos.color = Color.cyan;
-                Gizmos.DrawWireSphere(transform.position, controller.Stats.personalSpaceRadius);
-            }
-
-            // Alert 상태 시각화
             if (ai != null)
             {
                 float alert = ai.Alert;
@@ -479,7 +326,6 @@ namespace PigeonGame.Gameplay
                 Gizmos.color = stateColor;
                 Gizmos.DrawWireSphere(transform.position, 0.3f);
 
-                // Alert 수치를 텍스트로 표시 (디버그용)
                 #if UNITY_EDITOR
                 UnityEditor.Handles.Label(
                     transform.position + Vector3.up * 0.5f,
@@ -490,4 +336,3 @@ namespace PigeonGame.Gameplay
         }
     }
 }
-

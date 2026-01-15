@@ -103,6 +103,9 @@ namespace PigeonGame.Gameplay
             // 주변 비둘기 감지
             UpdateNearbyPigeons();
 
+            // 먹이 경쟁 참여 비둘기들끼리 스트레스 증가
+            UpdateCompetitionAlert();
+
             // 먹는 상태 타이머 업데이트 (먹는 중 표시 유지 시간)
             UpdateEatingStateTimers();
 
@@ -129,6 +132,40 @@ namespace PigeonGame.Gameplay
                     pigeonEatTimers[pigeon] = 0f;
                     TryEat(pigeon);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 먹이 경쟁 참여 비둘기들끼리 스트레스 증가
+        /// </summary>
+        private void UpdateCompetitionAlert()
+        {
+            if (nearbyPigeons.Count <= 1)
+                return;
+
+            float deltaTime = Time.deltaTime;
+
+            // 먹이 경쟁에 참여할 수 있는 비둘기들만 필터링
+            List<PigeonAI> competingPigeons = new List<PigeonAI>();
+            foreach (var pigeon in nearbyPigeons)
+            {
+                if (pigeon != null && pigeon.CanEat())
+                {
+                    competingPigeons.Add(pigeon);
+                }
+            }
+
+            if (competingPigeons.Count <= 1)
+                return;
+
+            // 각 비둘기마다 다른 경쟁자 수만큼 스트레스 증가
+            int competitorCount = competingPigeons.Count - 1;
+            foreach (var pigeon in competingPigeons)
+            {
+                if (pigeon == null || pigeon.CurrentState == PigeonState.Flee)
+                    continue;
+
+                pigeon.AddCrowdAlert(competitorCount, deltaTime);
             }
         }
 

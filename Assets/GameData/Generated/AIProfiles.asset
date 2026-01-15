@@ -15,72 +15,42 @@ MonoBehaviour:
   version: 1
   obesityRule:
     bitePowerEqualsObesity: 1
+    obesityKeys: 0100000002000000030000000400000005000000
+    obesityValues:
+    - eatIntervalMultiplier: 1.08
+      eatChanceMultiplier: 0.85
+      priceDiscount: 1.1
+    - eatIntervalMultiplier: 1
+      eatChanceMultiplier: 0.9
+      priceDiscount: 1
+    - eatIntervalMultiplier: 0.92
+      eatChanceMultiplier: 0.95
+      priceDiscount: 0.9
+    - eatIntervalMultiplier: 0.85
+      eatChanceMultiplier: 1
+      priceDiscount: 0.8
+    - eatIntervalMultiplier: 0.8
+      eatChanceMultiplier: 1.05
+      priceDiscount: 0.7
   stressToEatModifier:
     enabled: 1
     warnEatChanceMultiplier: 0.65
     warnEatIntervalMultiplier: 1.25
     backoffStopsEating: 1
-  rarityBasePriceKeys: 0100000002000000030000000400000005000000
-  rarityBasePriceValues: 0800000012000000280000005a000000b4000000
   tierKeys: 0100000002000000030000000400000005000000
   tierValues:
-  - eatInterval: 0.65
-    eatChance: 0.95
-    personalSpaceRadius: 0.55
-    playerAlertPerSec: 38
+  - playerAlertPerSec: 38
     crowdAlertPerNeighborPerSec: 6
-    alertDecayPerSec: 10
-    warnThreshold: 45
-    backoffThreshold: 80
-    fleeThreshold: 110
-    backoffDuration: 0.7
-    backoffDistance: 0.7
-    alertWeight: 1
-  - eatInterval: 0.85
-    eatChance: 0.88
-    personalSpaceRadius: 0.6
-    playerAlertPerSec: 30
+    basePrice: 8
+  - playerAlertPerSec: 30
     crowdAlertPerNeighborPerSec: 7
-    alertDecayPerSec: 9
-    warnThreshold: 50
-    backoffThreshold: 82
-    fleeThreshold: 110
-    backoffDuration: 0.85
-    backoffDistance: 0.8
-    alertWeight: 1
-  - eatInterval: 1.1
-    eatChance: 0.75
-    personalSpaceRadius: 0.75
-    playerAlertPerSec: 22
+    basePrice: 18
+  - playerAlertPerSec: 22
     crowdAlertPerNeighborPerSec: 11
-    alertDecayPerSec: 11
-    warnThreshold: 55
-    backoffThreshold: 78
-    fleeThreshold: 105
-    backoffDuration: 1.15
-    backoffDistance: 1.05
-    alertWeight: 1
-  - eatInterval: 1.35
-    eatChance: 0.65
-    personalSpaceRadius: 0.9
-    playerAlertPerSec: 18
+    basePrice: 40
+  - playerAlertPerSec: 18
     crowdAlertPerNeighborPerSec: 14
-    alertDecayPerSec: 12
-    warnThreshold: 58
-    backoffThreshold: 74
-    fleeThreshold: 100
-    backoffDuration: 1.35
-    backoffDistance: 1.25
-    alertWeight: 1
-  - eatInterval: 1.55
-    eatChance: 0.55
-    personalSpaceRadius: 1.1
-    playerAlertPerSec: 14
+    basePrice: 90
+  - playerAlertPerSec: 14
     crowdAlertPerNeighborPerSec: 16
-    alertDecayPerSec: 13
-    warnThreshold: 60
-    backoffThreshold: 70
-    fleeThreshold: 95
-    backoffDuration: 1.55
-    backoffDistance: 1.45
-    alertWeight: 1
+    basePrice: 180

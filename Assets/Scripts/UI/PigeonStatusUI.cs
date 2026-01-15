@@ -179,13 +179,23 @@ namespace PigeonGame.UI
             if (alertBar == null || pigeonAI == null || pigeonController == null || pigeonController.Stats == null)
                 return;
 
+            PigeonState state = pigeonAI.CurrentState;
             float alert = pigeonAI.Alert;
-            // alert 값을 0-100 범위로 정규화
-            float fillAmount = Mathf.Clamp01(alert / 100.0f);
+            
+            // Flee 상태일 때는 항상 100%로 표시
+            float fillAmount;
+            if (state == PigeonState.Flee)
+            {
+                fillAmount = 1.0f;
+            }
+            else
+            {
+                // alert 값을 0-100 범위로 정규화
+                fillAmount = Mathf.Clamp01(alert / 100.0f);
+            }
 
             alertBar.fillAmount = fillAmount;
 
-            PigeonState state = pigeonAI.CurrentState;
             int stateIndex = (int)state;
             if (stateIndex >= 0 && stateIndex < alertColors.Length)
             {

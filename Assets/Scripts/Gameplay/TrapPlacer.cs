@@ -27,14 +27,6 @@ namespace PigeonGame.Gameplay
             }
 
             Vector3 playerPos = PlayerController.Instance.Position;
-            return PlaceTrapAtPosition(playerPos, trapId);
-        }
-
-        /// <summary>
-        /// 지정된 위치에 덫 설치
-        /// </summary>
-        public bool PlaceTrapAtPosition(Vector3 position, string trapId)
-        {
 
             // 덫 해금 확인
             if (requirePurchase && GameManager.Instance != null)
@@ -46,7 +38,7 @@ namespace PigeonGame.Gameplay
             }
 
             // 덫 프리팹 생성
-            GameObject trapObj = Instantiate(trapPrefab, position, Quaternion.identity);
+            GameObject trapObj = Instantiate(trapPrefab, playerPos, Quaternion.identity);
             FoodTrap trap = trapObj.GetComponent<FoodTrap>();
             
             if (trap != null)
@@ -61,15 +53,20 @@ namespace PigeonGame.Gameplay
                     foodDisplay = trapObj.AddComponent<UI.TrapFoodDisplay>();
                 }
 
+                // 덫 설치 시 비둘기 추가 스폰 (해당 맵 내 랜덤 위치)
+                var registry = GameDataRegistry.Instance;
+                if (registry != null && registry.Traps != null && pigeonManager != null)
+                {
+                    var trapData = registry.Traps.GetTrapById(trapId);
+                    if (trapData != null && trapData.pigeonSpawnCount > 0)
+                    {
+                        pigeonManager.SpawnPigeonsInMap(playerPos, trapData.pigeonSpawnCount, true);
+                    }
+                }
+
                 // 포획 이벤트는 더 이상 즉시 등록하지 않음
                 // 상호작용을 통해 수집하도록 변경됨
                 // trap.OnCaptured += OnPigeonCaptured;
-
-                // 비둘기 스폰
-                if (pigeonManager != null)
-                {
-                    pigeonManager.SpawnPigeonsAtPosition(position, trap);
-                }
 
                 return true;
             }
