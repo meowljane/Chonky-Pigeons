@@ -2,10 +2,22 @@ using UnityEngine;
 
 namespace PigeonGame.Data
 {
+    /// <summary>
+    /// 덫 타입 Enum
+    /// </summary>
+    public enum TrapType
+    {
+        BREAD,
+        SEEDS,
+        CORN,
+        PELLET,
+        SHINY
+    }
+
     [System.Serializable]
     public class TrapDefinition
     {
-        public string id;
+        public TrapType trapType;
         public string name;
         public int unlockCost; // 해금에 필요한 골드
         public int installCost; // 해금 후 덫을 실제로 설치할 때마다 드는 골드
@@ -32,20 +44,20 @@ namespace PigeonGame.Data
                 version = 1;
                 traps = new TrapDefinition[]
                 {
-                    new TrapDefinition { id = "BREAD", name = "바삭빵덫", unlockCost = 0, installCost = 0, feedCostPerUnit = 1, feedAmount = 20, pigeonSpawnCount = 3 },
-                    new TrapDefinition { id = "SEEDS", name = "톡톡씨앗덫", unlockCost = 15, installCost = 8, feedCostPerUnit = 1, feedAmount = 20, pigeonSpawnCount = 4 },
-                    new TrapDefinition { id = "CORN", name = "노랑옥수수덫", unlockCost = 25, installCost = 12, feedCostPerUnit = 2, feedAmount = 20, pigeonSpawnCount = 5 },
-                    new TrapDefinition { id = "PELLET", name = "프리미엄알갱이덫", unlockCost = 50, installCost = 25, feedCostPerUnit = 3, feedAmount = 20, pigeonSpawnCount = 6 },
-                    new TrapDefinition { id = "SHINY", name = "반짝간식덫", unlockCost = 100, installCost = 50, feedCostPerUnit = 5, feedAmount = 20, pigeonSpawnCount = 8 }
+                    new TrapDefinition { trapType = TrapType.BREAD, name = "바삭빵덫", unlockCost = 0, installCost = 0, feedCostPerUnit = 1, feedAmount = 20, pigeonSpawnCount = 3 },
+                    new TrapDefinition { trapType = TrapType.SEEDS, name = "톡톡씨앗덫", unlockCost = 15, installCost = 8, feedCostPerUnit = 1, feedAmount = 20, pigeonSpawnCount = 4 },
+                    new TrapDefinition { trapType = TrapType.CORN, name = "노랑옥수수덫", unlockCost = 25, installCost = 12, feedCostPerUnit = 2, feedAmount = 20, pigeonSpawnCount = 5 },
+                    new TrapDefinition { trapType = TrapType.PELLET, name = "프리미엄알갱이덫", unlockCost = 50, installCost = 25, feedCostPerUnit = 3, feedAmount = 20, pigeonSpawnCount = 6 },
+                    new TrapDefinition { trapType = TrapType.SHINY, name = "반짝간식덫", unlockCost = 100, installCost = 50, feedCostPerUnit = 5, feedAmount = 20, pigeonSpawnCount = 8 }
                 };
             }
         }
 
-        public TrapDefinition GetTrapById(string trapId)
+        public TrapDefinition GetTrapById(TrapType trapType)
         {
             foreach (var trap in traps)
             {
-                if (trap.id == trapId)
+                if (trap.trapType == trapType)
                     return trap;
             }
             return null;

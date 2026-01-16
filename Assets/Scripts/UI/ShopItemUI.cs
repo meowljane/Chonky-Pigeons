@@ -41,11 +41,11 @@ namespace PigeonGame.UI
                 if (registry != null && registry.SpeciesSet != null)
                 {
                     var species = registry.SpeciesSet.GetSpeciesById(stats.speciesId);
-                    nameText.text = species != null ? species.name : stats.speciesId;
+                    nameText.text = species != null ? species.name : stats.speciesId.ToString();
                 }
                 else
                 {
-                    nameText.text = stats.speciesId;
+                    nameText.text = stats.speciesId.ToString();
                 }
             }
 

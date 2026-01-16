@@ -44,7 +44,7 @@ namespace PigeonGame.UI
         private TrapPlacer trapPlacer;
         private WorldPigeonManager pigeonManager;
         private List<GameObject> trapItemObjects = new List<GameObject>();
-        private string selectedTrapId;
+        private TrapType selectedTrapId;
         private GameObject selectedTrapItem; // 현재 선택된 덫 아이템
 
         private void Start()
@@ -128,16 +128,17 @@ namespace PigeonGame.UI
             {
                 var firstTrap = registry.Traps.traps[0];
                 if (firstTrap != null && GameManager.Instance != null && 
-                    GameManager.Instance.IsTrapUnlocked(firstTrap.id))
+                    GameManager.Instance.IsTrapUnlocked(firstTrap.trapType))
                 {
-                    OnTrapSelected(firstTrap.id);
+                    OnTrapSelected(firstTrap.trapType);
                 }
             }
             
-            // GameManager 돈 변경 이벤트 구독
+            // GameManager 이벤트 구독
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
+                GameManager.Instance.OnTrapUnlocked += OnTrapUnlocked;
             }
         }
 
@@ -165,7 +166,7 @@ namespace PigeonGame.UI
         private void SetupTrapItem(GameObject itemObj, TrapDefinition trapData)
         {
             bool isUnlocked = GameManager.Instance != null && 
-                             GameManager.Instance.IsTrapUnlocked(trapData.id);
+                             GameManager.Instance.IsTrapUnlocked(trapData.trapType);
 
             // 배경색 설정
             Image bg = itemObj.GetComponent<Image>();
@@ -207,7 +208,7 @@ namespace PigeonGame.UI
             if (button != null)
             {
                 button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => OnTrapSelected(trapData.id));
+                button.onClick.AddListener(() => OnTrapSelected(trapData.trapType));
             }
 
             // 덫 이름 텍스트만 표시
@@ -230,10 +231,10 @@ namespace PigeonGame.UI
             }
 
             // 선택 상태 업데이트
-            UpdateTrapItemSelection(itemObj, trapData.id);
+            UpdateTrapItemSelection(itemObj, trapData.trapType);
         }
 
-        private void UpdateTrapItemSelection(GameObject itemObj, string trapId)
+        private void UpdateTrapItemSelection(GameObject itemObj, TrapType trapType)
         {
             // 선택 체크마크 표시/숨김
             GameObject checkmarkObj = itemObj.transform.Find("Checkmark")?.gameObject;
@@ -242,7 +243,7 @@ namespace PigeonGame.UI
                 Image checkmarkImage = checkmarkObj.GetComponent<Image>();
                 if (checkmarkImage != null)
                 {
-                    if (selectedTrapId == trapId)
+                    if (selectedTrapId == trapType)
                     {
                         if (checkmarkSprite != null)
                         {
@@ -265,7 +266,7 @@ namespace PigeonGame.UI
             }
         }
 
-        private void OnTrapSelected(string trapId)
+        private void OnTrapSelected(TrapType trapType)
         {
             // 이전 선택 해제
             if (selectedTrapItem != null)
@@ -273,13 +274,13 @@ namespace PigeonGame.UI
                 UpdateTrapItemSelection(selectedTrapItem, selectedTrapId);
             }
 
-            selectedTrapId = trapId;
+            selectedTrapId = trapType;
             
             // 새로 선택한 덫 찾기
             var registry = GameDataRegistry.Instance;
             if (registry != null && registry.Traps != null)
             {
-                var trapData = registry.Traps.GetTrapById(trapId);
+                var trapData = registry.Traps.GetTrapById(trapType);
                 if (trapData != null)
                 {
                     foreach (var itemObj in trapItemObjects)
@@ -324,7 +325,7 @@ namespace PigeonGame.UI
                             {
                                 if (trap.name == itemName)
                                 {
-                                    UpdateTrapItemSelection(itemObj, trap.id);
+                                    UpdateTrapItemSelection(itemObj, trap.trapType);
                                     break;
                                 }
                             }
@@ -333,22 +334,22 @@ namespace PigeonGame.UI
                 }
             }
 
-            UpdateInfoDisplay(trapId);
+            UpdateInfoDisplay(trapType);
             UpdatePriceDisplay();
         }
 
-        private void UpdateInfoDisplay(string trapId)
+        private void UpdateInfoDisplay(TrapType trapType)
         {
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.Traps == null)
                 return;
 
-            var trapData = registry.Traps.GetTrapById(trapId);
+            var trapData = registry.Traps.GetTrapById(trapType);
             if (trapData == null)
                 return;
 
             // 현재 Terrain 정보
-            string currentTerrain = "sand";
+            TerrainType currentTerrain = TerrainType.SAND;
             if (PlayerController.Instance != null && pigeonManager != null)
             {
                 currentTerrain = pigeonManager.GetTerrainTypeAtPosition(PlayerController.Instance.Position);
@@ -372,8 +373,7 @@ namespace PigeonGame.UI
                 List<string> terrainPigeonNames = new List<string>();
                 foreach (var species in registry.SpeciesSet.species)
                 {
-                    if (!string.IsNullOrEmpty(species.favoriteTerrain) && 
-                        species.favoriteTerrain == currentTerrain)
+                    if (species.favoriteTerrain == currentTerrain)
                     {
                         terrainPigeonNames.Add(species.name);
                     }
@@ -389,8 +389,7 @@ namespace PigeonGame.UI
                 List<string> trapPigeonNames = new List<string>();
                 foreach (var species in registry.SpeciesSet.species)
                 {
-                    if (!string.IsNullOrEmpty(species.favoriteTrap) && 
-                        species.favoriteTrap == trapId)
+                    if (species.favoriteTrapType == trapType)
                     {
                         trapPigeonNames.Add(species.name);
                     }
@@ -457,7 +456,7 @@ namespace PigeonGame.UI
 
         private void UpdatePriceDisplay()
         {
-            if (string.IsNullOrEmpty(selectedTrapId) || GameManager.Instance == null || totalPriceText == null)
+            if (GameManager.Instance == null || totalPriceText == null)
                 return;
 
             var registry = GameDataRegistry.Instance;
@@ -465,6 +464,8 @@ namespace PigeonGame.UI
                 return;
 
             var trapData = registry.Traps.GetTrapById(selectedTrapId);
+            if (trapData == null)
+                return;
             if (trapData == null)
                 return;
 
@@ -489,8 +490,6 @@ namespace PigeonGame.UI
 
         private void OnInstallButtonClicked()
         {
-            if (string.IsNullOrEmpty(selectedTrapId))
-                return;
 
             int feedAmount = 0;
             var registry = GameDataRegistry.Instance;
@@ -536,11 +535,8 @@ namespace PigeonGame.UI
                 {
                     UpdateTrapItems();
                     // 선택된 덫이 있으면 정보 업데이트
-                    if (!string.IsNullOrEmpty(selectedTrapId))
-                    {
-                        UpdateInfoDisplay(selectedTrapId);
-                        UpdatePriceDisplay();
-                    }
+                    UpdateInfoDisplay(selectedTrapId);
+                    UpdatePriceDisplay();
                 }
             }
         }
@@ -589,16 +585,14 @@ namespace PigeonGame.UI
             }
 
             // 선택 상태 다시 적용
-            if (!string.IsNullOrEmpty(selectedTrapId))
+            foreach (var itemObj in trapItemObjects)
             {
-                foreach (var itemObj in trapItemObjects)
+                if (itemObj != null)
                 {
-                    if (itemObj != null)
-                    {
-                        TextMeshProUGUI nameText = itemObj.transform.Find("Text")?.GetComponent<TextMeshProUGUI>();
-                        if (nameText == null)
-                            nameText = itemObj.GetComponentInChildren<TextMeshProUGUI>();
-                        
+                    TextMeshProUGUI nameText = itemObj.transform.Find("Text")?.GetComponent<TextMeshProUGUI>();
+                    if (nameText == null)
+                        nameText = itemObj.GetComponentInChildren<TextMeshProUGUI>();
+                    
                         if (nameText != null)
                         {
                             string itemName = nameText.text.Replace("\n(해금 필요)", "").Trim();
@@ -606,8 +600,8 @@ namespace PigeonGame.UI
                             {
                                 if (trap.name == itemName)
                                 {
-                                    UpdateTrapItemSelection(itemObj, trap.id);
-                                    if (trap.id == selectedTrapId)
+                                    UpdateTrapItemSelection(itemObj, trap.trapType);
+                                    if (trap.trapType == selectedTrapId)
                                     {
                                         selectedTrapItem = itemObj;
                                     }
@@ -615,7 +609,6 @@ namespace PigeonGame.UI
                                 }
                             }
                         }
-                    }
                 }
             }
 
@@ -623,8 +616,15 @@ namespace PigeonGame.UI
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnMoneyChanged -= OnMoneyChanged;
+                GameManager.Instance.OnTrapUnlocked -= OnTrapUnlocked;
                 GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
+                GameManager.Instance.OnTrapUnlocked += OnTrapUnlocked;
             }
+        }
+
+        private void OnTrapUnlocked(TrapType trapType)
+        {
+            UpdateTrapItems();
         }
 
         private void OnMoneyChanged(int money)
@@ -683,6 +683,7 @@ namespace PigeonGame.UI
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnMoneyChanged -= OnMoneyChanged;
+                GameManager.Instance.OnTrapUnlocked -= OnTrapUnlocked;
             }
         }
     }

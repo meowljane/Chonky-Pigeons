@@ -25,10 +25,10 @@ namespace PigeonGame.Gameplay
             public bool isUnlocked;
             public int minWeight = int.MaxValue;
             public int maxWeight = int.MinValue;
-            public Dictionary<string, FaceEncyclopediaData> faces = new Dictionary<string, FaceEncyclopediaData>();
+            public Dictionary<FaceType, FaceEncyclopediaData> faces = new Dictionary<FaceType, FaceEncyclopediaData>();
         }
 
-        private Dictionary<string, SpeciesEncyclopediaData> encyclopediaData = new Dictionary<string, SpeciesEncyclopediaData>();
+        private Dictionary<PigeonSpecies, SpeciesEncyclopediaData> encyclopediaData = new Dictionary<PigeonSpecies, SpeciesEncyclopediaData>();
 
         private void Awake()
         {
@@ -51,8 +51,8 @@ namespace PigeonGame.Gameplay
             if (stats == null)
                 return;
 
-            string speciesId = stats.speciesId;
-            string faceId = stats.faceId;
+            PigeonSpecies speciesId = stats.speciesId;
+            FaceType faceId = stats.faceId;
             int weight = stats.obesity;
 
             // Species 데이터 가져오기 또는 생성
@@ -99,11 +99,11 @@ namespace PigeonGame.Gameplay
         /// <summary>
         /// Species 도감 데이터 가져오기
         /// </summary>
-        public SpeciesEncyclopediaData GetSpeciesData(string speciesId)
+        public SpeciesEncyclopediaData GetSpeciesData(PigeonSpecies speciesType)
         {
-            if (encyclopediaData.ContainsKey(speciesId))
+            if (encyclopediaData.ContainsKey(speciesType))
             {
-                return encyclopediaData[speciesId];
+                return encyclopediaData[speciesType];
             }
             return new SpeciesEncyclopediaData();
         }
@@ -111,12 +111,12 @@ namespace PigeonGame.Gameplay
         /// <summary>
         /// Face 도감 데이터 가져오기
         /// </summary>
-        public FaceEncyclopediaData GetFaceData(string speciesId, string faceId)
+        public FaceEncyclopediaData GetFaceData(PigeonSpecies speciesType, FaceType faceType)
         {
-            SpeciesEncyclopediaData speciesData = GetSpeciesData(speciesId);
-            if (speciesData.faces.ContainsKey(faceId))
+            SpeciesEncyclopediaData speciesData = GetSpeciesData(speciesType);
+            if (speciesData.faces.ContainsKey(faceType))
             {
-                return speciesData.faces[faceId];
+                return speciesData.faces[faceType];
             }
             return new FaceEncyclopediaData();
         }
@@ -124,7 +124,7 @@ namespace PigeonGame.Gameplay
         /// <summary>
         /// 모든 Species 데이터 가져오기
         /// </summary>
-        public Dictionary<string, SpeciesEncyclopediaData> GetAllSpeciesData()
+        public Dictionary<PigeonSpecies, SpeciesEncyclopediaData> GetAllSpeciesData()
         {
             return encyclopediaData;
         }

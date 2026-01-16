@@ -64,8 +64,8 @@ namespace PigeonGame.Data
         // eatInterval, eatChance, alertDecayPerSec는 비만도 기반으로 계산하거나 통일된 값 사용 (base 값은 Tier 1 값으로 통일)
         public float playerAlertPerSec;
         public float crowdAlertPerNeighborPerSec;
-        public int basePrice; // tier별 기본 가격
         // detectionRadius, warnThreshold, backoffThreshold, fleeThreshold, alertWeight, backoffDistance, alertDecayPerSec는 PigeonMovement에서 관리 (모든 tier 통일)
+        // 가격은 종별로 SpeciesDefinition.basePrice에서 관리
     }
 
     [CreateAssetMenu(fileName = "AIProfiles", menuName = "PigeonGame/AI Profiles")]
@@ -107,11 +107,11 @@ namespace PigeonGame.Data
                 // Tiers 초기화
                 tiers = new Dictionary<int, RarityTierProfile>
                 {
-                    { 1, new RarityTierProfile { playerAlertPerSec = 38f, crowdAlertPerNeighborPerSec = 6f, basePrice = 8 } },
-                    { 2, new RarityTierProfile { playerAlertPerSec = 30f, crowdAlertPerNeighborPerSec = 7f, basePrice = 18 } },
-                    { 3, new RarityTierProfile { playerAlertPerSec = 22f, crowdAlertPerNeighborPerSec = 11f, basePrice = 40 } },
-                    { 4, new RarityTierProfile { playerAlertPerSec = 18f, crowdAlertPerNeighborPerSec = 14f, basePrice = 90 } },
-                    { 5, new RarityTierProfile { playerAlertPerSec = 14f, crowdAlertPerNeighborPerSec = 16f, basePrice = 180 } }
+                    { 1, new RarityTierProfile { playerAlertPerSec = 38f, crowdAlertPerNeighborPerSec = 6f } },
+                    { 2, new RarityTierProfile { playerAlertPerSec = 30f, crowdAlertPerNeighborPerSec = 7f } },
+                    { 3, new RarityTierProfile { playerAlertPerSec = 22f, crowdAlertPerNeighborPerSec = 11f } },
+                    { 4, new RarityTierProfile { playerAlertPerSec = 18f, crowdAlertPerNeighborPerSec = 14f } },
+                    { 5, new RarityTierProfile { playerAlertPerSec = 14f, crowdAlertPerNeighborPerSec = 16f } }
                 };
 
                 // StressToEatModifier 초기화

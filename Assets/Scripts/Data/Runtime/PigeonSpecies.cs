@@ -3,18 +3,35 @@ using System.Collections.Generic;
 
 namespace PigeonGame.Data
 {
+    /// <summary>
+    /// 비둘기 종 Enum
+    /// </summary>
+    public enum PigeonSpecies
+    {
+        SP01, // 도시회색
+        SP02, // 회색도시
+        SP03, // 검은비둘기
+        SP04, // 빵중독
+        SP05, // 흰비둘기
+        SP06, // 무지개기름광
+        SP07, // 무지개비둘기
+        SP08, // 왕관비둘기
+        SP09  // 황금비둘기
+    }
+
     [System.Serializable]
     public class SpeciesDefinition
     {
-        public string speciesId;
+        public PigeonSpecies speciesType;
         public string name;
         public int rarityTier;
-        public Vector2Int defaultObesityRange;
         public float baseSpawnWeight = 1.0f; // 종별 초기 스폰 확률 가중치
+        public int basePrice = 0; // 비둘기 판매 가격 기본값 (필수, 0이면 안 됨)
+        public int unlockCost = 0; // 해금 비용 (0이면 티어 * 50으로 계산)
         
         // 단순화된 선호도: 각 종마다 좋아하는 덫과 terrain을 하나씩만 지정
-        public string favoriteTrap; // "BREAD", "SEEDS", "CORN", "PELLET", "SHINY" 중 하나
-        public string favoriteTerrain; // "sand", "grass", "water", "flower", "wetland" 중 하나
+        public TrapType favoriteTrapType; // enum 타입 (Inspector에서 선택)
+        public TerrainType favoriteTerrain; // enum 타입 (Inspector에서 선택)
         public Sprite icon; // 에디터에서 직접 할당
     }
 
@@ -36,105 +53,115 @@ namespace PigeonGame.Data
                 version = 1;
                 species = new SpeciesDefinition[]
                 {
+                    // 가격순 정렬 (SP01~SP09 오름차순)
                     new SpeciesDefinition
                     {
-                        speciesId = "SP01",
+                        speciesType = PigeonSpecies.SP01,
                         name = "도시회색",
                         rarityTier = 1,
-                        defaultObesityRange = new Vector2Int(4, 5),
                         baseSpawnWeight = 5.0f,
-                        favoriteTrap = "BREAD",
-                        favoriteTerrain = "sand"
+                        basePrice = 8,
+                        unlockCost = 0, // 티어 1은 초기 해금
+                        favoriteTrapType = TrapType.BREAD,
+                        favoriteTerrain = TerrainType.SAND
                     },
                     new SpeciesDefinition
                     {
-                        speciesId = "SP07",
-                        name = "빵중독",
-                        rarityTier = 1,
-                        defaultObesityRange = new Vector2Int(5, 5),
-                        baseSpawnWeight = 5.0f,
-                        favoriteTrap = "BREAD",
-                        favoriteTerrain = "sand"
-                    },
-                    new SpeciesDefinition
-                    {
-                        speciesId = "SP14",
-                        name = "무지개기름광",
-                        rarityTier = 3,
-                        defaultObesityRange = new Vector2Int(1, 2),
-                        baseSpawnWeight = 1.5f,
-                        favoriteTrap = "SEEDS",
-                        favoriteTerrain = "flower"
-                    },
-                    new SpeciesDefinition
-                    {
-                        speciesId = "SP20",
-                        name = "왕관비둘기",
-                        rarityTier = 5,
-                        defaultObesityRange = new Vector2Int(1, 1),
-                        baseSpawnWeight = 0.3f,
-                        favoriteTrap = "PELLET",
-                        favoriteTerrain = "wetland"
-                    },
-                    new SpeciesDefinition
-                    {
-                        speciesId = "SP02",
+                        speciesType = PigeonSpecies.SP02,
                         name = "회색도시",
                         rarityTier = 1,
-                        defaultObesityRange = new Vector2Int(3, 4),
                         baseSpawnWeight = 5.0f,
-                        favoriteTrap = "BREAD",
-                        favoriteTerrain = "sand"
+                        basePrice = 8,
+                        unlockCost = 0, // 티어 1은 초기 해금
+                        favoriteTrapType = TrapType.BREAD,
+                        favoriteTerrain = TerrainType.SAND
                     },
                     new SpeciesDefinition
                     {
-                        speciesId = "SP03",
+                        speciesType = PigeonSpecies.SP03,
                         name = "검은비둘기",
                         rarityTier = 2,
-                        defaultObesityRange = new Vector2Int(3, 5),
                         baseSpawnWeight = 3.0f,
-                        favoriteTrap = "CORN",
-                        favoriteTerrain = "flower"
+                        basePrice = 18,
+                        unlockCost = 100, // 티어 2 * 50
+                        favoriteTrapType = TrapType.CORN,
+                        favoriteTerrain = TerrainType.FLOWER
                     },
                     new SpeciesDefinition
                     {
-                        speciesId = "SP08",
+                        speciesType = PigeonSpecies.SP04,
+                        name = "빵중독",
+                        rarityTier = 1,
+                        baseSpawnWeight = 5.0f,
+                        basePrice = 8,
+                        unlockCost = 0, // 티어 1은 초기 해금
+                        favoriteTrapType = TrapType.BREAD,
+                        favoriteTerrain = TerrainType.SAND
+                    },
+                    new SpeciesDefinition
+                    {
+                        speciesType = PigeonSpecies.SP05,
                         name = "흰비둘기",
                         rarityTier = 2,
-                        defaultObesityRange = new Vector2Int(2, 3),
                         baseSpawnWeight = 3.0f,
-                        favoriteTrap = "BREAD",
-                        favoriteTerrain = "grass"
+                        basePrice = 18,
+                        unlockCost = 100, // 티어 2 * 50
+                        favoriteTrapType = TrapType.BREAD,
+                        favoriteTerrain = TerrainType.GRASS
                     },
                     new SpeciesDefinition
                     {
-                        speciesId = "SP15",
+                        speciesType = PigeonSpecies.SP06,
+                        name = "무지개기름광",
+                        rarityTier = 3,
+                        baseSpawnWeight = 1.5f,
+                        basePrice = 40,
+                        unlockCost = 150, // 티어 3 * 50
+                        favoriteTrapType = TrapType.SEEDS,
+                        favoriteTerrain = TerrainType.FLOWER
+                    },
+                    new SpeciesDefinition
+                    {
+                        speciesType = PigeonSpecies.SP07,
                         name = "무지개비둘기",
                         rarityTier = 4,
-                        defaultObesityRange = new Vector2Int(1, 3),
                         baseSpawnWeight = 0.8f,
-                        favoriteTrap = "SEEDS",
-                        favoriteTerrain = "grass"
+                        basePrice = 90,
+                        unlockCost = 200, // 티어 4 * 50
+                        favoriteTrapType = TrapType.SEEDS,
+                        favoriteTerrain = TerrainType.GRASS
                     },
                     new SpeciesDefinition
                     {
-                        speciesId = "SP21",
+                        speciesType = PigeonSpecies.SP08,
+                        name = "왕관비둘기",
+                        rarityTier = 5,
+                        baseSpawnWeight = 0.3f,
+                        basePrice = 180,
+                        unlockCost = 250, // 티어 5 * 50
+                        favoriteTrapType = TrapType.PELLET,
+                        favoriteTerrain = TerrainType.WETLAND
+                    },
+                    new SpeciesDefinition
+                    {
+                        speciesType = PigeonSpecies.SP09,
                         name = "황금비둘기",
                         rarityTier = 5,
-                        defaultObesityRange = new Vector2Int(1, 2),
                         baseSpawnWeight = 0.3f,
-                        favoriteTrap = "PELLET",
-                        favoriteTerrain = "wetland"
+                        basePrice = 180,
+                        unlockCost = 250, // 티어 5 * 50
+                        favoriteTrapType = TrapType.PELLET,
+                        favoriteTerrain = TerrainType.WETLAND
                     }
                 };
             }
         }
 
-        public SpeciesDefinition GetSpeciesById(string speciesId)
+        public SpeciesDefinition GetSpeciesById(PigeonSpecies speciesType)
         {
             foreach (var s in species)
             {
-                if (s.speciesId == speciesId)
+                if (s.speciesType == speciesType)
                     return s;
             }
             return null;

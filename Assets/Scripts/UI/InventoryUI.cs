@@ -253,11 +253,11 @@ namespace PigeonGame.UI
                 if (registry != null && registry.SpeciesSet != null)
                 {
                     var species = registry.SpeciesSet.GetSpeciesById(stats.speciesId);
-                    nameText.text = species != null ? species.name : stats.speciesId;
+                    nameText.text = species != null ? species.name : stats.speciesId.ToString();
                 }
                 else
                 {
-                    nameText.text = stats.speciesId;
+                    nameText.text = stats.speciesId.ToString();
                 }
             }
 
@@ -369,7 +369,7 @@ namespace PigeonGame.UI
             // 종 이름 (얼굴 포함)
             if (detailNameText != null)
             {
-                string faceName = face != null ? face.name : stats.faceId;
+                string faceName = face != null ? face.name : stats.faceId.ToString();
                 detailNameText.text = $"{species.name}({faceName})";
             }
 

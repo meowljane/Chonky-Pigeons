@@ -14,35 +14,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp:PigeonGame.Data:TrapTypeSet
   version: 1
   traps:
-  - id: BREAD
+  - trapType: 0
     name: "\uBC14\uC0AD\uBE75\uB36B"
     unlockCost: 0
     installCost: 0
     feedCostPerUnit: 1
     feedAmount: 20
     pigeonSpawnCount: 3
-  - id: SEEDS
+  - trapType: 1
     name: "\uD1A1\uD1A1\uC528\uC557\uB36B"
     unlockCost: 15
     installCost: 8
     feedCostPerUnit: 1
     feedAmount: 20
     pigeonSpawnCount: 4
-  - id: CORN
+  - trapType: 2
     name: "\uB178\uB791\uC625\uC218\uC218\uB36B"
     unlockCost: 25
     installCost: 12
     feedCostPerUnit: 2
     feedAmount: 20
     pigeonSpawnCount: 5
-  - id: PELLET
+  - trapType: 3
     name: "\uD504\uB9AC\uBBF8\uC5C4\uC54C\uAC31\uC774\uB36B"
     unlockCost: 50
     installCost: 25
     feedCostPerUnit: 3
     feedAmount: 20
     pigeonSpawnCount: 6
-  - id: SHINY
+  - trapType: 4
     name: "\uBC18\uC9DD\uAC04\uC2DD\uB36B"
     unlockCost: 100
     installCost: 50

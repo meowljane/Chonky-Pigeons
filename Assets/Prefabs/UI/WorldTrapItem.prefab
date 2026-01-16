@@ -150,7 +150,7 @@ GameObject:
   - component: {fileID: 7260741441149184248}
   - component: {fileID: 8573954914959086185}
   m_Layer: 0
-  m_Name: TrapItem
+  m_Name: WorldTrapItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

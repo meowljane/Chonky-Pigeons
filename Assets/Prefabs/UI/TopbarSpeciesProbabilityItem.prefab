@@ -147,7 +147,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1350386307483670613}
   m_Layer: 0
-  m_Name: SpeciesProbabilityItem
+  m_Name: TopbarSpeciesProbabilityItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

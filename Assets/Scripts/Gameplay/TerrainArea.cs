@@ -1,4 +1,5 @@
 using UnityEngine;
+using PigeonGame.Data;
 
 namespace PigeonGame.Gameplay
 {
@@ -9,9 +10,9 @@ namespace PigeonGame.Gameplay
     [RequireComponent(typeof(Collider2D))]
     public class TerrainArea : MonoBehaviour
     {
-        [SerializeField] private string terrainType = "grass"; // "grass", "water", "sand", "wetland" (기본값: "grass")
+        [SerializeField] private TerrainType terrainType = TerrainType.GRASS; // 기본값: GRASS
 
-        public string TerrainType => terrainType;
+        public TerrainType TerrainType => terrainType;
         public Collider2D AreaCollider { get; private set; }
 
         private void Awake()

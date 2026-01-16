@@ -150,7 +150,7 @@ GameObject:
   - component: {fileID: 5943937613901301138}
   - component: {fileID: 1213308253239547620}
   m_Layer: 0
-  m_Name: ExhibitionSlot
+  m_Name: ExhibitionItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

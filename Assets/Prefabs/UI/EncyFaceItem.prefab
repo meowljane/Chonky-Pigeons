@@ -362,7 +362,7 @@ GameObject:
   - component: {fileID: 5144054117485249812}
   - component: {fileID: 4472913313037298811}
   m_Layer: 0
-  m_Name: FaceItemPrefab
+  m_Name: EncyFaceItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

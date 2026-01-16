@@ -8,17 +8,17 @@ namespace PigeonGame.Gameplay
         /// <summary>
         /// speciesId, obesity, faceId로부터 최종 PigeonInstanceStats 생성
         /// </summary>
-        public static PigeonInstanceStats CreateInstanceStats(string speciesId, int obesity, string faceId)
+        public static PigeonInstanceStats CreateInstanceStats(PigeonSpecies speciesType, int obesity, FaceType faceType)
         {
             var registry = GameDataRegistry.Instance;
             if (registry == null)
                 return null;
 
-            var species = registry.SpeciesSet.GetSpeciesById(speciesId);
+            var species = registry.SpeciesSet.GetSpeciesById(speciesType);
             if (species == null)
                 return null;
 
-            var face = registry.Faces.GetFaceById(faceId);
+            var face = registry.Faces.GetFaceById(faceType);
             if (face == null)
                 return null;
 
@@ -38,9 +38,9 @@ namespace PigeonGame.Gameplay
             var tierProfile = aiProfile.tiers[species.rarityTier];
             var stats = new PigeonInstanceStats
             {
-                speciesId = speciesId,
+                speciesId = speciesType,
                 obesity = obesity,
-                faceId = faceId
+                faceId = faceType
             };
 
             // BitePower = Obesity
@@ -71,8 +71,13 @@ namespace PigeonGame.Gameplay
             stats.crowdAlertPerNeighborPerSec = tierProfile.crowdAlertPerNeighborPerSec;
             // detectionRadius, warnThreshold, backoffThreshold, fleeThreshold, alertWeight, backoffDistance, alertDecayPerSec는 PigeonMovement에서 관리 (모든 tier 통일)
 
-            // 가격 계산
-            int basePrice = tierProfile.basePrice;
+            // 가격 계산 (종별 basePrice 사용)
+            int basePrice = species.basePrice;
+            if (basePrice <= 0)
+            {
+                Debug.LogWarning($"Species {species.speciesType} ({species.name}) has basePrice = 0. Price will be 0.");
+            }
+            
             float obesityDiscount = 1.0f;
             
             if (aiProfile.obesityRule != null && aiProfile.obesityRule.obesityProfiles != null)

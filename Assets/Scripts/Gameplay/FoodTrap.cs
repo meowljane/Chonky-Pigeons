@@ -7,16 +7,16 @@ namespace PigeonGame.Gameplay
 {
     public class FoodTrap : MonoBehaviour, IInteractable
     {
-        [SerializeField] private string trapId;
+        [SerializeField] private TrapType trapId;
         [SerializeField] private Sprite capturedTrapSprite; // 포획된 덫의 스프라이트 (Inspector에서 설정)
         private TrapDefinition trapData;
         
         /// <summary>
         /// TrapId 설정 (외부에서 호출 가능)
         /// </summary>
-        public void SetTrapId(string id)
+        public void SetTrapId(TrapType trapType)
         {
-            trapId = id;
+            trapId = trapType;
             // trapData 재로드
             var registry = GameDataRegistry.Instance;
             if (registry != null)
@@ -32,9 +32,9 @@ namespace PigeonGame.Gameplay
         /// <summary>
         /// TrapId와 커스텀 feedAmount 설정
         /// </summary>
-        public void SetTrapIdAndFeedAmount(string id, int feedAmount)
+        public void SetTrapIdAndFeedAmount(TrapType trapType, int feedAmount)
         {
-            trapId = id;
+            trapId = trapType;
             // trapData 재로드
             var registry = GameDataRegistry.Instance;
             if (registry != null)
@@ -65,7 +65,7 @@ namespace PigeonGame.Gameplay
         private Collider2D interactionTrigger; // 상호작용 트리거 영역 (포획 후에만 활성화)
         private bool isPlayerInRange = false; // 플레이어가 범위 안에 있는지
 
-        public string TrapId => trapId;
+        public TrapType TrapId => trapId;
         public int CurrentFeedAmount => currentFeedAmount;
         public int MaxFeedAmount => initialFeedAmount > 0 ? initialFeedAmount : (trapData != null ? trapData.feedAmount : 20);
         public bool IsDepleted => currentFeedAmount <= 0;

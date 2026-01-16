@@ -173,16 +173,44 @@ namespace PigeonGame.Gameplay
             if (allSpecies.Length == 0)
                 return;
 
-            // 비둘기 종 선택 (덫 선호도 기반 확률 보정) - 해당 맵의 덫만 고려
-            SpeciesDefinition selectedSpecies = SelectSpeciesWithPreference(allSpecies, position, mapCollider, applyPreferenceBonus);
-            if (selectedSpecies == null)
-                selectedSpecies = allSpecies[Random.Range(0, allSpecies.Length)]; // 폴백
+            // 해금된 종만 필터링
+            List<SpeciesDefinition> unlockedSpecies = new List<SpeciesDefinition>();
+            if (GameManager.Instance != null)
+            {
+                foreach (var species in allSpecies)
+                {
+                    if (species != null && GameManager.Instance.IsSpeciesUnlocked(species.speciesType))
+                    {
+                        unlockedSpecies.Add(species);
+                    }
+                }
+            }
 
-            int obesity = Random.Range(selectedSpecies.defaultObesityRange.x, selectedSpecies.defaultObesityRange.y + 1);
+            // 해금된 종이 없으면 스폰하지 않음
+            if (unlockedSpecies.Count == 0)
+                return;
+
+            // 비둘기 종 선택 (덫 선호도 기반 확률 보정) - 해당 맵의 덫만 고려
+            SpeciesDefinition selectedSpecies = SelectSpeciesWithPreference(unlockedSpecies.ToArray(), position, mapCollider, applyPreferenceBonus);
+            if (selectedSpecies == null && unlockedSpecies.Count > 0)
+                selectedSpecies = unlockedSpecies[Random.Range(0, unlockedSpecies.Count)]; // 폴백
+
+            int obesity = Random.Range(1, 6); // 모든 종류는 1~5 비만도 중 랜덤
             
             // 랜덤 얼굴 선택
             var allFaces = registry.Faces.faces;
-            string faceId = allFaces[Random.Range(0, allFaces.Length)].id;
+            FaceType faceType = FaceType.F00; // 기본값
+            if (allFaces != null && allFaces.Length > 0)
+            {
+                var selectedFace = allFaces[Random.Range(0, allFaces.Length)];
+                if (selectedFace != null)
+                {
+                    faceType = selectedFace.faceType;
+                }
+            }
+
+            // speciesType 사용
+            PigeonSpecies speciesType = selectedSpecies != null ? selectedSpecies.speciesType : PigeonSpecies.SP01;
 
             // Z 위치를 0으로 명시적으로 설정 (2D 게임용)
             Vector3 spawnPosition = new Vector3(position.x, position.y, 0);
@@ -198,9 +226,9 @@ namespace PigeonGame.Gameplay
             if (controller != null)
             {
                 var stats = PigeonInstanceFactory.CreateInstanceStats(
-                    selectedSpecies.speciesId, 
+                    speciesType, 
                     obesity, 
-                    faceId
+                    faceType
                 );
                 
                 controller.Initialize(stats);
@@ -232,17 +260,12 @@ namespace PigeonGame.Gameplay
             
             foreach (var trap in activeTraps)
             {
-                bool isFavoriteTrap = !string.IsNullOrEmpty(species.favoriteTrap) && 
-                                      trap.TrapId == species.favoriteTrap;
-                bool isFavoriteTerrain = false;
+                // favoriteTrapType enum 사용
+                bool isFavoriteTrap = trap.TrapId == species.favoriteTrapType;
                 
-                string terrainType = GetTerrainTypeAtPosition(trap.transform.position);
-                if (!string.IsNullOrEmpty(species.favoriteTerrain) && 
-                    !string.IsNullOrEmpty(terrainType) && 
-                    terrainType == species.favoriteTerrain)
-                {
-                    isFavoriteTerrain = true;
-                }
+                // favoriteTerrain enum 사용
+                TerrainType terrainType = GetTerrainTypeAtPosition(trap.transform.position);
+                bool isFavoriteTerrain = terrainType == species.favoriteTerrain;
                 
                 if (isFavoriteTrap)
                     matchingTrapCount++;
@@ -268,7 +291,9 @@ namespace PigeonGame.Gameplay
         {
             if (!applyBonus)
             {
-                // 보정 없이 랜덤 선택
+                // 보정 없이 랜덤 선택 (해금된 종만)
+                if (allSpecies.Length == 0)
+                    return null;
                 return allSpecies[Random.Range(0, allSpecies.Length)];
             }
 
@@ -289,7 +314,9 @@ namespace PigeonGame.Gameplay
 
             if (activeTraps.Count == 0)
             {
-                // 덫이 없으면 랜덤 선택
+                // 덫이 없으면 랜덤 선택 (해금된 종만)
+                if (allSpecies.Length == 0)
+                    return null;
                 return allSpecies[Random.Range(0, allSpecies.Length)];
             }
 
@@ -306,7 +333,9 @@ namespace PigeonGame.Gameplay
             // 가중치 기반 랜덤 선택
             if (totalWeight <= 0f)
             {
-                // 폴백
+                // 폴백 (해금된 종만)
+                if (allSpecies.Length == 0)
+                    return null;
                 return allSpecies[Random.Range(0, allSpecies.Length)];
             }
 
@@ -330,10 +359,10 @@ namespace PigeonGame.Gameplay
         /// <summary>
         /// 위치의 terrain 타입 확인 (public 메서드)
         /// </summary>
-        public string GetTerrainTypeAtPosition(Vector3 position)
+        public TerrainType GetTerrainTypeAtPosition(Vector3 position)
         {
             if (allTerrainAreas == null || allTerrainAreas.Length == 0)
-                return "sand"; // terrain 영역이 없으면 sand (기본값)
+                return TerrainType.SAND; // terrain 영역이 없으면 SAND (기본값)
 
             // 가장 먼저 발견된 terrain 영역의 타입 반환
             foreach (var terrainArea in allTerrainAreas)
@@ -344,7 +373,7 @@ namespace PigeonGame.Gameplay
                 }
             }
 
-            return "sand"; // terrain 영역을 찾지 못하면 sand (기본값)
+            return TerrainType.SAND; // terrain 영역을 찾지 못하면 SAND (기본값)
         }
 
         /// <summary>
@@ -502,7 +531,7 @@ namespace PigeonGame.Gameplay
         /// <summary>
         /// 특정 맵의 종별 스폰 확률 계산 (UI 표시용) - 덫 위치 기반
         /// </summary>
-        public Dictionary<string, float> GetSpeciesSpawnProbabilities(Collider2D mapCollider = null)
+        public Dictionary<PigeonSpecies, float> GetSpeciesSpawnProbabilities(Collider2D mapCollider = null)
         {
             var registry = GameDataRegistry.Instance;
             if (registry == null)
@@ -533,7 +562,7 @@ namespace PigeonGame.Gameplay
             if (activeTraps.Count == 0)
             {
                 // 덫이 없으면 기본 확률 반환 (baseSpawnWeight 기반)
-                Dictionary<string, float> defaultProbabilities = new Dictionary<string, float>();
+                Dictionary<PigeonSpecies, float> defaultProbabilities = new Dictionary<PigeonSpecies, float>();
                 float defaultTotalWeight = 0f;
                 foreach (var species in allSpecies)
                 {
@@ -547,9 +576,9 @@ namespace PigeonGame.Gameplay
                 {
                     foreach (var species in allSpecies)
                     {
-                        if (species != null && !string.IsNullOrEmpty(species.speciesId))
+                        if (species != null)
                         {
-                            defaultProbabilities[species.speciesId] = (species.baseSpawnWeight / defaultTotalWeight) * 100f;
+                            defaultProbabilities[species.speciesType] = (species.baseSpawnWeight / defaultTotalWeight) * 100f;
                         }
                     }
                 }
@@ -557,14 +586,14 @@ namespace PigeonGame.Gameplay
             }
 
             // 각 종의 가중치 계산 (공통 로직 사용)
-            Dictionary<string, float> weights = new Dictionary<string, float>();
+            Dictionary<PigeonSpecies, float> weights = new Dictionary<PigeonSpecies, float>();
             foreach (var species in allSpecies)
             {
-                if (species == null || string.IsNullOrEmpty(species.speciesId))
+                if (species == null)
                     continue;
 
                 float weight = CalculateSpeciesWeight(species, activeTraps);
-                weights[species.speciesId] = weight;
+                weights[species.speciesType] = weight;
             }
 
             // 가중치를 확률(%)로 변환
@@ -577,7 +606,7 @@ namespace PigeonGame.Gameplay
             if (totalWeight <= 0f)
                 return null;
 
-            Dictionary<string, float> probabilities = new Dictionary<string, float>();
+            Dictionary<PigeonSpecies, float> probabilities = new Dictionary<PigeonSpecies, float>();
             foreach (var kvp in weights)
             {
                 probabilities[kvp.Key] = (kvp.Value / totalWeight) * 100f;

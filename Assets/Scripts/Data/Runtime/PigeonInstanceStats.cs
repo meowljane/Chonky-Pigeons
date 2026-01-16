@@ -2,9 +2,9 @@ namespace PigeonGame.Data
 {
     public class PigeonInstanceStats
     {
-        public string speciesId;
+        public PigeonSpecies speciesId;
         public int obesity;
-        public string faceId;
+        public FaceType faceId;
 
         // 계산된 최종 스탯
         public int bitePower;
@@ -31,8 +31,6 @@ namespace PigeonGame.Data
                 eatChance = this.eatChance,
                 playerAlertPerSec = this.playerAlertPerSec,
                 crowdAlertPerNeighborPerSec = this.crowdAlertPerNeighborPerSec,
-                // detectionRadius, warnThreshold, backoffThreshold, fleeThreshold, backoffDistance, alertDecayPerSec는 PigeonMovement에서 관리
-                // alertWeight는 PigeonMovement에서 관리
                 price = this.price
             };
         }

@@ -58,8 +58,8 @@ namespace PigeonGame.UI
             }
 
             // 현재 플레이어 위치의 terrain 타입 표시
-            string currentTerrain = pigeonManager.GetTerrainTypeAtPosition(PlayerController.Instance.Position);
-            string terrainDisplay = $"Terrain: {currentTerrain ?? "sand"}";
+            TerrainType currentTerrain = pigeonManager.GetTerrainTypeAtPosition(PlayerController.Instance.Position);
+            string terrainDisplay = $"Terrain: {currentTerrain}";
             
             if (terrainTypeText != null)
             {
@@ -104,7 +104,7 @@ namespace PigeonGame.UI
                 return;
 
             // 확률이 높은 순으로 정렬
-            List<KeyValuePair<string, float>> sortedProbabilities = new List<KeyValuePair<string, float>>(probabilities);
+            List<KeyValuePair<PigeonSpecies, float>> sortedProbabilities = new List<KeyValuePair<PigeonSpecies, float>>(probabilities);
             sortedProbabilities.Sort((a, b) => b.Value.CompareTo(a.Value));
 
             // 각 종별 확률 표시

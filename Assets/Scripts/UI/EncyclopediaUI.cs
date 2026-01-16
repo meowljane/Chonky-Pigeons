@@ -137,7 +137,7 @@ namespace PigeonGame.UI
 
             // 도감 데이터 확인
             var encyclopediaData = EncyclopediaManager.Instance != null 
-                ? EncyclopediaManager.Instance.GetSpeciesData(species.speciesId) 
+                ? EncyclopediaManager.Instance.GetSpeciesData(species.speciesType) 
                 : null;
 
             bool isUnlocked = encyclopediaData != null && encyclopediaData.isUnlocked;
@@ -193,7 +193,7 @@ namespace PigeonGame.UI
 
             // Species 무게 정보
             var speciesData = EncyclopediaManager.Instance != null
-                ? EncyclopediaManager.Instance.GetSpeciesData(species.speciesId)
+                ? EncyclopediaManager.Instance.GetSpeciesData(species.speciesType)
                 : null;
 
             if (speciesWeightText != null)
@@ -228,7 +228,7 @@ namespace PigeonGame.UI
 
             var allFaces = registry.Faces.faces;
             var speciesData = EncyclopediaManager.Instance != null
-                ? EncyclopediaManager.Instance.GetSpeciesData(species.speciesId)
+                ? EncyclopediaManager.Instance.GetSpeciesData(species.speciesType)
                 : null;
 
             foreach (var face in allFaces)
@@ -242,8 +242,8 @@ namespace PigeonGame.UI
         private void SetupFaceItem(GameObject itemObj, FaceDefinition face, EncyclopediaManager.SpeciesEncyclopediaData speciesData)
         {
             // Face 데이터 확인
-            var faceData = speciesData != null && speciesData.faces.ContainsKey(face.id)
-                ? speciesData.faces[face.id]
+            var faceData = speciesData != null && speciesData.faces.ContainsKey(face.faceType)
+                ? speciesData.faces[face.faceType]
                 : null;
 
             bool isUnlocked = faceData != null && faceData.isUnlocked;

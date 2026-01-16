@@ -16,6 +16,7 @@ namespace PigeonGame.Gameplay
         private PigeonShopUI pigeonShopUI;
         private TrapShopUI trapShopUI;
         private UI.ExhibitionUI exhibitionUI;
+        private UI.PigeonResearchUI pigeonResearchUI;
 
         private void Awake()
         {
@@ -35,6 +36,7 @@ namespace PigeonGame.Gameplay
             pigeonShopUI = FindFirstObjectByType<PigeonShopUI>();
             trapShopUI = FindFirstObjectByType<TrapShopUI>();
             exhibitionUI = FindFirstObjectByType<UI.ExhibitionUI>();
+            pigeonResearchUI = FindFirstObjectByType<UI.PigeonResearchUI>();
         }
 
         private void OnDestroy()
@@ -112,6 +114,17 @@ namespace PigeonGame.Gameplay
             if (exhibitionUI != null)
             {
                 exhibitionUI.OpenExhibitionPanel();
+            }
+        }
+
+        /// <summary>
+        /// 비둘기 연구소 열기 (PigeonResearchBuilding에서 호출)
+        /// </summary>
+        public void OpenPigeonResearch()
+        {
+            if (pigeonResearchUI != null)
+            {
+                pigeonResearchUI.OpenShopPanel();
             }
         }
 
