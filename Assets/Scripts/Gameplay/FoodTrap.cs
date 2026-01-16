@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using System.Linq;
 using PigeonGame.Data;
 
 namespace PigeonGame.Gameplay
@@ -29,7 +28,28 @@ namespace PigeonGame.Gameplay
                 }
             }
         }
+
+        /// <summary>
+        /// TrapId와 커스텀 feedAmount 설정
+        /// </summary>
+        public void SetTrapIdAndFeedAmount(string id, int feedAmount)
+        {
+            trapId = id;
+            // trapData 재로드
+            var registry = GameDataRegistry.Instance;
+            if (registry != null)
+            {
+                trapData = registry.Traps.GetTrapById(trapId);
+                if (trapData != null)
+                {
+                    // 커스텀 feedAmount 설정 (입력한 값 그대로 사용, 최소 1)
+                    currentFeedAmount = Mathf.Max(1, feedAmount);
+                    initialFeedAmount = currentFeedAmount; // 초기값 저장 (MaxFeedAmount용)
+                }
+            }
+        }
         private int currentFeedAmount;
+        private int initialFeedAmount; // 설치 시 초기 모이 수량 (MaxFeedAmount로 사용)
         private List<PigeonAI> nearbyPigeons = new List<PigeonAI>();
         private Dictionary<PigeonAI, float> pigeonEatTimers = new Dictionary<PigeonAI, float>();
         private HashSet<PigeonAI> currentlyEatingPigeons = new HashSet<PigeonAI>(); // 실제로 먹고 있는 비둘기 목록
@@ -47,7 +67,7 @@ namespace PigeonGame.Gameplay
 
         public string TrapId => trapId;
         public int CurrentFeedAmount => currentFeedAmount;
-        public int MaxFeedAmount => trapData != null ? trapData.feedAmount : 20;
+        public int MaxFeedAmount => initialFeedAmount > 0 ? initialFeedAmount : (trapData != null ? trapData.feedAmount : 20);
         public bool IsDepleted => currentFeedAmount <= 0;
         public bool HasCapturedPigeon => isCaptured && capturedPigeonStats != null;
         public PigeonInstanceStats CapturedPigeonStats => capturedPigeonStats;
@@ -69,7 +89,17 @@ namespace PigeonGame.Gameplay
                 trapData = registry.Traps.GetTrapById(trapId);
                 if (trapData != null)
                 {
-                    currentFeedAmount = trapData.feedAmount;
+                    // currentFeedAmount가 이미 설정되어 있으면 유지, 없으면 기본값 사용
+                    if (currentFeedAmount <= 0)
+                    {
+                        currentFeedAmount = trapData.feedAmount;
+                        initialFeedAmount = currentFeedAmount;
+                    }
+                    // initialFeedAmount가 설정되지 않았으면 현재값으로 설정
+                    if (initialFeedAmount <= 0)
+                    {
+                        initialFeedAmount = currentFeedAmount;
+                    }
                 }
             }
 
@@ -109,8 +139,10 @@ namespace PigeonGame.Gameplay
             // 먹는 상태 타이머 업데이트 (먹는 중 표시 유지 시간)
             UpdateEatingStateTimers();
 
-            // 각 비둘기의 EatTick 처리
-            foreach (var pigeon in nearbyPigeons.ToArray())
+            // 각 비둘기의 EatTick 처리 (복사본으로 순회하여 수정 안전)
+            PigeonAI[] pigeonsArray = new PigeonAI[nearbyPigeons.Count];
+            nearbyPigeons.CopyTo(pigeonsArray);
+            foreach (var pigeon in pigeonsArray)
             {
                 if (pigeon == null || !pigeon.CanEat())
                 {
@@ -173,7 +205,10 @@ namespace PigeonGame.Gameplay
         {
             const float EATING_STATE_DURATION = 0.5f;
             
-            foreach (var pigeon in currentlyEatingPigeons.ToArray())
+            // 복사본으로 순회하여 수정 안전
+            PigeonAI[] pigeonsArray = new PigeonAI[currentlyEatingPigeons.Count];
+            currentlyEatingPigeons.CopyTo(pigeonsArray);
+            foreach (var pigeon in pigeonsArray)
             {
                 if (pigeon == null)
                 {
@@ -215,11 +250,13 @@ namespace PigeonGame.Gameplay
                 if (movement == null)
                     continue;
 
-                float distance = Vector2.Distance(transform.position, pigeon.transform.position);
+                Vector2 toPigeon = (Vector2)(pigeon.transform.position - transform.position);
+                float sqrDistance = toPigeon.sqrMagnitude;
                 float pigeonEatingRadius = movement.GetEatingRadius();
+                float sqrRadius = pigeonEatingRadius * pigeonEatingRadius;
                 
                 // 비둘기의 eatingRadius 내에 있는지 확인
-                if (distance <= pigeonEatingRadius)
+                if (sqrDistance <= sqrRadius)
                 {
                     nearbyPigeons.Add(pigeon);
                 }
@@ -407,10 +444,7 @@ namespace PigeonGame.Gameplay
 
             var pigeonStats = CapturedPigeonStats;
             if (pigeonStats == null)
-            {
-                Debug.LogWarning("포획된 비둘기 정보를 찾을 수 없습니다!");
                 return;
-            }
 
             // 먼저 인벤토리와 도감에 등록
             if (GameManager.Instance != null)
@@ -429,59 +463,7 @@ namespace PigeonGame.Gameplay
             Destroy(gameObject);
         }
 
-        /// <summary>
-        /// 포획된 비둘기를 수집하고 덫 초기화
-        /// (이미 인벤토리에 등록된 후 호출됨)
-        /// </summary>
-        public void CollectCapturedPigeon()
-        {
-            if (!isCaptured || capturedPigeonStats == null)
-                return;
 
-            // 덫 초기화
-            capturedPigeonStats = null;
-            isCaptured = false;
-            currentFeedAmount = trapData != null ? trapData.feedAmount : 20;
-            
-            // 시각적 상태 복원 (원래 스프라이트로)
-            if (originalSprite != null)
-            {
-                if (spriteRenderer != null)
-                {
-                    spriteRenderer.sprite = originalSprite;
-                }
-                else if (imageComponent != null)
-                {
-                    imageComponent.sprite = originalSprite;
-                }
-            }
-        }
-
-        private void OnDrawGizmosSelected()
-        {
-            // 주변 비둘기들의 eatingRadius 표시 (각 비둘기마다 다를 수 있음)
-            Gizmos.color = Color.yellow;
-            PigeonAI[] allPigeons = FindObjectsByType<PigeonAI>(FindObjectsSortMode.None);
-            
-            foreach (var pigeon in allPigeons)
-            {
-                if (pigeon == null)
-                    continue;
-
-                PigeonMovement movement = pigeon.GetComponent<PigeonMovement>();
-                if (movement == null)
-                    continue;
-
-                float distance = Vector2.Distance(transform.position, pigeon.transform.position);
-                float pigeonEatingRadius = movement.GetEatingRadius();
-                
-                // 이 덫이 비둘기의 eatingRadius 내에 있으면 표시
-                if (distance <= pigeonEatingRadius)
-                {
-                    Gizmos.DrawWireSphere(pigeon.transform.position, pigeonEatingRadius);
-                }
-            }
-        }
     }
 }
 

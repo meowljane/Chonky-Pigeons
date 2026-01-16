@@ -41,10 +41,6 @@ namespace PigeonGame.UI
             pigeonAI = GetComponent<PigeonAI>();
             pigeonController = GetComponent<PigeonController>();
 
-            if (pigeonAI == null)
-            {
-                Debug.LogWarning("PigeonStatusUI: PigeonAI를 찾을 수 없습니다!");
-            }
 
             mainCamera = Camera.main;
             if (mainCamera == null)

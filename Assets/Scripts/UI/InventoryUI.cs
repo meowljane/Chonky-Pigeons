@@ -133,10 +133,7 @@ namespace PigeonGame.UI
         public void ToggleInventory()
         {
             if (inventoryPanel == null)
-            {
-                Debug.LogWarning("InventoryUI: inventoryPanel이 설정되지 않았습니다!");
                 return;
-            }
 
             bool isActive = inventoryPanel.activeSelf;
             inventoryPanel.SetActive(!isActive);
@@ -343,17 +340,11 @@ namespace PigeonGame.UI
 
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.SpeciesSet == null)
-            {
-                Debug.LogWarning("GameDataRegistry를 찾을 수 없습니다!");
                 return;
-            }
 
             var species = registry.SpeciesSet.GetSpeciesById(stats.speciesId);
             if (species == null)
-            {
-                Debug.LogWarning($"Species를 찾을 수 없습니다: {stats.speciesId}");
                 return;
-            }
 
             var face = registry.Faces != null ? registry.Faces.GetFaceById(stats.faceId) : null;
 

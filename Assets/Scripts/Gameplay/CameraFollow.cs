@@ -20,9 +20,6 @@ namespace PigeonGame.Gameplay
         {
             if (targetCamera == null)
             {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                Debug.LogError("CameraFollow: Target Camera가 Inspector에서 지정되지 않았습니다!");
-#endif
                 enabled = false;
                 return;
             }

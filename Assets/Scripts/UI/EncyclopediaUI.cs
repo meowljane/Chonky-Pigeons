@@ -103,11 +103,7 @@ namespace PigeonGame.UI
         private void UpdateSpeciesList()
         {
             if (speciesGridContainer == null || speciesItemPrefab == null)
-            {
-                if (speciesItemPrefab == null)
-                    Debug.LogError("EncyclopediaUI: speciesItemPrefab이 설정되지 않았습니다!");
                 return;
-            }
 
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.SpeciesSet == null)
@@ -222,11 +218,7 @@ namespace PigeonGame.UI
         private void UpdateFaceList(SpeciesDefinition species)
         {
             if (faceGridContainer == null || faceItemPrefab == null)
-            {
-                if (faceItemPrefab == null)
-                    Debug.LogError("EncyclopediaUI: faceItemPrefab이 설정되지 않았습니다!");
                 return;
-            }
 
             ClearItemList(faceItemObjects);
 

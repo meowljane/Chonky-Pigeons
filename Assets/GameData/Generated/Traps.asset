@@ -16,26 +16,36 @@ MonoBehaviour:
   traps:
   - id: BREAD
     name: "\uBC14\uC0AD\uBE75\uB36B"
-    cost: 10
-    feedAmount: 20000
+    unlockCost: 0
+    installCost: 0
+    feedCostPerUnit: 1
+    feedAmount: 20
     pigeonSpawnCount: 3
   - id: SEEDS
     name: "\uD1A1\uD1A1\uC528\uC557\uB36B"
-    cost: 15
+    unlockCost: 15
+    installCost: 8
+    feedCostPerUnit: 1
     feedAmount: 20
     pigeonSpawnCount: 4
   - id: CORN
     name: "\uB178\uB791\uC625\uC218\uC218\uB36B"
-    cost: 25
+    unlockCost: 25
+    installCost: 12
+    feedCostPerUnit: 2
     feedAmount: 20
     pigeonSpawnCount: 5
   - id: PELLET
     name: "\uD504\uB9AC\uBBF8\uC5C4\uC54C\uAC31\uC774\uB36B"
-    cost: 50
+    unlockCost: 50
+    installCost: 25
+    feedCostPerUnit: 3
     feedAmount: 20
     pigeonSpawnCount: 6
   - id: SHINY
     name: "\uBC18\uC9DD\uAC04\uC2DD\uB36B"
-    cost: 100
+    unlockCost: 100
+    installCost: 50
+    feedCostPerUnit: 5
     feedAmount: 20
     pigeonSpawnCount: 8

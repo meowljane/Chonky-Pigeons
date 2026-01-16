@@ -57,10 +57,7 @@ namespace PigeonGame.Gameplay
                 return;
 
             if (movement == null)
-            {
-                Debug.LogError("PigeonAI: PigeonMovement를 찾을 수 없습니다!");
                 return;
-            }
             alert += stats.playerAlertPerSec * movement.AlertWeight * deltaTime;
         }
 
@@ -71,10 +68,7 @@ namespace PigeonGame.Gameplay
                 return;
 
             if (movement == null)
-            {
-                Debug.LogError("PigeonAI: PigeonMovement를 찾을 수 없습니다!");
                 return;
-            }
             alert += stats.crowdAlertPerNeighborPerSec * movement.AlertWeight * neighborCount * deltaTime;
         }
 
@@ -90,10 +84,7 @@ namespace PigeonGame.Gameplay
         private void UpdateState()
         {
             if (movement == null)
-            {
-                Debug.LogError("PigeonAI: PigeonMovement를 찾을 수 없습니다!");
                 return;
-            }
 
             PigeonState previousState = currentState;
 

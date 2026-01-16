@@ -116,7 +116,7 @@ namespace PigeonGame.UI
             TextMeshProUGUI priceText = itemObj.transform.Find("PriceText")?.GetComponent<TextMeshProUGUI>();
             if (priceText != null)
             {
-                priceText.text = $"가격: {trapData.cost}";
+                priceText.text = $"해금 가격: {trapData.unlockCost}";
             }
 
             // 해금 상태 표시
@@ -133,7 +133,7 @@ namespace PigeonGame.UI
             if (buyButton != null)
             {
                 bool isUnlocked = GameManager.Instance != null && GameManager.Instance.IsTrapUnlocked(trapData.id);
-                bool canAfford = GameManager.Instance != null && GameManager.Instance.CurrentMoney >= trapData.cost;
+                bool canAfford = GameManager.Instance != null && GameManager.Instance.CurrentMoney >= trapData.unlockCost;
 
                 buyButton.interactable = !isUnlocked && canAfford;
                 buyButton.onClick.RemoveAllListeners();

@@ -12,31 +12,19 @@ namespace PigeonGame.Gameplay
         {
             var registry = GameDataRegistry.Instance;
             if (registry == null)
-            {
-                Debug.LogError("GameDataRegistry not found!");
                 return null;
-            }
 
             var species = registry.SpeciesSet.GetSpeciesById(speciesId);
             if (species == null)
-            {
-                Debug.LogError($"Species not found: {speciesId}");
                 return null;
-            }
 
             var face = registry.Faces.GetFaceById(faceId);
             if (face == null)
-            {
-                Debug.LogError($"Face not found: {faceId}");
                 return null;
-            }
 
             var aiProfile = registry.AIProfiles;
             if (aiProfile == null)
-            {
-                Debug.LogError("AI Profile is null!");
                 return null;
-            }
 
             // Dictionary 초기화 확인
             if (aiProfile.tiers == null)
@@ -45,10 +33,7 @@ namespace PigeonGame.Gameplay
             }
 
             if (!aiProfile.tiers.ContainsKey(species.rarityTier))
-            {
-                Debug.LogError($"AI Profile not found for tier: {species.rarityTier}");
                 return null;
-            }
 
             var tierProfile = aiProfile.tiers[species.rarityTier];
             var stats = new PigeonInstanceStats

@@ -17,7 +17,6 @@ namespace PigeonGame.Gameplay
         [SerializeField] private float warnThreshold = 45f;
         [SerializeField] private float backoffThreshold = 70f;
         [SerializeField] private float fleeThreshold = 100f;
-        [SerializeField] private bool showDebugGizmos = true;
         
         public float WarnThreshold => warnThreshold;
         public float BackoffThreshold => backoffThreshold;
@@ -37,16 +36,13 @@ namespace PigeonGame.Gameplay
         private bool backoffCausedByPlayer = false;
         private float backoffEndTime = 0f; // BackOff 종료 시간
         private const float BACKOFF_COOLDOWN = 2f; // BackOff 종료 후 먹이 탐색 금지 시간 (초)
-        private Collider2D[] mapColliders; // 맵 경계 체크용
+        private Collider2D myMapCollider; // 이 비둘기가 속한 맵 콜라이더
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
             if (rb == null)
-            {
-                Debug.LogError("PigeonMovement: Rigidbody2D가 없습니다!");
                 return;
-            }
             rb.gravityScale = 0;
             rb.linearDamping = 5f;
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
@@ -59,20 +55,15 @@ namespace PigeonGame.Gameplay
         private void Start()
         {
             SetNewWanderTarget();
-            FindMapColliders();
+            FindMyMapCollider();
         }
         
-        private void FindMapColliders()
+        private void FindMyMapCollider()
         {
-            // WorldPigeonManager에서 맵 콜라이더 가져오기
-            if (WorldPigeonManager.Instance != null)
+            // WorldPigeonManager에서 이 비둘기가 속한 맵 콜라이더 가져오기
+            if (WorldPigeonManager.Instance != null && controller != null)
             {
-                mapColliders = WorldPigeonManager.Instance.MapColliders;
-            }
-            
-            if (mapColliders == null || mapColliders.Length == 0)
-            {
-                Debug.LogWarning("PigeonMovement: 맵 콜라이더를 찾을 수 없습니다!");
+                myMapCollider = WorldPigeonManager.Instance.GetMapColliderForPigeon(controller);
             }
         }
 
@@ -80,6 +71,13 @@ namespace PigeonGame.Gameplay
         {
             if (ai == null || controller == null || controller.Stats == null)
                 return;
+
+            // 전시관 비둘기는 wander만 수행
+            if (controller.IsExhibitionPigeon)
+            {
+                HandleExhibitionWander();
+                return;
+            }
 
             // Flee 상태는 최우선 처리
             if (ai.CurrentState == PigeonState.Flee)
@@ -97,8 +95,8 @@ namespace PigeonGame.Gameplay
             // BackOff 목표가 설정되어 있으면 목표에 도달할 때까지 BackOff 유지
             if (backoffTargetSet)
             {
-                float distanceToTarget = Vector2.Distance(transform.position, backoffTarget);
-                if (distanceToTarget >= 0.2f)
+                float sqrDistanceToTarget = ((Vector2)transform.position - backoffTarget).sqrMagnitude;
+                if (sqrDistanceToTarget >= 0.04f) // 0.2f * 0.2f
                 {
                     // 목표에 아직 도달하지 않았으면 BackOff 계속
                     HandleBackOff();
@@ -145,9 +143,13 @@ namespace PigeonGame.Gameplay
             // 플레이어 감지 및 Alert 증가
             if (PlayerController.Instance != null)
             {
-                float distance = Vector2.Distance(transform.position, PlayerController.Instance.Position);
-                if (distance <= detectionRadius)
+                Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
+                float sqrDistance = toPlayer.sqrMagnitude;
+                float sqrRadius = detectionRadius * detectionRadius;
+                
+                if (sqrDistance <= sqrRadius)
                 {
+                    float distance = Mathf.Sqrt(sqrDistance);
                     float distanceFactor = Mathf.Clamp01(1f - (distance / detectionRadius));
                     ai.AddPlayerAlert(Time.deltaTime * distanceFactor);
                 }
@@ -159,8 +161,9 @@ namespace PigeonGame.Gameplay
             if (PlayerController.Instance == null)
                 return false;
 
-            float distance = Vector2.Distance(transform.position, PlayerController.Instance.Position);
-            return distance <= detectionRadius;
+            float sqrDistance = ((Vector2)transform.position - PlayerController.Instance.Position).sqrMagnitude;
+            float sqrRadius = detectionRadius * detectionRadius;
+            return sqrDistance <= sqrRadius;
         }
 
         private void HandleNormalMovement()
@@ -205,20 +208,20 @@ namespace PigeonGame.Gameplay
                 backoffStartPosition = transform.position;
                 Vector2 backoffDirection = CalculateBackoffDirection();
                 backoffTarget = backoffStartPosition + backoffDirection * backoffDistance;
-                // 맵 경계 내로 제한
-                backoffTarget = ClampToMapBounds(backoffTarget);
+                // 맵 경계 내로 제한 (자신이 속한 맵 콜라이더만 사용)
+                backoffTarget = ClampToMyMapBounds(backoffTarget);
                 backoffTargetSet = true;
             }
 
             // 목표에 도달했는지 확인 (더 큰 거리로 판단)
-            float distanceToTarget = Vector2.Distance(transform.position, backoffTarget);
-            if (distanceToTarget < 0.2f)
+            float sqrDistanceToTarget = ((Vector2)transform.position - backoffTarget).sqrMagnitude;
+            if (sqrDistanceToTarget < 0.04f) // 0.2f * 0.2f
             {
                 // 목표에 도달했으면 현재 위치에서 더 멀리 떨어진 새로운 목표 설정
                 Vector2 backoffDirection = CalculateBackoffDirection();
                 backoffTarget = (Vector2)transform.position + backoffDirection * backoffDistance;
-                // 맵 경계 내로 제한
-                backoffTarget = ClampToMapBounds(backoffTarget);
+                // 맵 경계 내로 제한 (자신이 속한 맵 콜라이더만 사용)
+                backoffTarget = ClampToMyMapBounds(backoffTarget);
             }
 
             MoveTowardsTarget(backoffTarget, backoffSpeed);
@@ -229,7 +232,7 @@ namespace PigeonGame.Gameplay
             if (backoffCausedByPlayer && PlayerController.Instance != null)
             {
                 Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
-                if (toPlayer.magnitude > 0.1f)
+                if (toPlayer.sqrMagnitude > 0.01f) // sqrMagnitude 사용으로 성능 개선
                 {
                     return -toPlayer.normalized;
                 }
@@ -244,9 +247,8 @@ namespace PigeonGame.Gameplay
             if (mainCamera == null)
                 mainCamera = Camera.main;
 
-            Vector2 fleeDirection = CalculateFleeDirection();
             // Flee 상태일 때는 맵 경계를 무시하고 자유롭게 이동
-            rb.linearVelocity = fleeDirection * fleeSpeed;
+            rb.linearVelocity = CalculateFleeDirection() * fleeSpeed;
         }
 
         private Vector2 CalculateFleeDirection()
@@ -270,55 +272,35 @@ namespace PigeonGame.Gameplay
 
         private void MoveTowardsTarget(Vector2 target, float speed)
         {
-            Vector2 direction = (target - (Vector2)transform.position).normalized;
-            float distance = Vector2.Distance(transform.position, target);
+            Vector2 toTarget = target - (Vector2)transform.position;
+            float sqrDistance = toTarget.sqrMagnitude;
             
-            if (distance < 0.1f)
+            if (sqrDistance < 0.01f) // sqrMagnitude 사용으로 성능 개선
             {
                 rb.linearVelocity = Vector2.zero;
             }
             else
             {
+                Vector2 direction = toTarget.normalized;
                 Vector2 newVelocity = direction * speed;
                 Vector2 newPosition = (Vector2)transform.position + newVelocity * Time.fixedDeltaTime;
                 
-                // 맵 경계 체크
-                newPosition = ClampToMapBounds(newPosition);
+                // 맵 경계 체크 (자신이 속한 맵 콜라이더만 사용)
+                newPosition = ClampToMyMapBounds(newPosition);
                 
                 // 위치 직접 설정 (경계를 벗어나지 않도록)
                 rb.MovePosition(newPosition);
             }
         }
         
-        private Vector2 ClampToMapBounds(Vector2 position)
+        private Vector2 ClampToMyMapBounds(Vector2 position)
         {
-            if (mapColliders == null || mapColliders.Length == 0)
+            if (myMapCollider == null)
                 return position;
             
-            // 모든 맵 콜라이더의 bounds를 합친 영역 계산
-            Bounds? combinedBounds = null;
-            foreach (var col in mapColliders)
-            {
-                if (col != null)
-                {
-                    if (combinedBounds == null)
-                        combinedBounds = col.bounds;
-                    else
-                    {
-                        Bounds bounds = combinedBounds.Value;
-                        bounds.Encapsulate(col.bounds);
-                        combinedBounds = bounds;
-                    }
-                }
-            }
-            
-            if (combinedBounds.HasValue)
-            {
-                Bounds bounds = combinedBounds.Value;
-                position.x = Mathf.Clamp(position.x, bounds.min.x, bounds.max.x);
-                position.y = Mathf.Clamp(position.y, bounds.min.y, bounds.max.y);
-            }
-            
+            Bounds bounds = myMapCollider.bounds;
+            position.x = Mathf.Clamp(position.x, bounds.min.x, bounds.max.x);
+            position.y = Mathf.Clamp(position.y, bounds.min.y, bounds.max.y);
             return position;
         }
 
@@ -326,7 +308,8 @@ namespace PigeonGame.Gameplay
         {
             Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, detectionRadius);
             FoodTrap nearestTrap = null;
-            float nearestDistance = float.MaxValue;
+            float nearestSqrDistance = float.MaxValue;
+            Vector2 myPosition = transform.position;
 
             foreach (var col in colliders)
             {
@@ -336,10 +319,10 @@ namespace PigeonGame.Gameplay
                 FoodTrap trap = col.GetComponent<FoodTrap>();
                 if (trap != null && !trap.IsDepleted)
                 {
-                    float distance = Vector2.Distance(transform.position, col.transform.position);
-                    if (distance < nearestDistance)
+                    float sqrDistance = ((Vector2)col.transform.position - myPosition).sqrMagnitude;
+                    if (sqrDistance < nearestSqrDistance)
                     {
-                        nearestDistance = distance;
+                        nearestSqrDistance = sqrDistance;
                         nearestTrap = trap;
                     }
                 }
@@ -359,41 +342,104 @@ namespace PigeonGame.Gameplay
             wanderTarget = (Vector2)transform.position + randomOffset;
         }
 
-        private void OnDrawGizmosSelected()
+        /// <summary>
+        /// 전시관 비둘기 전용 wander (플레이어 감지, 먹이 탐색 없음)
+        /// </summary>
+        private void HandleExhibitionWander()
         {
-            if (!showDebugGizmos)
+            if (rb == null || controller == null)
                 return;
 
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, detectionRadius);
-
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(transform.position, eatingRadius);
-
-            if (ai != null)
+            wanderTimer += Time.deltaTime;
+            if (wanderTimer >= wanderInterval)
             {
-                float alert = ai.Alert;
-                PigeonState state = ai.CurrentState;
+                SetNewExhibitionWanderTarget();
+                wanderTimer = 0f;
+            }
+
+            MoveTowardsExhibitionTarget(wanderTarget, wanderSpeed);
+        }
+
+        /// <summary>
+        /// 전시 영역 내에서만 이동
+        /// </summary>
+        private void MoveTowardsExhibitionTarget(Vector2 target, float speed)
+        {
+            if (controller == null || controller.ExhibitionArea == null || rb == null)
+                return;
+
+            Vector2 toTarget = target - (Vector2)transform.position;
+            float sqrDistance = toTarget.sqrMagnitude;
+            
+            if (sqrDistance < 0.01f)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+            else
+            {
+                Vector2 direction = toTarget.normalized;
+                Vector2 newVelocity = direction * speed;
+                Vector2 newPosition = (Vector2)transform.position + newVelocity * Time.fixedDeltaTime;
                 
-                Color stateColor = state switch
-                {
-                    PigeonState.Normal => Color.green,
-                    PigeonState.Cautious => Color.yellow,
-                    PigeonState.BackOff => Color.magenta,
-                    PigeonState.Flee => Color.red,
-                    _ => Color.white
-                };
-
-                Gizmos.color = stateColor;
-                Gizmos.DrawWireSphere(transform.position, 0.3f);
-
-                #if UNITY_EDITOR
-                UnityEditor.Handles.Label(
-                    transform.position + Vector3.up * 0.5f,
-                    $"Alert: {alert:F1}\nState: {state}"
-                );
-                #endif
+                // 전시 영역 경계 체크
+                newPosition = ClampToExhibitionBounds(newPosition);
+                
+                rb.MovePosition(newPosition);
             }
         }
+
+        /// <summary>
+        /// 전시 영역 경계로 제한
+        /// </summary>
+        private Vector2 ClampToExhibitionBounds(Vector2 position)
+        {
+            if (controller == null || controller.ExhibitionArea == null)
+                return position;
+            
+            Bounds bounds = controller.ExhibitionArea.bounds;
+            position.x = Mathf.Clamp(position.x, bounds.min.x, bounds.max.x);
+            position.y = Mathf.Clamp(position.y, bounds.min.y, bounds.max.y);
+            return position;
+        }
+
+        /// <summary>
+        /// 전시관 영역 내에서만 wander 타겟 설정
+        /// </summary>
+        private void SetNewExhibitionWanderTarget()
+        {
+            if (controller == null || controller.ExhibitionArea == null)
+            {
+                // 전시 영역이 없으면 일반 wander
+                SetNewWanderTarget();
+                return;
+            }
+
+            // 전시 영역 내 랜덤 위치 생성
+            Bounds bounds = controller.ExhibitionArea.bounds;
+            int attempts = 0;
+            Vector2 target;
+            do
+            {
+                target = new Vector2(
+                    Random.Range(bounds.min.x, bounds.max.x),
+                    Random.Range(bounds.min.y, bounds.max.y)
+                );
+                attempts++;
+            } while (attempts < 10 && !IsPointInCollider(target, controller.ExhibitionArea));
+
+            wanderTarget = target;
+        }
+
+        /// <summary>
+        /// 점이 콜라이더 안에 있는지 확인
+        /// </summary>
+        private bool IsPointInCollider(Vector2 point, Collider2D collider)
+        {
+            if (collider == null)
+                return false;
+
+            return collider.OverlapPoint(point);
+        }
+
     }
 }

@@ -16,7 +16,6 @@ namespace PigeonGame.Gameplay
 
         [SerializeField] private ShopType shopType;
         [SerializeField] private float interactionRadius = 2f;
-        [SerializeField] private bool showDebugGizmos = true;
 
         private Collider2D interactionTrigger; // 상호작용 트리거 영역
         private bool isPlayerInRange = false; // 플레이어가 범위 안에 있는지
@@ -108,14 +107,6 @@ namespace PigeonGame.Gameplay
             }
         }
 
-        private void OnDrawGizmosSelected()
-        {
-            if (!showDebugGizmos)
-                return;
-
-            Gizmos.color = shopType == ShopType.PigeonShop ? Color.green : Color.blue;
-            Gizmos.DrawWireSphere(transform.position, interactionRadius);
-        }
     }
 }
 

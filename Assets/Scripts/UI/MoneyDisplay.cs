@@ -18,10 +18,7 @@ namespace PigeonGame.UI
             {
                 moneyText = GetComponent<TextMeshProUGUI>();
                 if (moneyText == null)
-                {
-                    Debug.LogError("MoneyDisplay: TextMeshProUGUI를 찾을 수 없습니다!");
                     return;
-                }
             }
 
             // GameManager 이벤트 구독
@@ -33,7 +30,6 @@ namespace PigeonGame.UI
             }
             else
             {
-                Debug.LogWarning("MoneyDisplay: GameManager를 찾을 수 없습니다! 잠시 후 다시 시도합니다.");
                 // GameManager가 아직 초기화되지 않았을 수 있으므로 코루틴으로 재시도
                 StartCoroutine(WaitForGameManager());
             }

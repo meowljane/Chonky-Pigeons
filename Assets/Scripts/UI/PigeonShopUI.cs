@@ -29,14 +29,6 @@ namespace PigeonGame.UI
             {
                 // 같은 오브젝트에 없으면 씬에서 찾기
                 inventoryUI = FindFirstObjectByType<InventoryUI>();
-                if (inventoryUI == null)
-                {
-                    Debug.LogError("InventoryUI 컴포넌트를 찾을 수 없습니다! 상세 정보 기능이 작동하지 않습니다.");
-                }
-                else
-                {
-                    Debug.LogWarning("같은 오브젝트에 InventoryUI가 없어서 씬에서 찾았습니다.");
-                }
             }
 
             if (shopPanel != null)
@@ -115,11 +107,6 @@ namespace PigeonGame.UI
             if (shopItemUI != null)
             {
                 shopItemUI.Setup(stats, index, ShowPigeonDetail, SellPigeon);
-            }
-            else
-            {
-                // ShopItemUI가 없으면 기존 방식으로 폴백 (하위 호환성)
-                Debug.LogWarning($"ShopItemUI 컴포넌트가 없습니다. {itemObj.name}에 ShopItemUI를 추가하세요.");
             }
         }
 

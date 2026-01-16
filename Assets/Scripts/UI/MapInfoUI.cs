@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
-using System.Linq;
 using PigeonGame.Data;
 using PigeonGame.Gameplay;
 
@@ -15,6 +14,8 @@ namespace PigeonGame.UI
     {
         [SerializeField] private Text terrainTypeText; // 현재 terrain 타입 표시 (Legacy Text)
         [SerializeField] private TextMeshProUGUI terrainTypeTextMesh; // 현재 terrain 타입 표시 (TextMeshPro)
+        [SerializeField] private Text mapNameText; // 현재 맵 이름 표시 (Legacy Text)
+        [SerializeField] private TextMeshProUGUI mapNameTextMesh; // 현재 맵 이름 표시 (TextMeshPro)
         [SerializeField] private Transform speciesProbabilityContainer; // 종별 확률 표시 컨테이너
         [SerializeField] private GameObject speciesProbabilityItemPrefab; // 종별 확률 아이템 프리팹
         [SerializeField] private float updateInterval = 0.5f; // 업데이트 간격 (초)
@@ -43,6 +44,19 @@ namespace PigeonGame.UI
             if (PlayerController.Instance == null || pigeonManager == null)
                 return;
 
+            // 현재 맵 이름 표시
+            string currentMapName = PlayerController.Instance.CurrentMapName;
+            string mapDisplay = $"Map: {currentMapName}";
+            
+            if (mapNameText != null)
+            {
+                mapNameText.text = mapDisplay;
+            }
+            if (mapNameTextMesh != null)
+            {
+                mapNameTextMesh.text = mapDisplay;
+            }
+
             // 현재 플레이어 위치의 terrain 타입 표시
             string currentTerrain = pigeonManager.GetTerrainTypeAtPosition(PlayerController.Instance.Position);
             string terrainDisplay = $"Terrain: {currentTerrain ?? "sand"}";
@@ -63,22 +77,13 @@ namespace PigeonGame.UI
         private void UpdateSpeciesProbabilities()
         {
             if (PlayerController.Instance == null)
-            {
-                Debug.LogWarning("MapInfoUI: PlayerController.Instance가 null입니다.");
                 return;
-            }
 
             if (pigeonManager == null)
-            {
-                Debug.LogWarning("MapInfoUI: WorldPigeonManager를 찾을 수 없습니다.");
                 return;
-            }
 
             if (speciesProbabilityContainer == null)
-            {
-                Debug.LogWarning("MapInfoUI: SpeciesProbabilityContainer가 할당되지 않았습니다.");
                 return;
-            }
 
             // 기존 아이템 제거
             foreach (var obj in probabilityItemObjects)
@@ -88,33 +93,26 @@ namespace PigeonGame.UI
             }
             probabilityItemObjects.Clear();
 
-            // 현재 맵의 종별 스폰 확률 가져오기 (덫 위치 기반)
-            var probabilities = pigeonManager.GetSpeciesSpawnProbabilities();
+            // 현재 플레이어가 있는 맵의 종별 스폰 확률 가져오기 (덫 위치 기반)
+            Collider2D currentMapCollider = PlayerController.Instance != null ? PlayerController.Instance.CurrentMapCollider : null;
+            var probabilities = pigeonManager.GetSpeciesSpawnProbabilities(currentMapCollider);
             if (probabilities == null || probabilities.Count == 0)
-            {
-                Debug.LogWarning("MapInfoUI: 스폰 확률 데이터를 가져올 수 없습니다.");
                 return;
-            }
 
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.SpeciesSet == null)
-            {
-                Debug.LogWarning("MapInfoUI: GameDataRegistry 또는 SpeciesSet을 찾을 수 없습니다.");
                 return;
-            }
 
             // 확률이 높은 순으로 정렬
-            var sortedProbabilities = probabilities.OrderByDescending(kvp => kvp.Value).ToList();
+            List<KeyValuePair<string, float>> sortedProbabilities = new List<KeyValuePair<string, float>>(probabilities);
+            sortedProbabilities.Sort((a, b) => b.Value.CompareTo(a.Value));
 
             // 각 종별 확률 표시
             foreach (var kvp in sortedProbabilities)
             {
                 var species = registry.SpeciesSet.GetSpeciesById(kvp.Key);
                 if (species == null)
-                {
-                    Debug.LogWarning($"MapInfoUI: 종 ID '{kvp.Key}'에 해당하는 종을 찾을 수 없습니다.");
                     continue;
-                }
 
                 if (speciesProbabilityItemPrefab != null)
                 {

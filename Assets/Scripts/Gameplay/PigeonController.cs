@@ -8,8 +8,12 @@ namespace PigeonGame.Gameplay
         private PigeonInstanceStats stats;
         [SerializeField] private PigeonAI ai;
         [SerializeField] private SpriteRenderer spriteRenderer;
+        private bool isExhibitionPigeon = false; // 전시관 비둘기 여부
+        private Collider2D exhibitionArea = null; // 전시관 영역
 
         public PigeonInstanceStats Stats => stats;
+        public bool IsExhibitionPigeon => isExhibitionPigeon;
+        public Collider2D ExhibitionArea => exhibitionArea;
 
         public void Initialize(PigeonInstanceStats stats)
         {
@@ -26,26 +30,27 @@ namespace PigeonGame.Gameplay
             if (spriteRenderer == null)
                 spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
-            // SpriteRenderer 활성화
+            // SpriteRenderer 활성화 및 스프라이트 설정
             if (spriteRenderer != null)
             {
                 spriteRenderer.enabled = true;
                 
-            // 스프라이트 설정
-            var species = GameDataRegistry.Instance.SpeciesSet.GetSpeciesById(stats.speciesId);
-                if (species != null && species.icon != null)
-            {
-                spriteRenderer.sprite = species.icon;
-                }
-                else if (spriteRenderer.sprite == null)
+                // 스프라이트 설정
+                var species = GameDataRegistry.Instance?.SpeciesSet?.GetSpeciesById(stats.speciesId);
+                if (species?.icon != null)
                 {
-                    Debug.LogWarning($"PigeonController: Species icon이 없거나 설정되지 않았습니다. Species ID: {stats.speciesId}");
+                    spriteRenderer.sprite = species.icon;
                 }
             }
-            else
-            {
-                Debug.LogError("PigeonController: SpriteRenderer를 찾을 수 없습니다!");
-            }
+        }
+
+        /// <summary>
+        /// 전시관 비둘기로 설정
+        /// </summary>
+        public void SetAsExhibitionPigeon(Collider2D area)
+        {
+            isExhibitionPigeon = true;
+            exhibitionArea = area;
         }
     }
 }

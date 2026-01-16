@@ -31,7 +31,6 @@ namespace PigeonGame.UI
 
             if (trap == null)
             {
-                Debug.LogError("TrapFoodDisplay: FoodTrap을 찾을 수 없습니다!");
                 enabled = false;
                 return;
             }

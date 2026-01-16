@@ -20,20 +20,43 @@ namespace PigeonGame.Gameplay
         /// </summary>
         public bool PlaceTrapAtPlayerPosition(string trapId)
         {
+            return PlaceTrapAtPlayerPosition(trapId, 0); // 기본 feedAmount 사용
+        }
+
+        /// <summary>
+        /// 플레이어 위치에 덫 설치 (커스텀 feedAmount 포함)
+        /// </summary>
+        public bool PlaceTrapAtPlayerPosition(string trapId, int feedAmount)
+        {
             if (PlayerController.Instance == null)
-            {
-                Debug.LogWarning("PlayerController를 찾을 수 없습니다!");
                 return false;
-            }
 
             Vector3 playerPos = PlayerController.Instance.Position;
 
             // 덫 해금 확인
             if (requirePurchase && GameManager.Instance != null)
             {
+                // 해금되지 않은 덫은 설치 불가
                 if (!GameManager.Instance.IsTrapUnlocked(trapId))
                 {
                     return false;
+                }
+
+                var registry = GameDataRegistry.Instance;
+                if (registry == null || registry.Traps == null)
+                    return false;
+
+                var trapData = registry.Traps.GetTrapById(trapId);
+                if (trapData == null)
+                    return false;
+
+                // feedAmount가 0이면 기본값 사용
+                int actualFeedAmount = feedAmount > 0 ? feedAmount : trapData.feedAmount;
+
+                // 구매 처리 (설치 + 모이)
+                if (!GameManager.Instance.PurchaseTrapInstallation(trapId, actualFeedAmount))
+                {
+                    return false; // 구매 실패
                 }
             }
 
@@ -43,8 +66,25 @@ namespace PigeonGame.Gameplay
             
             if (trap != null)
             {
-                // TrapId 설정
-                trap.SetTrapId(trapId);
+                var registry = GameDataRegistry.Instance;
+                if (registry != null && registry.Traps != null)
+                {
+                    var trapData = registry.Traps.GetTrapById(trapId);
+                    if (trapData != null)
+                    {
+                        // feedAmount가 0이면 기본값 사용
+                        int actualFeedAmount = feedAmount > 0 ? feedAmount : trapData.feedAmount;
+                        trap.SetTrapIdAndFeedAmount(trapId, actualFeedAmount);
+                    }
+                    else
+                    {
+                        trap.SetTrapId(trapId);
+                    }
+                }
+                else
+                {
+                    trap.SetTrapId(trapId);
+                }
 
                 // 덫에 먹이 표시 UI 추가 (없으면)
                 var foodDisplay = trapObj.GetComponent<UI.TrapFoodDisplay>();
@@ -54,7 +94,6 @@ namespace PigeonGame.Gameplay
                 }
 
                 // 덫 설치 시 비둘기 추가 스폰 (해당 맵 내 랜덤 위치)
-                var registry = GameDataRegistry.Instance;
                 if (registry != null && registry.Traps != null && pigeonManager != null)
                 {
                     var trapData = registry.Traps.GetTrapById(trapId);
@@ -63,10 +102,6 @@ namespace PigeonGame.Gameplay
                         pigeonManager.SpawnPigeonsInMap(playerPos, trapData.pigeonSpawnCount, true);
                     }
                 }
-
-                // 포획 이벤트는 더 이상 즉시 등록하지 않음
-                // 상호작용을 통해 수집하도록 변경됨
-                // trap.OnCaptured += OnPigeonCaptured;
 
                 return true;
             }

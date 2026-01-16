@@ -15,6 +15,7 @@ namespace PigeonGame.Gameplay
         private InventoryUI inventoryUI;
         private PigeonShopUI pigeonShopUI;
         private TrapShopUI trapShopUI;
+        private UI.ExhibitionUI exhibitionUI;
 
         private void Awake()
         {
@@ -22,7 +23,7 @@ namespace PigeonGame.Gameplay
             {
                 Instance = this;
             }
-            else if (Instance != this)
+            else
             {
                 Destroy(gameObject);
             }
@@ -33,6 +34,7 @@ namespace PigeonGame.Gameplay
             inventoryUI = FindFirstObjectByType<InventoryUI>();
             pigeonShopUI = FindFirstObjectByType<PigeonShopUI>();
             trapShopUI = FindFirstObjectByType<TrapShopUI>();
+            exhibitionUI = FindFirstObjectByType<UI.ExhibitionUI>();
         }
 
         private void OnDestroy()
@@ -74,17 +76,10 @@ namespace PigeonGame.Gameplay
         /// </summary>
         public void OnInteract()
         {
-            if (currentInteractable == null)
+            if (currentInteractable?.CanInteract() == true)
             {
-                return;
+                currentInteractable.OnInteract();
             }
-
-            if (!currentInteractable.CanInteract())
-            {
-                return;
-            }
-
-            currentInteractable.OnInteract();
         }
 
         /// <summary>
@@ -95,10 +90,6 @@ namespace PigeonGame.Gameplay
             if (pigeonShopUI != null)
             {
                 pigeonShopUI.OpenShopPanel();
-            }
-            else
-            {
-                Debug.LogWarning("PigeonShopUI를 찾을 수 없습니다!");
             }
         }
 
@@ -111,9 +102,16 @@ namespace PigeonGame.Gameplay
             {
                 trapShopUI.OpenShopPanel();
             }
-            else
+        }
+
+        /// <summary>
+        /// 전시관 열기 (ExhibitionBuilding에서 호출)
+        /// </summary>
+        public void OpenExhibition()
+        {
+            if (exhibitionUI != null)
             {
-                Debug.LogWarning("TrapShopUI를 찾을 수 없습니다!");
+                exhibitionUI.OpenExhibitionPanel();
             }
         }
 

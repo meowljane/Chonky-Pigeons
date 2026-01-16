@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 using PigeonGame.Data;
 
 namespace PigeonGame.Gameplay
@@ -17,15 +16,28 @@ namespace PigeonGame.Gameplay
         [SerializeField] private float spawnChance = 0.3f; // 비둘기 수가 부족할 때 스폰 확률
         [SerializeField] private float despawnChance = 0.1f; // 비둘기가 나가는 확률 (초당)
         [SerializeField] private float forceFleeDespawnTime = 5f; // forceFlee 상태인 비둘기가 제거되기까지의 시간 (초)
-        [SerializeField] private Collider2D[] mapColliders; // 맵 콜라이더 배열
-        
         public static WorldPigeonManager Instance { get; private set; }
-        public Collider2D[] MapColliders => mapColliders;
+        
+        /// <summary>
+        /// MapManager에서 맵 콜라이더 가져오기
+        /// </summary>
+        public Collider2D[] MapColliders
+        {
+            get
+            {
+                if (MapManager.Instance != null)
+                {
+                    var colliders = MapManager.Instance.GetAllMapColliders();
+                    if (colliders != null && colliders.Length > 0)
+                        return colliders;
+                }
+                return null;
+            }
+        }
 
         // 맵 콜라이더별 비둘기 관리
         private Dictionary<Collider2D, List<PigeonController>> pigeonsByMap = new Dictionary<Collider2D, List<PigeonController>>();
         private Dictionary<PigeonController, Collider2D> pigeonToMap = new Dictionary<PigeonController, Collider2D>();
-        private Camera mainCamera;
         private float spawnCheckTimer = 0f;
         private TerrainArea[] allTerrainAreas; // 모든 terrain 영역
 
@@ -37,31 +49,25 @@ namespace PigeonGame.Gameplay
             }
             else
             {
-                Debug.LogWarning("Multiple WorldPigeonManager instances detected!");
+                Destroy(gameObject);
             }
         }
 
         private void Start()
         {
-            mainCamera = Camera.main;
-            if (mainCamera == null)
-                mainCamera = FindFirstObjectByType<Camera>();
-
-            // 맵 콜라이더가 설정되지 않았으면 경고
-            if (mapColliders == null || mapColliders.Length == 0)
-            {
-                Debug.LogError("WorldPigeonManager: 맵 콜라이더가 설정되지 않았습니다! Inspector에서 Map Colliders를 할당해주세요.");
-            }
-
             // 모든 terrain 영역 찾기
             allTerrainAreas = FindObjectsByType<TerrainArea>(FindObjectsSortMode.None);
 
             // 맵 콜라이더별 비둘기 리스트 초기화
-            foreach (var mapCollider in mapColliders)
+            var mapColliders = MapColliders;
+            if (mapColliders != null)
             {
-                if (mapCollider != null)
+                foreach (var mapCollider in mapColliders)
                 {
-                    pigeonsByMap[mapCollider] = new List<PigeonController>();
+                    if (mapCollider != null)
+                    {
+                        pigeonsByMap[mapCollider] = new List<PigeonController>();
+                    }
                 }
             }
 
@@ -93,28 +99,26 @@ namespace PigeonGame.Gameplay
         private void SpawnInitialPigeons()
         {
             if (pigeonPrefab == null)
-            {
-                Debug.LogError("WorldPigeonManager: Pigeon Prefab이 설정되지 않았습니다!");
                 return;
-            }
 
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.SpeciesSet == null)
-            {
-                Debug.LogError("WorldPigeonManager: GameDataRegistry를 찾을 수 없습니다!");
                 return;
-            }
 
             // 각 맵 콜라이더마다 비둘기 스폰
-            foreach (var mapCollider in mapColliders)
+            var mapColliders = MapColliders;
+            if (mapColliders != null)
             {
-                if (mapCollider == null)
-                    continue;
+                foreach (var mapCollider in mapColliders)
+                {
+                    if (mapCollider == null)
+                        continue;
 
-                for (int i = 0; i < pigeonsPerMap; i++)
-            {
-                    Vector3 spawnPos = GetRandomPositionInCollider(mapCollider);
-                    SpawnPigeonAtPosition(spawnPos, mapCollider);
+                    for (int i = 0; i < pigeonsPerMap; i++)
+                    {
+                        Vector3 spawnPos = GetRandomPositionInCollider(mapCollider);
+                        SpawnPigeonAtPosition(spawnPos, mapCollider);
+                    }
                 }
             }
         }
@@ -123,7 +127,7 @@ namespace PigeonGame.Gameplay
         /// 비둘기 수 체크 및 보충
         /// </summary>
         private void CheckAndRefillPigeons()
-            {
+        {
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.SpeciesSet == null)
                 return;
@@ -169,8 +173,8 @@ namespace PigeonGame.Gameplay
             if (allSpecies.Length == 0)
                 return;
 
-            // 비둘기 종 선택 (덫 선호도 기반 확률 보정)
-            SpeciesDefinition selectedSpecies = SelectSpeciesWithPreference(allSpecies, position, applyPreferenceBonus);
+            // 비둘기 종 선택 (덫 선호도 기반 확률 보정) - 해당 맵의 덫만 고려
+            SpeciesDefinition selectedSpecies = SelectSpeciesWithPreference(allSpecies, position, mapCollider, applyPreferenceBonus);
             if (selectedSpecies == null)
                 selectedSpecies = allSpecies[Random.Range(0, allSpecies.Length)]; // 폴백
 
@@ -208,10 +212,6 @@ namespace PigeonGame.Gameplay
                 }
                 pigeonsByMap[mapCollider].Add(controller);
                 pigeonToMap[controller] = mapCollider;
-            }
-            else
-            {
-                Debug.LogError($"WorldPigeonManager: PigeonController를 찾을 수 없습니다! GameObject: {pigeonObj.name}");
             }
         }
 
@@ -264,7 +264,7 @@ namespace PigeonGame.Gameplay
         /// <summary>
         /// 덫 선호도 기반으로 비둘기 종 선택 (확률 보정)
         /// </summary>
-        private SpeciesDefinition SelectSpeciesWithPreference(SpeciesDefinition[] allSpecies, Vector3 position, bool applyBonus)
+        private SpeciesDefinition SelectSpeciesWithPreference(SpeciesDefinition[] allSpecies, Vector3 position, Collider2D mapCollider, bool applyBonus)
         {
             if (!applyBonus)
             {
@@ -274,7 +274,18 @@ namespace PigeonGame.Gameplay
 
             // 덫 리스트 가져오기 (포획된 덫 제외)
             FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
-            List<FoodTrap> activeTraps = allTraps.Where(t => t != null && !t.HasCapturedPigeon && !t.IsDepleted).ToList();
+            List<FoodTrap> activeTraps = new List<FoodTrap>();
+            foreach (var trap in allTraps)
+            {
+                if (trap != null && !trap.HasCapturedPigeon && !trap.IsDepleted)
+                {
+                    // 특정 맵이 지정되었으면 해당 맵 내부의 덫만 필터링
+                    if (mapCollider == null || ColliderUtility.IsPositionInsideCollider(trap.transform.position, mapCollider))
+                    {
+                        activeTraps.Add(trap);
+                    }
+                }
+            }
 
             if (activeTraps.Count == 0)
             {
@@ -284,14 +295,15 @@ namespace PigeonGame.Gameplay
 
             // 각 종의 가중치 계산 (공통 로직 사용)
             List<float> weights = new List<float>();
+            float totalWeight = 0f;
             foreach (var species in allSpecies)
             {
                 float weight = CalculateSpeciesWeight(species, activeTraps);
                 weights.Add(weight);
+                totalWeight += weight;
             }
 
             // 가중치 기반 랜덤 선택
-            float totalWeight = weights.Sum();
             if (totalWeight <= 0f)
             {
                 // 폴백
@@ -339,7 +351,7 @@ namespace PigeonGame.Gameplay
         /// 콜라이더 내부의 랜덤 위치 반환
         /// </summary>
         private Vector3 GetRandomPositionInCollider(Collider2D collider)
-            {
+        {
             if (collider == null)
                 return Vector3.zero;
 
@@ -354,7 +366,7 @@ namespace PigeonGame.Gameplay
                     0
                 );
 
-                if (IsPositionInsideCollider(randomPos, collider))
+                if (ColliderUtility.IsPositionInsideCollider(randomPos, collider))
                 {
                     return randomPos;
                 }
@@ -364,57 +376,6 @@ namespace PigeonGame.Gameplay
             return bounds.center;
         }
 
-        /// <summary>
-        /// 위치가 특정 콜라이더 내부인지 확인
-        /// </summary>
-        private bool IsPositionInsideCollider(Vector3 position, Collider2D collider)
-        {
-            if (collider == null)
-                return false;
-
-            if (collider is BoxCollider2D || collider is CircleCollider2D || collider is EdgeCollider2D)
-            {
-                return collider.bounds.Contains(position);
-            }
-
-            if (collider is PolygonCollider2D polygonCollider)
-            {
-                Vector2 pos2D = new Vector2(position.x, position.y);
-                return IsPointInPolygon(pos2D, polygonCollider.points, polygonCollider.transform);
-            }
-
-            return collider.bounds.Contains(position);
-        }
-
-        /// <summary>
-        /// 점이 폴리곤 내부에 있는지 확인 (PolygonCollider2D용)
-        /// </summary>
-        private bool IsPointInPolygon(Vector2 point, Vector2[] polygon, Transform transform)
-        {
-            Vector2[] worldPolygon = new Vector2[polygon.Length];
-            for (int i = 0; i < polygon.Length; i++)
-            {
-                worldPolygon[i] = transform.TransformPoint(polygon[i]);
-            }
-
-            bool inside = false;
-            int j = worldPolygon.Length - 1;
-
-            for (int i = 0; i < worldPolygon.Length; i++)
-            {
-                Vector2 vi = worldPolygon[i];
-                Vector2 vj = worldPolygon[j];
-
-                if (((vi.y > point.y) != (vj.y > point.y)) &&
-                    (point.x < (vj.x - vi.x) * (point.y - vi.y) / (vj.y - vi.y) + vi.x))
-                {
-                    inside = !inside;
-                }
-                j = i;
-            }
-
-            return inside;
-        }
 
         /// <summary>
         /// forceFlee 상태인 비둘기 제거 관리
@@ -463,6 +424,18 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
+        /// 비둘기가 속한 맵 콜라이더 가져오기
+        /// </summary>
+        public Collider2D GetMapColliderForPigeon(PigeonController pigeon)
+        {
+            if (pigeon != null && pigeonToMap.ContainsKey(pigeon))
+            {
+                return pigeonToMap[pigeon];
+            }
+            return null;
+        }
+
+        /// <summary>
         /// 비둘기를 맵에서 제거
         /// </summary>
         private void RemovePigeonFromMap(PigeonController pigeon)
@@ -496,69 +469,80 @@ namespace PigeonGame.Gameplay
 
             // 위치가 속한 맵 콜라이더 찾기
             Collider2D targetMapCollider = null;
-            foreach (var mapCollider in mapColliders)
+            var mapColliders = MapColliders;
+            if (mapColliders != null)
             {
-                if (mapCollider != null && IsPositionInsideCollider(position, mapCollider))
+                foreach (var mapCollider in mapColliders)
+                {
+                    if (mapCollider != null && ColliderUtility.IsPositionInsideCollider(position, mapCollider))
                     {
-                    targetMapCollider = mapCollider;
-                    break;
+                        targetMapCollider = mapCollider;
+                        break;
+                    }
+                }
+
+                // 맵 콜라이더를 찾지 못했으면 첫 번째 맵 콜라이더 사용
+                if (targetMapCollider == null && mapColliders.Length > 0)
+                {
+                    targetMapCollider = mapColliders[0];
                 }
             }
 
-            // 맵 콜라이더를 찾지 못했으면 첫 번째 맵 콜라이더 사용
-            if (targetMapCollider == null && mapColliders != null && mapColliders.Length > 0)
-            {
-                targetMapCollider = mapColliders[0];
-            }
-
             if (targetMapCollider == null)
-                        {
-                Debug.LogWarning("WorldPigeonManager: 맵 콜라이더를 찾을 수 없어 비둘기를 스폰할 수 없습니다.");
                 return;
-            }
 
             // 지정된 수만큼 비둘기를 맵 내 랜덤 위치에 스폰
             for (int i = 0; i < count; i++)
             {
                 Vector3 spawnPos = GetRandomPositionInCollider(targetMapCollider);
                 SpawnPigeonAtPosition(spawnPos, targetMapCollider, applyPreferenceBonus);
-                        }
-                    }
+            }
+        }
 
         /// <summary>
-        /// 현재 맵의 종별 스폰 확률 계산 (UI 표시용) - 덫 위치 기반
+        /// 특정 맵의 종별 스폰 확률 계산 (UI 표시용) - 덫 위치 기반
         /// </summary>
-        public Dictionary<string, float> GetSpeciesSpawnProbabilities()
+        public Dictionary<string, float> GetSpeciesSpawnProbabilities(Collider2D mapCollider = null)
         {
             var registry = GameDataRegistry.Instance;
             if (registry == null)
-            {
-                Debug.LogWarning("WorldPigeonManager: GameDataRegistry.Instance가 null입니다.");
                 return null;
-            }
 
             if (registry.SpeciesSet == null)
-            {
-                Debug.LogWarning("WorldPigeonManager: SpeciesSet이 null입니다.");
                 return null;
-            }
 
             var allSpecies = registry.SpeciesSet.species;
             if (allSpecies == null || allSpecies.Length == 0)
-            {
-                Debug.LogWarning("WorldPigeonManager: species 배열이 비어있습니다.");
                 return null;
-            }
 
             // 덫 리스트 가져오기 (포획된 덫 제외)
             FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
-            List<FoodTrap> activeTraps = allTraps.Where(t => t != null && !t.HasCapturedPigeon && !t.IsDepleted).ToList();
+            List<FoodTrap> activeTraps = new List<FoodTrap>();
+            foreach (var trap in allTraps)
+            {
+                if (trap != null && !trap.HasCapturedPigeon && !trap.IsDepleted)
+                {
+                    // 특정 맵이 지정되었으면 해당 맵 내부의 덫만 필터링
+                    if (mapCollider == null || ColliderUtility.IsPositionInsideCollider(trap.transform.position, mapCollider))
+                    {
+                        activeTraps.Add(trap);
+                    }
+                }
+            }
 
             if (activeTraps.Count == 0)
             {
                 // 덫이 없으면 기본 확률 반환 (baseSpawnWeight 기반)
                 Dictionary<string, float> defaultProbabilities = new Dictionary<string, float>();
-                float defaultTotalWeight = allSpecies.Sum(s => s != null ? s.baseSpawnWeight : 0f);
+                float defaultTotalWeight = 0f;
+                foreach (var species in allSpecies)
+                {
+                    if (species != null)
+                    {
+                        defaultTotalWeight += species.baseSpawnWeight;
+                    }
+                }
+                
                 if (defaultTotalWeight > 0f)
                 {
                     foreach (var species in allSpecies)
@@ -577,22 +561,21 @@ namespace PigeonGame.Gameplay
             foreach (var species in allSpecies)
             {
                 if (species == null || string.IsNullOrEmpty(species.speciesId))
-                {
-                    Debug.LogWarning("WorldPigeonManager: species 또는 speciesId가 null입니다.");
                     continue;
-                }
 
                 float weight = CalculateSpeciesWeight(species, activeTraps);
                 weights[species.speciesId] = weight;
             }
 
             // 가중치를 확률(%)로 변환
-            float totalWeight = weights.Values.Sum();
-            if (totalWeight <= 0f)
+            float totalWeight = 0f;
+            foreach (var weight in weights.Values)
             {
-                Debug.LogWarning("WorldPigeonManager: 총 가중치가 0 이하입니다.");
-                return null;
+                totalWeight += weight;
             }
+            
+            if (totalWeight <= 0f)
+                return null;
 
             Dictionary<string, float> probabilities = new Dictionary<string, float>();
             foreach (var kvp in weights)
@@ -603,22 +586,5 @@ namespace PigeonGame.Gameplay
             return probabilities;
         }
 
-        /// <summary>
-        /// 모든 월드 비둘기 제거
-        /// </summary>
-        public void ClearAllPigeons()
-        {
-            foreach (var pigeons in pigeonsByMap.Values)
-            {
-                foreach (var pigeon in pigeons)
-            {
-                if (pigeon != null)
-                    Destroy(pigeon.gameObject);
-                }
-                pigeons.Clear();
-            }
-            pigeonsByMap.Clear();
-            pigeonToMap.Clear();
-        }
     }
 }
