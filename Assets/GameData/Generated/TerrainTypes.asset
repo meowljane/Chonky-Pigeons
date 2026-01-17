@@ -13,9 +13,4 @@ MonoBehaviour:
   m_Name: TerrainTypes
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Data.TerrainTypeSet
   version: 1
-  terrainTypes:
-  - sand
-  - grass
-  - water
-  - flower
-  - wetland
+  terrainTypes: 0000000001000000020000000300000004000000

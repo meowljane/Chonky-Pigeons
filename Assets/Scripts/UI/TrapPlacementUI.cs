@@ -9,13 +9,12 @@ namespace PigeonGame.UI
 {
     /// <summary>
     /// 우측 하단 덫 설치 UI
-    /// 덫 설치 버튼과 상호작용 버튼, 덫 선택 그리드를 관리
+    /// 덫 설치 버튼과 덫 선택 그리드를 관리
     /// </summary>
     public class TrapPlacementUI : MonoBehaviour
     {
         [Header("Buttons")]
         [SerializeField] private Button trapPlacementButton;
-        [SerializeField] private Button interactionButton;
 
         [Header("Trap Selection Panel")]
         [SerializeField] private GameObject trapSelectionPanel;
@@ -64,11 +63,6 @@ namespace PigeonGame.UI
             if (trapPlacementButton != null)
             {
                 trapPlacementButton.onClick.AddListener(OnTrapPlacementButtonClicked);
-            }
-
-            if (interactionButton != null)
-            {
-                interactionButton.onClick.AddListener(OnInteractionButtonClicked);
             }
 
             // 덫 선택 패널 초기화
@@ -541,24 +535,6 @@ namespace PigeonGame.UI
             }
         }
 
-        private void OnInteractionButtonClicked()
-        {
-            // 통합 상호작용 시스템 사용
-            InteractionSystem interactionSystem = InteractionSystem.Instance;
-            
-            // 인스턴스가 없으면 자동 생성
-            if (interactionSystem == null)
-            {
-                GameObject interactionObj = new GameObject("InteractionSystem");
-                interactionSystem = interactionObj.AddComponent<InteractionSystem>();
-            }
-            
-            if (interactionSystem != null)
-            {
-                interactionSystem.OnInteract();
-            }
-        }
-
         private void OnCloseButtonClicked()
         {
             if (trapSelectionPanel != null)
@@ -648,11 +624,6 @@ namespace PigeonGame.UI
             if (trapPlacementButton != null)
             {
                 trapPlacementButton.onClick.RemoveAllListeners();
-            }
-
-            if (interactionButton != null)
-            {
-                interactionButton.onClick.RemoveAllListeners();
             }
 
             if (closeButton != null)

@@ -14,7 +14,7 @@ namespace PigeonGame.Gameplay
 
         [SerializeField] private int startingMoney = 100;
         [SerializeField] private TrapType[] startingUnlockedTraps = { TrapType.BREAD }; // 시작 시 해금된 덫
-        [SerializeField] private PigeonSpecies[] startingUnlockedSpecies = { }; // 시작 시 해금된 비둘기 종류 (비어있으면 티어 1 모두 해금)
+        [SerializeField] private PigeonSpecies[] startingUnlockedSpecies = { };
 
         private int currentMoney;
         private HashSet<TrapType> unlockedTraps = new HashSet<TrapType>();
@@ -54,28 +54,19 @@ namespace PigeonGame.Gameplay
             currentMoney = startingMoney;
             
             // 시작 덫 해금
-            if (startingUnlockedTraps != null)
+            foreach (var trapType in startingUnlockedTraps)
             {
-                foreach (var trapType in startingUnlockedTraps)
-                {
-                    unlockedTraps.Add(trapType);
-                    // 초기 해금 이벤트 발생 (UI 업데이트용)
-                    OnTrapUnlocked?.Invoke(trapType);
-                }
+                unlockedTraps.Add(trapType);
+                OnTrapUnlocked?.Invoke(trapType);
             }
 
             // 시작 비둘기 종 해금
-            if (startingUnlockedSpecies != null)
+            foreach (var speciesType in startingUnlockedSpecies)
             {
-                foreach (var speciesType in startingUnlockedSpecies)
-                {
-                    unlockedSpecies.Add(speciesType);
-                    // 초기 해금 이벤트 발생 (UI 업데이트용)
-                    OnSpeciesUnlocked?.Invoke(speciesType);
-                }
+                unlockedSpecies.Add(speciesType);
+                OnSpeciesUnlocked?.Invoke(speciesType);
             }
 
-            // 초기 돈 값 이벤트 발생 (UI 업데이트용)
             OnMoneyChanged?.Invoke(currentMoney);
         }
 
@@ -117,16 +108,10 @@ namespace PigeonGame.Gameplay
             if (stats == null)
                 return;
 
-            // 복사본을 저장하여 원본이 삭제되어도 안전하게 보관
             var clonedStats = stats.Clone();
             inventory.Add(clonedStats);
             OnPigeonAddedToInventory?.Invoke(clonedStats);
-            
-            // 도감에 기록
-            if (EncyclopediaManager.Instance != null)
-            {
-                EncyclopediaManager.Instance.RecordPigeon(clonedStats);
-            }
+            EncyclopediaManager.Instance.RecordPigeon(clonedStats);
         }
 
         /// <summary>
@@ -177,36 +162,17 @@ namespace PigeonGame.Gameplay
         public bool UnlockTrap(TrapType trapType)
         {
             if (unlockedTraps.Contains(trapType))
-            {
                 return false;
-            }
 
             var registry = GameDataRegistry.Instance;
-            if (registry == null || registry.Traps == null)
-                return false;
-
             var trapData = registry.Traps.GetTrapById(trapType);
-            if (trapData == null)
-                return false;
 
-            // 돈 차감
             if (!SpendMoney(trapData.unlockCost))
-            {
                 return false;
-            }
 
-            // 해금
             unlockedTraps.Add(trapType);
             OnTrapUnlocked?.Invoke(trapType);
             return true;
-        }
-
-        /// <summary>
-        /// 해금된 덫 목록 가져오기
-        /// </summary>
-        public HashSet<TrapType> GetUnlockedTraps()
-        {
-            return new HashSet<TrapType>(unlockedTraps);
         }
 
         /// <summary>
@@ -223,43 +189,17 @@ namespace PigeonGame.Gameplay
         public bool UnlockSpecies(PigeonSpecies speciesType)
         {
             if (unlockedSpecies.Contains(speciesType))
-            {
                 return false;
-            }
 
             var registry = GameDataRegistry.Instance;
-            if (registry == null || registry.SpeciesSet == null)
-                return false;
-
             var speciesData = registry.SpeciesSet.GetSpeciesById(speciesType);
-            if (speciesData == null)
+
+            if (!SpendMoney(speciesData.unlockCost))
                 return false;
 
-            // 해금 비용 계산 (unlockCost가 0이면 티어 * 50으로 기본값 사용)
-            int cost = speciesData.unlockCost;
-            if (cost <= 0)
-            {
-                cost = speciesData.rarityTier * 50;
-            }
-
-            // 돈 차감
-            if (!SpendMoney(cost))
-            {
-                return false;
-            }
-
-            // 해금
             unlockedSpecies.Add(speciesType);
             OnSpeciesUnlocked?.Invoke(speciesType);
             return true;
-        }
-
-        /// <summary>
-        /// 해금된 비둘기 종 목록 가져오기
-        /// </summary>
-        public HashSet<PigeonSpecies> GetUnlockedSpecies()
-        {
-            return new HashSet<PigeonSpecies>(unlockedSpecies);
         }
 
         /// <summary>
@@ -270,17 +210,9 @@ namespace PigeonGame.Gameplay
             if (inventoryIndex < 0 || inventoryIndex >= inventory.Count)
                 return false;
 
-            var pigeon = inventory[inventoryIndex];
-            if (pigeon == null)
-                return false;
-
-            // 전시관에 추가
-            var clonedStats = pigeon.Clone();
+            var clonedStats = inventory[inventoryIndex].Clone();
             exhibition.Add(clonedStats);
-
-            // 인벤토리에서 제거
             inventory.RemoveAt(inventoryIndex);
-
             OnPigeonAddedToExhibition?.Invoke(clonedStats);
             return true;
         }
@@ -294,16 +226,9 @@ namespace PigeonGame.Gameplay
                 return false;
 
             var pigeon = exhibition[exhibitionIndex];
-            if (pigeon == null)
-                return false;
-
-            // 인벤토리에 추가
             var clonedStats = pigeon.Clone();
             inventory.Add(clonedStats);
-
-            // 전시관에서 제거
             exhibition.RemoveAt(exhibitionIndex);
-
             OnPigeonRemovedFromExhibition?.Invoke(pigeon);
             OnPigeonAddedToInventory?.Invoke(clonedStats);
             return true;
@@ -315,17 +240,9 @@ namespace PigeonGame.Gameplay
         public int CalculateTrapInstallCost(TrapType trapType, int feedAmount)
         {
             var registry = GameDataRegistry.Instance;
-            if (registry == null || registry.Traps == null)
-                return 0;
-
             var trapData = registry.Traps.GetTrapById(trapType);
-            if (trapData == null)
-                return 0;
 
-            int totalCost = 0;
-
-            // 설치 비용
-            totalCost += trapData.installCost;
+            int totalCost = trapData.installCost;
 
             // 모이 비용 (기본 20을 제외한 추가 모이)
             int additionalFeed = feedAmount - trapData.feedAmount;
@@ -342,26 +259,14 @@ namespace PigeonGame.Gameplay
         /// </summary>
         public bool PurchaseTrapInstallation(TrapType trapType, int feedAmount)
         {
-            // 해금되지 않은 덫은 설치 불가
             if (!IsTrapUnlocked(trapType))
                 return false;
 
-            var registry = GameDataRegistry.Instance;
-            if (registry == null || registry.Traps == null)
-                return false;
-
-            var trapData = registry.Traps.GetTrapById(trapType);
-            if (trapData == null)
-                return false;
-
-            // 설치 비용과 모이 비용만 계산
             int totalCost = CalculateTrapInstallCost(trapType, feedAmount);
 
-            // 돈이 부족하면 실패
             if (currentMoney < totalCost)
                 return false;
 
-            // 돈 차감
             SpendMoney(totalCost);
             return true;
         }

@@ -15,7 +15,7 @@ namespace PigeonGame.UI
         [Header("Main Panel")]
         [SerializeField] private GameObject inventoryPanel;
         [SerializeField] private Transform gridContainer; // Grid Layout Group이 있는 컨테이너
-        [SerializeField] private GameObject slotPrefab; // 슬롯 프리팹 (아이콘 + 이름)
+        [SerializeField] private GameObject inventorySlot; // 슬롯 프리팹 (아이콘 + 이름)
         [SerializeField] private TextMeshProUGUI inventoryCountText; // 인벤토리 개수 텍스트
         [SerializeField] private Button closeButton;
         [SerializeField] private Button inventoryButton; // 인벤토리 토글 버튼
@@ -30,9 +30,7 @@ namespace PigeonGame.UI
         [SerializeField] private Button detailCloseButton; // 상세 정보 닫기 버튼
 
         private List<GameObject> slotInstances = new List<GameObject>();
-        private const int GRID_WIDTH = 5;
-        private const int GRID_HEIGHT = 4;
-        private const int MAX_SLOTS = GRID_WIDTH * GRID_HEIGHT; // 20칸
+        private const int MAX_SLOTS = 20; // 5x4 그리드
 
         // 상세정보 패널 닫기 콜백 (덫 상호작용 등에서 사용)
         private System.Action<PigeonInstanceStats> onDetailPanelClosed;
@@ -51,38 +49,17 @@ namespace PigeonGame.UI
                 detailPanel.SetActive(false);
             }
 
-            // 인벤토리 버튼 찾기 및 연결
-            if (inventoryButton == null)
-            {
-                GameObject buttonObj = GameObject.Find("InventoryButton");
-                if (buttonObj != null)
-                {
-                    inventoryButton = buttonObj.GetComponent<Button>();
-                }
-            }
-
+            // 버튼 이벤트 연결
             if (inventoryButton != null)
             {
                 inventoryButton.onClick.RemoveAllListeners();
                 inventoryButton.onClick.AddListener(ToggleInventory);
             }
 
-            // 닫기 버튼 찾기 및 연결
-            if (closeButton == null && inventoryPanel != null)
-            {
-                closeButton = inventoryPanel.transform.Find("CloseButton")?.GetComponent<Button>();
-            }
-
             if (closeButton != null)
             {
                 closeButton.onClick.RemoveAllListeners();
                 closeButton.onClick.AddListener(OnCloseButtonClicked);
-            }
-
-            // 상세 정보 닫기 버튼 찾기 및 연결
-            if (detailCloseButton == null && detailPanel != null)
-            {
-                detailCloseButton = detailPanel.transform.Find("CloseButton")?.GetComponent<Button>();
             }
 
             if (detailCloseButton != null)
@@ -97,34 +74,7 @@ namespace PigeonGame.UI
                 GameManager.Instance.OnPigeonAddedToInventory += OnPigeonAdded;
             }
 
-            // Grid Layout Group 설정 확인
-            SetupGridLayout();
-
             UpdateInventoryDisplay();
-        }
-
-        /// <summary>
-        /// Grid Layout Group 설정
-        /// </summary>
-        private void SetupGridLayout()
-        {
-            if (gridContainer == null)
-                return;
-
-            GridLayoutGroup gridLayout = gridContainer.GetComponent<GridLayoutGroup>();
-            if (gridLayout == null)
-            {
-                gridLayout = gridContainer.gameObject.AddComponent<GridLayoutGroup>();
-            }
-
-            // 5x4 그리드 설정
-            gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            gridLayout.constraintCount = GRID_WIDTH;
-            gridLayout.cellSize = new Vector2(100, 100); // 적절한 크기로 조정 가능
-            gridLayout.spacing = new Vector2(10, 10);
-            gridLayout.startCorner = GridLayoutGroup.Corner.UpperLeft;
-            gridLayout.startAxis = GridLayoutGroup.Axis.Horizontal;
-            gridLayout.childAlignment = TextAnchor.UpperLeft;
         }
 
         /// <summary>
@@ -159,7 +109,7 @@ namespace PigeonGame.UI
 
             ClearItemList(slotInstances);
 
-            if (gridContainer == null || slotPrefab == null)
+            if (gridContainer == null || inventorySlot == null)
                 return;
 
             var inventory = GameManager.Instance.Inventory;
@@ -169,7 +119,7 @@ namespace PigeonGame.UI
             for (int i = 0; i < slotCount; i++)
             {
                 var pigeon = inventory[i];
-                GameObject slotObj = Instantiate(slotPrefab, gridContainer, false);
+                GameObject slotObj = Instantiate(inventorySlot, gridContainer, false);
                 slotInstances.Add(slotObj);
 
                 SetupSlotUI(slotObj, pigeon, i);
@@ -178,12 +128,10 @@ namespace PigeonGame.UI
             // 빈 슬롯 채우기
             for (int i = slotCount; i < MAX_SLOTS; i++)
             {
-                GameObject slotObj = Instantiate(slotPrefab, gridContainer, false);
+                GameObject slotObj = Instantiate(inventorySlot, gridContainer, false);
                 slotInstances.Add(slotObj);
                 SetupEmptySlot(slotObj);
             }
-
-            UpdateCanvasLayout(gridContainer);
 
             // 인벤토리 개수 업데이트 (현재/최대 형식)
             UpdateInventoryCountText(inventory.Count);
@@ -205,69 +153,41 @@ namespace PigeonGame.UI
         /// </summary>
         private void SetupSlotUI(GameObject slotObj, PigeonInstanceStats stats, int index)
         {
-            // 아이콘 설정
-            Image iconImage = slotObj.transform.Find("Icon")?.GetComponent<Image>();
-            if (iconImage == null)
-            {
-                // Icon이 없으면 첫 번째 Image 컴포넌트 사용
-                iconImage = slotObj.GetComponent<Image>();
-                if (iconImage == null)
-                {
-                    iconImage = slotObj.GetComponentInChildren<Image>();
-                }
-            }
+            InventorySlotUI slotUI = slotObj.GetComponent<InventorySlotUI>();
+            if (slotUI == null)
+                return;
 
-            if (iconImage != null)
+            var registry = GameDataRegistry.Instance;
+            var species = (registry != null && registry.SpeciesSet != null) 
+                ? registry.SpeciesSet.GetSpeciesById(stats.speciesId) 
+                : null;
+
+            // 아이콘 설정
+            if (slotUI.IconImage != null)
             {
-                var registry = GameDataRegistry.Instance;
-                if (registry != null && registry.SpeciesSet != null)
+                if (species != null && species.icon != null)
                 {
-                    var species = registry.SpeciesSet.GetSpeciesById(stats.speciesId);
-                    if (species != null && species.icon != null)
-                    {
-                        iconImage.sprite = species.icon;
-                        iconImage.enabled = true;
-                    }
-                    else
-                    {
-                        iconImage.enabled = false;
-                    }
+                    slotUI.IconImage.sprite = species.icon;
+                    slotUI.IconImage.enabled = true;
                 }
                 else
                 {
-                    iconImage.enabled = false;
+                    slotUI.IconImage.enabled = false;
                 }
             }
 
             // 이름 설정
-            TextMeshProUGUI nameText = slotObj.transform.Find("NameText")?.GetComponent<TextMeshProUGUI>();
-            if (nameText == null)
+            if (slotUI.NameText != null)
             {
-                // NameText가 없으면 첫 번째 TextMeshProUGUI 사용
-                nameText = slotObj.GetComponentInChildren<TextMeshProUGUI>();
+                slotUI.NameText.text = species != null ? species.name : stats.speciesId.ToString();
             }
 
-            if (nameText != null)
-            {
-                var registry = GameDataRegistry.Instance;
-                if (registry != null && registry.SpeciesSet != null)
-                {
-                    var species = registry.SpeciesSet.GetSpeciesById(stats.speciesId);
-                    nameText.text = species != null ? species.name : stats.speciesId.ToString();
-                }
-                else
-                {
-                    nameText.text = stats.speciesId.ToString();
-                }
-            }
-
-            // 버튼 클릭 이벤트 (선택 사항 - 상세 정보 표시 등)
-            Button slotButton = slotObj.GetComponent<Button>();
-            if (slotButton != null)
+            // 버튼 클릭 이벤트
+            if (slotUI.Button != null)
             {
                 int capturedIndex = index; // 클로저를 위한 로컬 변수
-                slotButton.onClick.RemoveAllListeners();
-                slotButton.onClick.AddListener(() => OnSlotClicked(capturedIndex));
+                slotUI.Button.onClick.RemoveAllListeners();
+                slotUI.Button.onClick.AddListener(() => OnSlotClicked(capturedIndex));
             }
         }
 
@@ -276,39 +196,26 @@ namespace PigeonGame.UI
         /// </summary>
         private void SetupEmptySlot(GameObject slotObj)
         {
-            // 아이콘 비활성화
-            Image iconImage = slotObj.transform.Find("Icon")?.GetComponent<Image>();
-            if (iconImage == null)
-            {
-                iconImage = slotObj.GetComponent<Image>();
-                if (iconImage == null)
-                {
-                    iconImage = slotObj.GetComponentInChildren<Image>();
-                }
-            }
+            InventorySlotUI slotUI = slotObj.GetComponent<InventorySlotUI>();
+            if (slotUI == null)
+                return;
 
-            if (iconImage != null)
+            // 아이콘 비활성화
+            if (slotUI.IconImage != null)
             {
-                iconImage.enabled = false;
+                slotUI.IconImage.enabled = false;
             }
 
             // 이름 비우기
-            TextMeshProUGUI nameText = slotObj.transform.Find("NameText")?.GetComponent<TextMeshProUGUI>();
-            if (nameText == null)
+            if (slotUI.NameText != null)
             {
-                nameText = slotObj.GetComponentInChildren<TextMeshProUGUI>();
-            }
-
-            if (nameText != null)
-            {
-                nameText.text = "";
+                slotUI.NameText.text = "";
             }
 
             // 버튼 비활성화
-            Button slotButton = slotObj.GetComponent<Button>();
-            if (slotButton != null)
+            if (slotUI.Button != null)
             {
-                slotButton.interactable = false;
+                slotUI.Button.interactable = false;
             }
         }
 
@@ -373,10 +280,10 @@ namespace PigeonGame.UI
                 detailNameText.text = $"{species.name}({faceName})";
             }
 
-            // 비만도
+            // 무게
             if (detailObesityText != null)
             {
-                detailObesityText.text = $"비만도: {stats.obesity}";
+                detailObesityText.text = $"무게: {stats.weight:F1}kg";
             }
 
             // 가격
@@ -432,15 +339,6 @@ namespace PigeonGame.UI
                     Destroy(item);
             }
             list.Clear();
-        }
-
-        private void UpdateCanvasLayout(Transform container)
-        {
-            Canvas.ForceUpdateCanvases();
-            if (container is RectTransform rectContainer)
-            {
-                LayoutRebuilder.ForceRebuildLayoutImmediate(rectContainer);
-            }
         }
 
         private void OnDestroy()

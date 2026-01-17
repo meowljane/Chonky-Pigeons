@@ -20,7 +20,7 @@ namespace PigeonGame.UI
         [Header("Species List")]
         [SerializeField] private GameObject speciesListPanel;
         [SerializeField] private Transform speciesGridContainer;
-        [SerializeField] private GameObject speciesItemPrefab;
+        [SerializeField] private GameObject speciesSlot;
 
         [Header("Species Detail")]
         [SerializeField] private GameObject speciesDetailPanel;
@@ -28,7 +28,7 @@ namespace PigeonGame.UI
         [SerializeField] private Image speciesIconImage;
         [SerializeField] private TextMeshProUGUI speciesWeightText;
         [SerializeField] private Transform faceGridContainer;
-        [SerializeField] private GameObject faceItemPrefab;
+        [SerializeField] private GameObject faceSlot;
         [SerializeField] private Button backButton;
 
         [Header("Settings")]
@@ -36,7 +36,6 @@ namespace PigeonGame.UI
         [SerializeField] private Color lockedColor = Color.gray;
         private List<GameObject> speciesItemObjects = new List<GameObject>();
         private List<GameObject> faceItemObjects = new List<GameObject>();
-        private SpeciesDefinition currentSpecies;
 
         private void Start()
         {
@@ -71,13 +70,6 @@ namespace PigeonGame.UI
                 backButton.onClick.AddListener(BackToSpeciesList);
             }
 
-            // 도감 Manager가 없으면 생성
-            if (EncyclopediaManager.Instance == null)
-            {
-                GameObject managerObj = new GameObject("EncyclopediaManager");
-                managerObj.AddComponent<EncyclopediaManager>();
-            }
-
             UpdateSpeciesList();
         }
 
@@ -102,7 +94,7 @@ namespace PigeonGame.UI
 
         private void UpdateSpeciesList()
         {
-            if (speciesGridContainer == null || speciesItemPrefab == null)
+            if (speciesGridContainer == null || speciesSlot == null)
                 return;
 
             var registry = GameDataRegistry.Instance;
@@ -111,29 +103,23 @@ namespace PigeonGame.UI
 
             ClearItemList(speciesItemObjects);
 
-            // Species 목록 가져오기 (최대 9개)
+            // Species 목록 가져오기
             var allSpecies = registry.SpeciesSet.species;
-            int maxSpecies = Mathf.Min(9, allSpecies.Length);
 
-            // Species 아이템 생성 (3x3 그리드)
-            for (int i = 0; i < maxSpecies; i++)
+            // Species 슬롯 생성
+            foreach (var species in allSpecies)
             {
-                var species = allSpecies[i];
-                GameObject itemObj = Instantiate(speciesItemPrefab, speciesGridContainer, false);
-                SetupSpeciesItem(itemObj, species);
-                speciesItemObjects.Add(itemObj);
+                GameObject slotObj = Instantiate(speciesSlot, speciesGridContainer, false);
+                SetupSpeciesSlot(slotObj, species);
+                speciesItemObjects.Add(slotObj);
             }
         }
 
-        private void SetupSpeciesItem(GameObject itemObj, SpeciesDefinition species)
+        private void SetupSpeciesSlot(GameObject slotObj, SpeciesDefinition species)
         {
-            // 버튼 이벤트 연결
-            Button button = itemObj.GetComponent<Button>();
-            if (button != null)
-            {
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => ShowSpeciesDetail(species));
-            }
+            EncyclopediaSpeciesSlotUI slotUI = slotObj.GetComponent<EncyclopediaSpeciesSlotUI>();
+            if (slotUI == null)
+                return;
 
             // 도감 데이터 확인
             var encyclopediaData = EncyclopediaManager.Instance != null 
@@ -142,43 +128,40 @@ namespace PigeonGame.UI
 
             bool isUnlocked = encyclopediaData != null && encyclopediaData.isUnlocked;
 
-            // 배경 색상 설정
-            Image bg = itemObj.GetComponent<Image>();
-            if (bg != null)
+            // 버튼 이벤트 연결
+            if (slotUI.Button != null)
             {
-                bg.color = isUnlocked ? unlockedColor : lockedColor;
+                slotUI.Button.onClick.RemoveAllListeners();
+                slotUI.Button.onClick.AddListener(() => ShowSpeciesDetail(species));
+            }
+
+            // 배경 색상 설정
+            if (slotUI.BackgroundImage != null)
+            {
+                slotUI.BackgroundImage.color = isUnlocked ? unlockedColor : lockedColor;
             }
 
             // 아이콘 설정
-            Transform iconTransform = itemObj.transform.Find("Icon");
-            if (iconTransform != null)
+            if (slotUI.IconImage != null && species.icon != null)
             {
-                Image icon = iconTransform.GetComponent<Image>();
-                if (icon != null && species.icon != null)
-                {
-                    icon.sprite = species.icon;
-                }
+                slotUI.IconImage.sprite = species.icon;
             }
 
             // 이름 설정
-            TextMeshProUGUI nameText = itemObj.GetComponentInChildren<TextMeshProUGUI>();
-            if (nameText != null)
+            if (slotUI.NameText != null)
             {
-                nameText.text = species.name;
+                slotUI.NameText.text = species.name;
             }
 
             // 잠금 오버레이 표시/숨김
-            Transform lockOverlay = itemObj.transform.Find("LockOverlay");
-            if (lockOverlay != null)
+            if (slotUI.LockOverlay != null)
             {
-                lockOverlay.gameObject.SetActive(!isUnlocked);
+                slotUI.LockOverlay.SetActive(!isUnlocked);
             }
         }
 
         private void ShowSpeciesDetail(SpeciesDefinition species)
         {
-            currentSpecies = species;
-
             if (speciesListPanel != null)
                 speciesListPanel.SetActive(false);
             if (speciesDetailPanel != null)
@@ -199,9 +182,10 @@ namespace PigeonGame.UI
             if (speciesWeightText != null)
             {
                 if (speciesData != null && speciesData.isUnlocked && 
-                    speciesData.minWeight != int.MaxValue && speciesData.maxWeight != int.MinValue)
+                    speciesData.minWeight != float.MaxValue && speciesData.maxWeight != float.MinValue)
                 {
-                    speciesWeightText.text = $"무게 범위: {speciesData.minWeight} ~ {speciesData.maxWeight}";
+                    // 무게를 kg 단위로 표시 (소수점 1자리)
+                    speciesWeightText.text = $"발견됨 ({speciesData.minWeight:F1}kg~{speciesData.maxWeight:F1}kg)";
                     speciesWeightText.color = Color.white;
                 }
                 else
@@ -217,7 +201,7 @@ namespace PigeonGame.UI
 
         private void UpdateFaceList(SpeciesDefinition species)
         {
-            if (faceGridContainer == null || faceItemPrefab == null)
+            if (faceGridContainer == null || faceSlot == null)
                 return;
 
             ClearItemList(faceItemObjects);
@@ -233,14 +217,18 @@ namespace PigeonGame.UI
 
             foreach (var face in allFaces)
             {
-                GameObject itemObj = Instantiate(faceItemPrefab, faceGridContainer, false);
-                SetupFaceItem(itemObj, face, speciesData);
-                faceItemObjects.Add(itemObj);
+                GameObject slotObj = Instantiate(faceSlot, faceGridContainer, false);
+                SetupFaceSlot(slotObj, face, speciesData);
+                faceItemObjects.Add(slotObj);
             }
         }
 
-        private void SetupFaceItem(GameObject itemObj, FaceDefinition face, EncyclopediaManager.SpeciesEncyclopediaData speciesData)
+        private void SetupFaceSlot(GameObject slotObj, FaceDefinition face, EncyclopediaManager.SpeciesEncyclopediaData speciesData)
         {
+            EncyclopediaFaceSlotUI slotUI = slotObj.GetComponent<EncyclopediaFaceSlotUI>();
+            if (slotUI == null)
+                return;
+
             // Face 데이터 확인
             var faceData = speciesData != null && speciesData.faces.ContainsKey(face.faceType)
                 ? speciesData.faces[face.faceType]
@@ -249,45 +237,29 @@ namespace PigeonGame.UI
             bool isUnlocked = faceData != null && faceData.isUnlocked;
 
             // 배경 색상 설정
-            Image bg = itemObj.GetComponent<Image>();
-            if (bg != null)
+            if (slotUI.BackgroundImage != null)
             {
-                bg.color = isUnlocked ? unlockedColor : lockedColor;
+                slotUI.BackgroundImage.color = isUnlocked ? unlockedColor : lockedColor;
             }
 
             // 이름 표시
-            TextMeshProUGUI nameText = itemObj.transform.Find("Name")?.GetComponent<TextMeshProUGUI>();
-            if (nameText == null)
-                nameText = itemObj.GetComponentInChildren<TextMeshProUGUI>();
-            
-            if (nameText != null)
+            if (slotUI.NameText != null)
             {
-                nameText.text = face.name;
-                nameText.color = isUnlocked ? Color.white : Color.gray;
+                slotUI.NameText.text = face.name;
+                slotUI.NameText.color = isUnlocked ? Color.white : Color.gray;
             }
 
-            // 무게 정보 표시
-            TextMeshProUGUI weightText = itemObj.transform.Find("WeightText")?.GetComponent<TextMeshProUGUI>();
-            if (weightText != null)
+            // 발견/미발견 상태 표시
+            if (slotUI.StatusText != null)
             {
-                if (isUnlocked && faceData != null && 
-                    faceData.minWeight != int.MaxValue && faceData.maxWeight != int.MinValue)
-                {
-                    weightText.text = $"무게: {faceData.minWeight}~{faceData.maxWeight}";
-                    weightText.color = Color.yellow;
-                }
-                else
-                {
-                    weightText.text = "미발견";
-                    weightText.color = Color.gray;
-                }
+                slotUI.StatusText.text = isUnlocked ? "발견" : "미발견";
+                slotUI.StatusText.color = isUnlocked ? Color.white : Color.gray;
             }
 
             // 잠금 오버레이 표시/숨김
-            Transform lockOverlay = itemObj.transform.Find("LockOverlay");
-            if (lockOverlay != null)
+            if (slotUI.LockOverlay != null)
             {
-                lockOverlay.gameObject.SetActive(!isUnlocked);
+                slotUI.LockOverlay.SetActive(!isUnlocked);
             }
         }
 

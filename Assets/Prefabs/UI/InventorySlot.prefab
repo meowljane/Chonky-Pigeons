@@ -87,8 +87,9 @@ GameObject:
   - component: {fileID: 2799134050305852668}
   - component: {fileID: 1831951760194876987}
   - component: {fileID: 1875741112076289666}
+  - component: {fileID: 5305814664464924649}
   m_Layer: 0
-  m_Name: InventoryItem
+  m_Name: InventorySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -113,7 +114,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 140, y: 140}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2799134050305852668
 CanvasRenderer:
@@ -197,6 +198,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5305814664464924649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2210985252434376255}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d13089adced6edc46ae7da21d794362f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.UI.InventorySlotUI
+  iconImage: {fileID: 2209538950170558418}
+  nameText: {fileID: 5986354931251278259}
+  button: {fileID: 1875741112076289666}
 --- !u!1 &4142158787132579509
 GameObject:
   m_ObjectHideFlags: 0

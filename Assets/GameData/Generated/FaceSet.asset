@@ -9,26 +9,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dccffde005bfc794a8e99d70c9ca1214, type: 3}
-  m_Name: Faces
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Data.PigeonFace
+  m_Script: {fileID: 11500000, guid: 2f5a96da36677c8449f15a661e15a226, type: 3}
+  m_Name: FaceSet
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Data.PigeonFaceSet
   version: 1
   faces:
-  - id: F00
+  - faceType: 0
     name: "\uAE30\uBCF8"
     priceMultiplier: 1
-  - id: F01
+  - faceType: 1
     name: "\uCC21\uAE0B"
     priceMultiplier: 1.05
-  - id: F02
+  - faceType: 2
     name: "\uC0C1\uCC98"
     priceMultiplier: 1.08
-  - id: F03
+  - faceType: 3
     name: "\uD558\uD2B8\uB208"
     priceMultiplier: 1.15
-  - id: F04
+  - faceType: 4
     name: "\uC655\uB208"
     priceMultiplier: 1.2
-  - id: F05
+  - faceType: 5
     name: "\uB9C8\uC2A4\uD06C"
     priceMultiplier: 1.25

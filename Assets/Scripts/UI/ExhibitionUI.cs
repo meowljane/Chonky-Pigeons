@@ -297,10 +297,10 @@ namespace PigeonGame.UI
                 detailNameText.text = $"{species.name}({faceName})";
             }
 
-            // 비만도
+            // 무게
             if (detailObesityText != null)
             {
-                detailObesityText.text = $"비만도: {stats.obesity}";
+                detailObesityText.text = $"무게: {stats.weight:F1}kg";
             }
 
             // 가격

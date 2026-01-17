@@ -218,9 +218,15 @@ namespace PigeonGame.Editor
             GameObject trapButtonObj = CreateButton("TrapPlacementButton", "덫 설치", buttonAreaObj.transform);
             Button trapButton = trapButtonObj.GetComponent<Button>();
 
-            // 상호작용 버튼 생성
+            // 상호작용 버튼 생성 (별도 컴포넌트로 분리)
             GameObject interactionButtonObj = CreateButton("InteractionButton", "상호작용", buttonAreaObj.transform);
             Button interactionButton = interactionButtonObj.GetComponent<Button>();
+            
+            // InteractionButtonUI 컴포넌트 추가
+            var interactionButtonUI = interactionButtonObj.AddComponent<PigeonGame.UI.InteractionButtonUI>();
+            var interactionButtonUISerialized = new SerializedObject(interactionButtonUI);
+            interactionButtonUISerialized.FindProperty("interactionButton").objectReferenceValue = interactionButton;
+            interactionButtonUISerialized.ApplyModifiedProperties();
 
             // 덫 선택 패널 생성
             GameObject selectionPanelObj = new GameObject("TrapSelectionPanel");
@@ -428,7 +434,6 @@ namespace PigeonGame.Editor
             
             // Buttons
             serializedObject.FindProperty("trapPlacementButton").objectReferenceValue = trapButton;
-            serializedObject.FindProperty("interactionButton").objectReferenceValue = interactionButton;
             
             // Trap Selection Panel
             serializedObject.FindProperty("trapSelectionPanel").objectReferenceValue = selectionPanelObj;

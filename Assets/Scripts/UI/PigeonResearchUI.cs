@@ -140,18 +140,11 @@ namespace PigeonGame.UI
                 iconImage.enabled = false;
             }
 
-            // 해금 비용 계산
-            int cost = speciesData.unlockCost;
-            if (cost <= 0)
-            {
-                cost = speciesData.rarityTier * 50;
-            }
-
             // 가격 표시
             TextMeshProUGUI priceText = itemObj.transform.Find("PriceText")?.GetComponent<TextMeshProUGUI>();
             if (priceText != null)
             {
-                priceText.text = $"해금 가격: {cost}";
+                priceText.text = $"해금 가격: {speciesData.unlockCost}";
             }
 
             // 해금 상태 표시
@@ -168,7 +161,7 @@ namespace PigeonGame.UI
             if (buyButton != null)
             {
                 bool isUnlocked = GameManager.Instance != null && GameManager.Instance.IsSpeciesUnlocked(speciesData.speciesType);
-                bool canAfford = GameManager.Instance != null && GameManager.Instance.CurrentMoney >= cost;
+                bool canAfford = GameManager.Instance != null && GameManager.Instance.CurrentMoney >= speciesData.unlockCost;
 
                 buyButton.interactable = !isUnlocked && canAfford;
                 buyButton.onClick.RemoveAllListeners();

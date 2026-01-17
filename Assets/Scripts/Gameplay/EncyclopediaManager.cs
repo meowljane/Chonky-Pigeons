@@ -15,16 +15,16 @@ namespace PigeonGame.Gameplay
         public class FaceEncyclopediaData
         {
             public bool isUnlocked;
-            public int minWeight = int.MaxValue;
-            public int maxWeight = int.MinValue;
+            public float minWeight = float.MaxValue;
+            public float maxWeight = float.MinValue;
         }
 
         [System.Serializable]
         public class SpeciesEncyclopediaData
         {
             public bool isUnlocked;
-            public int minWeight = int.MaxValue;
-            public int maxWeight = int.MinValue;
+            public float minWeight = float.MaxValue;
+            public float maxWeight = float.MinValue;
             public Dictionary<FaceType, FaceEncyclopediaData> faces = new Dictionary<FaceType, FaceEncyclopediaData>();
         }
 
@@ -53,7 +53,7 @@ namespace PigeonGame.Gameplay
 
             PigeonSpecies speciesId = stats.speciesId;
             FaceType faceId = stats.faceId;
-            int weight = stats.obesity;
+            float weight = stats.weight;
 
             // Species 데이터 가져오기 또는 생성
             if (!encyclopediaData.ContainsKey(speciesId))
@@ -65,12 +65,12 @@ namespace PigeonGame.Gameplay
             speciesData.isUnlocked = true;
 
             // Species 전체 무게 업데이트
-            if (speciesData.minWeight == int.MaxValue)
+            if (speciesData.minWeight == float.MaxValue)
                 speciesData.minWeight = weight;
             else if (weight < speciesData.minWeight)
                 speciesData.minWeight = weight;
                 
-            if (speciesData.maxWeight == int.MinValue)
+            if (speciesData.maxWeight == float.MinValue)
                 speciesData.maxWeight = weight;
             else if (weight > speciesData.maxWeight)
                 speciesData.maxWeight = weight;
@@ -85,12 +85,12 @@ namespace PigeonGame.Gameplay
             faceData.isUnlocked = true;
 
             // Face 무게 업데이트
-            if (faceData.minWeight == int.MaxValue)
+            if (faceData.minWeight == float.MaxValue)
                 faceData.minWeight = weight;
             else if (weight < faceData.minWeight)
                 faceData.minWeight = weight;
                 
-            if (faceData.maxWeight == int.MinValue)
+            if (faceData.maxWeight == float.MinValue)
                 faceData.maxWeight = weight;
             else if (weight > faceData.maxWeight)
                 faceData.maxWeight = weight;

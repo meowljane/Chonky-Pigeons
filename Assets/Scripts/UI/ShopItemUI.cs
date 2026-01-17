@@ -55,10 +55,10 @@ namespace PigeonGame.UI
                 priceText.text = $"가격: {stats.price}";
             }
 
-            // 비만도 표시
+            // 무게 표시
             if (obesityText != null)
             {
-                obesityText.text = $"비만도: {stats.obesity}";
+                obesityText.text = $"무게: {stats.weight:F1}kg";
             }
 
             // 상세정보 보기 버튼

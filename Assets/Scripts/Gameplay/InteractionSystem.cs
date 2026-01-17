@@ -11,7 +11,11 @@ namespace PigeonGame.Gameplay
     {
         public static InteractionSystem Instance { get; private set; }
 
+        [Header("Highlight Settings")]
+        [SerializeField] private Color highlightColor = new Color(1f, 1f, 0f, 0.3f); // 노란색 반투명
+
         private IInteractable currentInteractable; // 현재 상호작용 가능한 오브젝트
+        private GameObject currentOutlineObject; // 현재 테두리 오브젝트
         private InventoryUI inventoryUI;
         private PigeonShopUI pigeonShopUI;
         private TrapShopUI trapShopUI;
@@ -23,6 +27,8 @@ namespace PigeonGame.Gameplay
             if (Instance == null)
             {
                 Instance = this;
+                // 씬 전환 시에도 유지
+                DontDestroyOnLoad(gameObject);
             }
             else
             {
@@ -31,6 +37,14 @@ namespace PigeonGame.Gameplay
         }
 
         private void Start()
+        {
+            InitializeUIComponents();
+        }
+
+        /// <summary>
+        /// UI 컴포넌트 초기화 (동적 생성 시 즉시 호출 가능)
+        /// </summary>
+        public void InitializeUIComponents()
         {
             inventoryUI = FindFirstObjectByType<InventoryUI>();
             pigeonShopUI = FindFirstObjectByType<PigeonShopUI>();
@@ -58,6 +72,7 @@ namespace PigeonGame.Gameplay
                 if (currentInteractable == null)
                 {
                     currentInteractable = interactable;
+                    ShowOutline(interactable);
                 }
             }
         }
@@ -69,6 +84,7 @@ namespace PigeonGame.Gameplay
         {
             if (currentInteractable == interactable)
             {
+                HideOutline();
                 currentInteractable = null;
             }
         }
@@ -134,6 +150,58 @@ namespace PigeonGame.Gameplay
         public bool CanInteract()
         {
             return currentInteractable != null && currentInteractable.CanInteract();
+        }
+
+        /// <summary>
+        /// 상호작용 가능한 오브젝트에 반투명 하이라이트 표시
+        /// </summary>
+        private void ShowOutline(IInteractable interactable)
+        {
+            // 기존 하이라이트 제거
+            HideOutline();
+
+            // IInteractable이 MonoBehaviour인지 확인
+            if (interactable is MonoBehaviour monoBehaviour)
+            {
+                GameObject targetObject = monoBehaviour.gameObject;
+                
+                // SpriteRenderer 찾기
+                SpriteRenderer spriteRenderer = targetObject.GetComponent<SpriteRenderer>();
+                if (spriteRenderer == null)
+                {
+                    spriteRenderer = targetObject.GetComponentInChildren<SpriteRenderer>();
+                }
+
+                if (spriteRenderer != null && spriteRenderer.sprite != null)
+                {
+                    // 반투명 오버레이용 SpriteRenderer 생성
+                    GameObject highlightObj = new GameObject("InteractionHighlight");
+                    highlightObj.transform.SetParent(targetObject.transform, false);
+                    highlightObj.transform.localPosition = Vector3.zero;
+                    highlightObj.transform.localScale = Vector3.one;
+                    highlightObj.transform.localRotation = Quaternion.identity;
+
+                    SpriteRenderer highlightRenderer = highlightObj.AddComponent<SpriteRenderer>();
+                    highlightRenderer.sprite = spriteRenderer.sprite;
+                    highlightRenderer.color = highlightColor; // 반투명 노란색
+                    highlightRenderer.sortingOrder = spriteRenderer.sortingOrder + 1; // 앞에 배치
+                    highlightRenderer.sortingLayerName = spriteRenderer.sortingLayerName;
+
+                    currentOutlineObject = highlightObj;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 하이라이트 제거
+        /// </summary>
+        private void HideOutline()
+        {
+            if (currentOutlineObject != null)
+            {
+                Destroy(currentOutlineObject);
+                currentOutlineObject = null;
+            }
         }
     }
 }

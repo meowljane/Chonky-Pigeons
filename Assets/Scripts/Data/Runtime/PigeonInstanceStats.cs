@@ -3,7 +3,8 @@ namespace PigeonGame.Data
     public class PigeonInstanceStats
     {
         public PigeonSpecies speciesId;
-        public int obesity;
+        public int obesity; // 게임 로직용 (1~5)
+        public float weight; // 실제 무게 (kg, 1.0~5.0)
         public FaceType faceId;
 
         // 계산된 최종 스탯
@@ -25,6 +26,7 @@ namespace PigeonGame.Data
             {
                 speciesId = this.speciesId,
                 obesity = this.obesity,
+                weight = this.weight,
                 faceId = this.faceId,
                 bitePower = this.bitePower,
                 eatInterval = this.eatInterval,

@@ -6,9 +6,9 @@ namespace PigeonGame.Gameplay
     public static class PigeonInstanceFactory
     {
         /// <summary>
-        /// speciesId, obesity, faceId로부터 최종 PigeonInstanceStats 생성
+        /// speciesId, obesity, weight, faceId로부터 최종 PigeonInstanceStats 생성
         /// </summary>
-        public static PigeonInstanceStats CreateInstanceStats(PigeonSpecies speciesType, int obesity, FaceType faceType)
+        public static PigeonInstanceStats CreateInstanceStats(PigeonSpecies speciesType, int obesity, float weight, FaceType faceType)
         {
             var registry = GameDataRegistry.Instance;
             if (registry == null)
@@ -40,6 +40,7 @@ namespace PigeonGame.Gameplay
             {
                 speciesId = speciesType,
                 obesity = obesity,
+                weight = weight,
                 faceId = faceType
             };
 
@@ -54,15 +55,17 @@ namespace PigeonGame.Gameplay
             float baseEatChance = 0.95f; // tier 1 값으로 통일
             float obesityChanceMultiplier = 1.0f;
             
-            // 비만도별 설정 가져오기
+            // 비만도별 설정 가져오기 (obesity는 1~5 범위)
+            int obesityTier = obesity;
+            
             if (aiProfile.obesityRule != null && aiProfile.obesityRule.obesityProfiles != null)
             {
-                if (aiProfile.obesityRule.obesityProfiles.ContainsKey(obesity))
-            {
-                    var obesityProfile = aiProfile.obesityRule.obesityProfiles[obesity];
+                if (aiProfile.obesityRule.obesityProfiles.ContainsKey(obesityTier))
+                {
+                    var obesityProfile = aiProfile.obesityRule.obesityProfiles[obesityTier];
                     obesityIntervalMultiplier = obesityProfile.eatIntervalMultiplier;
                     obesityChanceMultiplier = obesityProfile.eatChanceMultiplier;
-            }
+                }
             }
             
             stats.eatInterval = baseEatInterval * obesityIntervalMultiplier;
@@ -73,18 +76,14 @@ namespace PigeonGame.Gameplay
 
             // 가격 계산 (종별 basePrice 사용)
             int basePrice = species.basePrice;
-            if (basePrice <= 0)
-            {
-                Debug.LogWarning($"Species {species.speciesType} ({species.name}) has basePrice = 0. Price will be 0.");
-            }
             
             float obesityDiscount = 1.0f;
             
             if (aiProfile.obesityRule != null && aiProfile.obesityRule.obesityProfiles != null)
             {
-                if (aiProfile.obesityRule.obesityProfiles.ContainsKey(obesity))
+                if (aiProfile.obesityRule.obesityProfiles.ContainsKey(obesityTier))
                 {
-                    obesityDiscount = aiProfile.obesityRule.obesityProfiles[obesity].priceDiscount;
+                    obesityDiscount = aiProfile.obesityRule.obesityProfiles[obesityTier].priceDiscount;
                 }
             }
 
