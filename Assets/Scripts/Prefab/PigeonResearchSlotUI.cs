@@ -5,21 +5,19 @@ using TMPro;
 namespace PigeonGame.UI
 {
     /// <summary>
-    /// 덫 상점 슬롯 UI 컴포넌트
+    /// 비둘기 연구소 슬롯 UI 컴포넌트
     /// 프리팹 내부의 UI 요소들을 미리 참조하여 저장
     /// </summary>
-    public class TrapShopSlotUI : MonoBehaviour
+    public class PigeonResearchSlotUI : MonoBehaviour
     {
         [Header("Slot Components")]
-        [SerializeField] private Image iconImage;
         [SerializeField] private TextMeshProUGUI nameText;
-        [SerializeField] private TextMeshProUGUI preferenceText;
+        [SerializeField] private Image iconImage;
         [SerializeField] private Button buyButton;
         [SerializeField] private TextMeshProUGUI buttonText;
 
-        public Image IconImage => iconImage;
         public TextMeshProUGUI NameText => nameText;
-        public TextMeshProUGUI PreferenceText => preferenceText;
+        public Image IconImage => iconImage;
         public Button BuyButton => buyButton;
         public TextMeshProUGUI ButtonText => buttonText;
     }

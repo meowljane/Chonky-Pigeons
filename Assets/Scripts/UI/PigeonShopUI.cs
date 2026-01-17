@@ -12,31 +12,23 @@ namespace PigeonGame.UI
     /// </summary>
     public class PigeonShopUI : MonoBehaviour
     {
+        [Header("Main Panel")]
         [SerializeField] private GameObject shopPanel;
         [SerializeField] private Transform itemContainer;
-        [SerializeField] private GameObject itemPrefab;
+        [SerializeField] private GameObject shopSlot;
         [SerializeField] private TextMeshProUGUI inventoryCountText;
+        [SerializeField] private TextMeshProUGUI goldText;
         [SerializeField] private Button closeButton;
 
         private List<GameObject> itemInstances = new List<GameObject>();
-        private InventoryUI inventoryUI; // 같은 오브젝트에서 가져옴
 
         private void Start()
         {
-            // 같은 오브젝트에서 InventoryUI 가져오기
-            inventoryUI = GetComponent<InventoryUI>();
-            if (inventoryUI == null)
-            {
-                // 같은 오브젝트에 없으면 씬에서 찾기
-                inventoryUI = FindFirstObjectByType<InventoryUI>();
-            }
-
             if (shopPanel != null)
             {
                 shopPanel.SetActive(false);
             }
 
-            // 닫기 버튼 연결
             if (closeButton != null)
             {
                 closeButton.onClick.RemoveAllListeners();
@@ -47,8 +39,10 @@ namespace PigeonGame.UI
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnPigeonAddedToInventory += OnPigeonAdded;
+                GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
             }
 
+            UpdateGoldText();
             UpdateInventoryDisplay();
         }
 
@@ -60,6 +54,7 @@ namespace PigeonGame.UI
             if (shopPanel != null)
             {
                 shopPanel.SetActive(true);
+                UpdateGoldText();
                 UpdateInventoryDisplay();
             }
         }
@@ -69,29 +64,40 @@ namespace PigeonGame.UI
             UpdateInventoryDisplay();
         }
 
+        private void OnMoneyChanged(int money)
+        {
+            UpdateGoldText();
+        }
+
+        private void UpdateGoldText()
+        {
+            if (goldText != null && GameManager.Instance != null)
+            {
+                goldText.text = $"현재 골드: {GameManager.Instance.CurrentMoney}G";
+            }
+        }
+
         private void UpdateInventoryDisplay()
         {
             if (GameManager.Instance == null)
                 return;
 
-            ClearItemList(itemInstances);
+            ClearShopItems();
 
             // 인벤토리 아이템 표시
             var inventory = GameManager.Instance.Inventory;
-            if (itemContainer != null && itemPrefab != null)
+            if (itemContainer != null && shopSlot != null)
             {
                 for (int i = 0; i < inventory.Count; i++)
                 {
                     int index = i; // 클로저를 위한 로컬 변수
                     var pigeon = inventory[index];
                     
-                    GameObject itemObj = Instantiate(itemPrefab, itemContainer, false);
-                    itemInstances.Add(itemObj);
-                    SetupItemUI(itemObj, pigeon, index);
+                    GameObject slotObj = Instantiate(shopSlot, itemContainer, false);
+                    itemInstances.Add(slotObj);
+                    SetupShopSlot(slotObj, pigeon, index);
                 }
             }
-
-            UpdateCanvasLayout(itemContainer);
 
             // 인벤토리 개수 업데이트
             if (inventoryCountText != null)
@@ -100,25 +106,27 @@ namespace PigeonGame.UI
             }
         }
 
-        private void SetupItemUI(GameObject itemObj, PigeonInstanceStats stats, int index)
+        private void SetupShopSlot(GameObject slotObj, PigeonInstanceStats stats, int index)
         {
-            // ShopItemUI 컴포넌트 사용 (직접 참조 방식)
-            ShopItemUI shopItemUI = itemObj.GetComponent<ShopItemUI>();
-            if (shopItemUI != null)
+            PigeonShopSlotUI slotUI = slotObj.GetComponent<PigeonShopSlotUI>();
+            if (slotUI != null)
             {
-                shopItemUI.Setup(stats, index, ShowPigeonDetail, SellPigeon);
+                slotUI.Setup(stats, index, ShowPigeonDetail, SellPigeon);
             }
         }
+
+        [Header("Detail Panel")]
+        [SerializeField] private PigeonDetailPanelUI detailPanelUI; // 상세 정보 패널 UI
 
         /// <summary>
         /// 비둘기 상세 정보 표시
         /// </summary>
         private void ShowPigeonDetail(PigeonInstanceStats stats)
         {
-            if (stats == null || inventoryUI == null)
+            if (stats == null || detailPanelUI == null)
                 return;
 
-            inventoryUI.ShowPigeonDetail(stats);
+            detailPanelUI.ShowDetail(stats);
         }
 
         /// <summary>
@@ -141,23 +149,14 @@ namespace PigeonGame.UI
             }
         }
 
-        private void ClearItemList(List<GameObject> list)
+        private void ClearShopItems()
         {
-            foreach (var item in list)
+            foreach (var item in itemInstances)
             {
                 if (item != null)
                     Destroy(item);
             }
-            list.Clear();
-        }
-
-        private void UpdateCanvasLayout(Transform container)
-        {
-            Canvas.ForceUpdateCanvases();
-            if (container is RectTransform rectContainer)
-            {
-                LayoutRebuilder.ForceRebuildLayoutImmediate(rectContainer);
-            }
+            itemInstances.Clear();
         }
 
         private void OnDestroy()
@@ -165,6 +164,7 @@ namespace PigeonGame.UI
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnPigeonAddedToInventory -= OnPigeonAdded;
+                GameManager.Instance.OnMoneyChanged -= OnMoneyChanged;
             }
 
             if (closeButton != null)

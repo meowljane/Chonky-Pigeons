@@ -453,10 +453,10 @@ namespace PigeonGame.Gameplay
             }
 
             // 비둘기 상세정보 표시
-            var inventoryUI = UnityEngine.Object.FindFirstObjectByType<UI.InventoryUI>();
-            if (inventoryUI != null)
+            var detailPanelUI = UnityEngine.Object.FindFirstObjectByType<UI.PigeonDetailPanelUI>();
+            if (detailPanelUI != null)
             {
-                inventoryUI.ShowPigeonDetail(pigeonStats);
+                detailPanelUI.ShowDetail(pigeonStats);
             }
 
             // 덫 오브젝트 제거

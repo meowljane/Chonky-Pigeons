@@ -12,10 +12,12 @@ namespace PigeonGame.UI
     /// </summary>
     public class PigeonResearchUI : MonoBehaviour
     {
+        [Header("Main Panel")]
         [SerializeField] private GameObject shopPanel;
         [SerializeField] private Transform speciesContainer;
-        [SerializeField] private GameObject speciesItemPrefab;
+        [SerializeField] private GameObject speciesSlot;
         [SerializeField] private Button closeButton;
+        [SerializeField] private TextMeshProUGUI goldText;
 
         private List<GameObject> speciesItems = new List<GameObject>();
 
@@ -24,16 +26,6 @@ namespace PigeonGame.UI
             if (shopPanel != null)
             {
                 shopPanel.SetActive(false);
-            }
-
-            // 닫기 버튼 찾기 및 연결
-            if (closeButton == null && shopPanel != null)
-            {
-                closeButton = shopPanel.GetComponentInChildren<Button>();
-                if (closeButton == null)
-                {
-                    closeButton = shopPanel.transform.Find("CloseButton")?.GetComponent<Button>();
-                }
             }
 
             if (closeButton != null)
@@ -49,6 +41,7 @@ namespace PigeonGame.UI
                 GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
             }
 
+            UpdateGoldText();
             UpdateShopDisplay();
         }
 
@@ -60,6 +53,7 @@ namespace PigeonGame.UI
             if (shopPanel != null)
             {
                 shopPanel.SetActive(true);
+                UpdateGoldText();
                 UpdateShopDisplay();
             }
         }
@@ -71,21 +65,25 @@ namespace PigeonGame.UI
 
         private void OnMoneyChanged(int money)
         {
+            UpdateGoldText();
             UpdateShopDisplay();
+        }
+
+        private void UpdateGoldText()
+        {
+            if (goldText != null && GameManager.Instance != null)
+            {
+                goldText.text = $"현재 골드: {GameManager.Instance.CurrentMoney}G";
+            }
         }
 
         private void UpdateShopDisplay()
         {
-            if (speciesContainer == null || speciesItemPrefab == null)
+            if (speciesContainer == null || speciesSlot == null)
                 return;
 
             // 기존 아이템 제거
-            foreach (var item in speciesItems)
-            {
-                if (item != null)
-                    Destroy(item);
-            }
-            speciesItems.Clear();
+            ClearSpeciesItems();
 
             // 모든 비둘기 종 표시
             var registry = GameDataRegistry.Instance;
@@ -105,75 +103,76 @@ namespace PigeonGame.UI
 
             foreach (var speciesData in allSpecies)
             {
-                GameObject itemObj = Instantiate(speciesItemPrefab, speciesContainer);
-                speciesItems.Add(itemObj);
+                GameObject slotObj = Instantiate(speciesSlot, speciesContainer, false);
+                speciesItems.Add(slotObj);
 
-                SetupSpeciesItemUI(itemObj, speciesData);
+                SetupSpeciesSlot(slotObj, speciesData);
             }
         }
 
-        private void SetupSpeciesItemUI(GameObject itemObj, SpeciesDefinition speciesData)
+        private void SetupSpeciesSlot(GameObject slotObj, SpeciesDefinition speciesData)
         {
-            // 종 이름 표시
-            TextMeshProUGUI nameText = itemObj.transform.Find("NameText")?.GetComponent<TextMeshProUGUI>();
-            if (nameText != null)
-            {
-                nameText.text = speciesData.name;
-            }
+            PigeonResearchSlotUI slotUI = slotObj.GetComponent<PigeonResearchSlotUI>();
+            if (slotUI == null)
+                return;
 
-            // 티어 표시
-            TextMeshProUGUI tierText = itemObj.transform.Find("TierText")?.GetComponent<TextMeshProUGUI>();
-            if (tierText != null)
+            bool isUnlocked = GameManager.Instance != null && GameManager.Instance.IsSpeciesUnlocked(speciesData.speciesType);
+            bool canAfford = GameManager.Instance != null && GameManager.Instance.CurrentMoney >= speciesData.unlockCost;
+
+            // 종 이름 표시
+            if (slotUI.NameText != null)
             {
-                tierText.text = $"티어: {speciesData.rarityTier}";
+                slotUI.NameText.text = speciesData.name;
             }
 
             // 아이콘 표시
-            Image iconImage = itemObj.transform.Find("IconImage")?.GetComponent<Image>();
-            if (iconImage != null && speciesData.icon != null)
+            if (slotUI.IconImage != null)
             {
-                iconImage.sprite = speciesData.icon;
-                iconImage.enabled = true;
-            }
-            else if (iconImage != null)
-            {
-                iconImage.enabled = false;
-            }
-
-            // 가격 표시
-            TextMeshProUGUI priceText = itemObj.transform.Find("PriceText")?.GetComponent<TextMeshProUGUI>();
-            if (priceText != null)
-            {
-                priceText.text = $"해금 가격: {speciesData.unlockCost}";
-            }
-
-            // 해금 상태 표시
-            TextMeshProUGUI statusText = itemObj.transform.Find("StatusText")?.GetComponent<TextMeshProUGUI>();
-            if (statusText != null)
-            {
-                bool isUnlocked = GameManager.Instance != null && GameManager.Instance.IsSpeciesUnlocked(speciesData.speciesType);
-                statusText.text = isUnlocked ? "해금됨" : "미해금";
-                statusText.color = isUnlocked ? Color.green : Color.red;
+                if (speciesData.icon != null)
+                {
+                    slotUI.IconImage.sprite = speciesData.icon;
+                    slotUI.IconImage.enabled = true;
+                }
+                else
+                {
+                    slotUI.IconImage.enabled = false;
+                }
             }
 
             // 구매 버튼
-            Button buyButton = itemObj.transform.Find("BuyButton")?.GetComponent<Button>();
-            if (buyButton != null)
+            if (slotUI.BuyButton != null)
             {
-                bool isUnlocked = GameManager.Instance != null && GameManager.Instance.IsSpeciesUnlocked(speciesData.speciesType);
-                bool canAfford = GameManager.Instance != null && GameManager.Instance.CurrentMoney >= speciesData.unlockCost;
-
-                buyButton.interactable = !isUnlocked && canAfford;
-                buyButton.onClick.RemoveAllListeners();
-                buyButton.onClick.AddListener(() => OnBuyClicked(speciesData.speciesType));
+                slotUI.BuyButton.interactable = !isUnlocked && canAfford;
+                slotUI.BuyButton.onClick.RemoveAllListeners();
+                slotUI.BuyButton.onClick.AddListener(() => OnBuyClicked(speciesData.speciesType));
 
                 // 버튼 텍스트
-                TextMeshProUGUI buttonText = buyButton.GetComponentInChildren<TextMeshProUGUI>();
-                if (buttonText != null)
+                if (slotUI.ButtonText != null)
                 {
-                    buttonText.text = isUnlocked ? "해금됨" : (canAfford ? "연구" : "돈 부족");
+                    if (isUnlocked)
+                    {
+                        slotUI.ButtonText.text = "해금됨";
+                    }
+                    else if (canAfford)
+                    {
+                        slotUI.ButtonText.text = $"해금\n{speciesData.unlockCost}G";
+                    }
+                    else
+                    {
+                        slotUI.ButtonText.text = $"돈부족\n{speciesData.unlockCost}G";
+                    }
                 }
             }
+        }
+
+        private void ClearSpeciesItems()
+        {
+            foreach (var item in speciesItems)
+            {
+                if (item != null)
+                    Destroy(item);
+            }
+            speciesItems.Clear();
         }
 
         private void OnBuyClicked(PigeonSpecies speciesType)

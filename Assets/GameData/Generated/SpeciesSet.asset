@@ -22,7 +22,7 @@ MonoBehaviour:
     unlockCost: 0
     favoriteTrapType: 0
     favoriteTerrain: 0
-    icon: {fileID: 0}
+    icon: {fileID: 7570297664874631939, guid: 17f497e5f57044d47832f59861a4fd20, type: 3}
   - speciesType: 2
     name: "\uBE75\uC911\uB3C5"
     rarityTier: 1
@@ -31,7 +31,7 @@ MonoBehaviour:
     unlockCost: 0
     favoriteTrapType: 0
     favoriteTerrain: 0
-    icon: {fileID: 0}
+    icon: {fileID: 7570297664874631939, guid: 17f497e5f57044d47832f59861a4fd20, type: 3}
   - speciesType: 1
     name: "\uD68C\uC0C9\uB3C4\uC2DC"
     rarityTier: 1
@@ -40,7 +40,7 @@ MonoBehaviour:
     unlockCost: 0
     favoriteTrapType: 0
     favoriteTerrain: 0
-    icon: {fileID: 0}
+    icon: {fileID: 7570297664874631939, guid: 17f497e5f57044d47832f59861a4fd20, type: 3}
   - speciesType: 3
     name: "\uAC80\uC740\uBE44\uB458\uAE30"
     rarityTier: 2
@@ -49,7 +49,7 @@ MonoBehaviour:
     unlockCost: 100
     favoriteTrapType: 2
     favoriteTerrain: 3
-    icon: {fileID: 0}
+    icon: {fileID: 7570297664874631939, guid: 17f497e5f57044d47832f59861a4fd20, type: 3}
   - speciesType: 4
     name: "\uD770\uBE44\uB458\uAE30"
     rarityTier: 2
@@ -58,7 +58,7 @@ MonoBehaviour:
     unlockCost: 100
     favoriteTrapType: 1
     favoriteTerrain: 1
-    icon: {fileID: 0}
+    icon: {fileID: 7570297664874631939, guid: 17f497e5f57044d47832f59861a4fd20, type: 3}
   - speciesType: 5
     name: "\uBB34\uC9C0\uAC1C\uAE30\uB984\uAD11"
     rarityTier: 3
@@ -67,7 +67,7 @@ MonoBehaviour:
     unlockCost: 150
     favoriteTrapType: 1
     favoriteTerrain: 3
-    icon: {fileID: 0}
+    icon: {fileID: 7570297664874631939, guid: 17f497e5f57044d47832f59861a4fd20, type: 3}
   - speciesType: 6
     name: "\uBB34\uC9C0\uAC1C\uBE44\uB458\uAE30"
     rarityTier: 4
@@ -76,7 +76,7 @@ MonoBehaviour:
     unlockCost: 200
     favoriteTrapType: 1
     favoriteTerrain: 1
-    icon: {fileID: 0}
+    icon: {fileID: 7570297664874631939, guid: 17f497e5f57044d47832f59861a4fd20, type: 3}
   - speciesType: 7
     name: "\uC655\uAD00\uBE44\uB458\uAE30"
     rarityTier: 5
@@ -85,7 +85,7 @@ MonoBehaviour:
     unlockCost: 250
     favoriteTrapType: 3
     favoriteTerrain: 4
-    icon: {fileID: 0}
+    icon: {fileID: 7570297664874631939, guid: 17f497e5f57044d47832f59861a4fd20, type: 3}
   - speciesType: 8
     name: "\uD669\uAE08\uBE44\uB458\uAE30"
     rarityTier: 5
@@ -94,4 +94,4 @@ MonoBehaviour:
     unlockCost: 250
     favoriteTrapType: 3
     favoriteTerrain: 4
-    icon: {fileID: 0}
+    icon: {fileID: 7570297664874631939, guid: 17f497e5f57044d47832f59861a4fd20, type: 3}

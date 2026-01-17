@@ -110,6 +110,20 @@ namespace PigeonGame.UI
             bool isUnlocked = GameManager.Instance != null && GameManager.Instance.IsTrapUnlocked(trapData.trapType);
             bool canAfford = GameManager.Instance != null && GameManager.Instance.CurrentMoney >= trapData.unlockCost;
 
+            // 아이콘 표시
+            if (slotUI.IconImage != null)
+            {
+                if (trapData.icon != null)
+                {
+                    slotUI.IconImage.sprite = trapData.icon;
+                    slotUI.IconImage.enabled = true;
+                }
+                else
+                {
+                    slotUI.IconImage.enabled = false;
+                }
+            }
+
             // 덫 이름 표시
             if (slotUI.NameText != null)
             {

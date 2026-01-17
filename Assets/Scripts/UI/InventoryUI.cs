@@ -21,13 +21,7 @@ namespace PigeonGame.UI
         [SerializeField] private Button inventoryButton; // 인벤토리 토글 버튼
 
         [Header("Detail Panel")]
-        [SerializeField] private GameObject detailPanel; // 상세 정보 패널
-        [SerializeField] private Image detailIconImage; // 상세 정보 아이콘
-        [SerializeField] private TextMeshProUGUI detailNameText; // 상세 정보 종 이름
-        [SerializeField] private TextMeshProUGUI detailObesityText; // 상세 정보 비만도
-        [SerializeField] private TextMeshProUGUI detailPriceText; // 상세 정보 가격
-        [SerializeField] private TextMeshProUGUI detailRarityText; // 상세 정보 희귀도
-        [SerializeField] private Button detailCloseButton; // 상세 정보 닫기 버튼
+        [SerializeField] private PigeonDetailPanelUI detailPanelUI; // 상세 정보 패널 UI
 
         private List<GameObject> slotInstances = new List<GameObject>();
         private const int MAX_SLOTS = 20; // 5x4 그리드
@@ -43,11 +37,6 @@ namespace PigeonGame.UI
                 inventoryPanel.SetActive(false);
             }
 
-            // 상세 정보 패널 초기화
-            if (detailPanel != null)
-            {
-                detailPanel.SetActive(false);
-            }
 
             // 버튼 이벤트 연결
             if (inventoryButton != null)
@@ -62,11 +51,6 @@ namespace PigeonGame.UI
                 closeButton.onClick.AddListener(OnCloseButtonClicked);
             }
 
-            if (detailCloseButton != null)
-            {
-                detailCloseButton.onClick.RemoveAllListeners();
-                detailCloseButton.onClick.AddListener(CloseDetailPanel);
-            }
 
             // GameManager 이벤트 구독
             if (GameManager.Instance != null)
@@ -242,82 +226,35 @@ namespace PigeonGame.UI
         /// <param name="onClosed">패널이 닫힐 때 호출될 콜백 (선택사항)</param>
         public void ShowPigeonDetail(PigeonInstanceStats stats, System.Action<PigeonInstanceStats> onClosed = null)
         {
-            if (stats == null || detailPanel == null)
+            if (detailPanelUI == null)
                 return;
-
-            var registry = GameDataRegistry.Instance;
-            if (registry == null || registry.SpeciesSet == null)
-                return;
-
-            var species = registry.SpeciesSet.GetSpeciesById(stats.speciesId);
-            if (species == null)
-                return;
-
-            var face = registry.Faces != null ? registry.Faces.GetFaceById(stats.faceId) : null;
 
             // 콜백 및 현재 비둘기 정보 저장
             onDetailPanelClosed = onClosed;
             currentDetailPigeonStats = stats;
 
-            // 상세 정보 패널 표시
-            detailPanel.SetActive(true);
-
-            // 아이콘
-            if (detailIconImage != null && species.icon != null)
-            {
-                detailIconImage.sprite = species.icon;
-                detailIconImage.enabled = true;
-            }
-            else if (detailIconImage != null)
-            {
-                detailIconImage.enabled = false;
-            }
-
-            // 종 이름 (얼굴 포함)
-            if (detailNameText != null)
-            {
-                string faceName = face != null ? face.name : stats.faceId.ToString();
-                detailNameText.text = $"{species.name}({faceName})";
-            }
-
-            // 무게
-            if (detailObesityText != null)
-            {
-                detailObesityText.text = $"무게: {stats.weight:F1}kg";
-            }
-
-            // 가격
-            if (detailPriceText != null)
-            {
-                detailPriceText.text = $"가격: {stats.price}";
-            }
-
-            // 희귀도 (숫자만 표시)
-            if (detailRarityText != null)
-            {
-                detailRarityText.text = $"희귀도: {species.rarityTier}";
-            }
+            // 디테일 패널 UI에 위임
+            detailPanelUI.ShowDetail(stats, (closedStats) => {
+                // 디테일 패널이 닫힐 때 콜백 호출
+                if (onDetailPanelClosed != null && currentDetailPigeonStats != null)
+                {
+                    var savedStats = currentDetailPigeonStats;
+                    onDetailPanelClosed.Invoke(savedStats);
+                    onDetailPanelClosed = null;
+                }
+                currentDetailPigeonStats = null;
+            });
         }
 
         /// <summary>
         /// 상세 정보 패널 닫기
         /// </summary>
-        private void CloseDetailPanel()
+        public void CloseDetailPanel()
         {
-            if (detailPanel != null)
+            if (detailPanelUI != null)
             {
-                detailPanel.SetActive(false);
+                detailPanelUI.ClosePanel();
             }
-
-            // 콜백 호출 (있는 경우)
-            if (onDetailPanelClosed != null && currentDetailPigeonStats != null)
-            {
-                var stats = currentDetailPigeonStats;
-                onDetailPanelClosed.Invoke(stats);
-                onDetailPanelClosed = null;
-            }
-
-            currentDetailPigeonStats = null;
         }
 
         private void OnCloseButtonClicked()
@@ -358,10 +295,6 @@ namespace PigeonGame.UI
                 inventoryButton.onClick.RemoveAllListeners();
             }
 
-            if (detailCloseButton != null)
-            {
-                detailCloseButton.onClick.RemoveAllListeners();
-            }
         }
     }
 }

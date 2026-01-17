@@ -6,21 +6,28 @@ using PigeonGame.Data;
 namespace PigeonGame.UI
 {
     /// <summary>
-    /// 상점 아이템 UI 컴포넌트 (직접 참조용)
+    /// 비둘기 상점 슬롯 UI 컴포넌트
+    /// 프리팹 내부의 UI 요소들을 미리 참조하여 저장
     /// </summary>
-    public class ShopItemUI : MonoBehaviour
+    public class PigeonShopSlotUI : MonoBehaviour
     {
-        [Header("UI References")]
+        [Header("Slot Components")]
+        [SerializeField] private Image iconImage;
         [SerializeField] private TextMeshProUGUI nameText;
-        [SerializeField] private TextMeshProUGUI priceText;
-        [SerializeField] private TextMeshProUGUI obesityText;
         [SerializeField] private Button detailButton;
         [SerializeField] private Button sellButton;
+        [SerializeField] private TextMeshProUGUI sellButtonText;
 
         private PigeonInstanceStats currentStats;
         private System.Action<PigeonInstanceStats> onDetailClick;
         private System.Action<int> onSellClick;
         private int itemIndex;
+
+        public Image IconImage => iconImage;
+        public TextMeshProUGUI NameText => nameText;
+        public Button DetailButton => detailButton;
+        public Button SellButton => sellButton;
+        public TextMeshProUGUI SellButtonText => sellButtonText;
 
         /// <summary>
         /// 아이템 정보 설정
@@ -34,31 +41,29 @@ namespace PigeonGame.UI
             onDetailClick = detailCallback;
             onSellClick = sellCallback;
 
-            // 종 이름 표시
-            if (nameText != null)
+            var registry = GameDataRegistry.Instance;
+            var species = (registry != null && registry.SpeciesSet != null) 
+                ? registry.SpeciesSet.GetSpeciesById(stats.speciesId) 
+                : null;
+
+            // 아이콘 표시
+            if (iconImage != null)
             {
-                var registry = GameDataRegistry.Instance;
-                if (registry != null && registry.SpeciesSet != null)
+                if (species != null && species.icon != null)
                 {
-                    var species = registry.SpeciesSet.GetSpeciesById(stats.speciesId);
-                    nameText.text = species != null ? species.name : stats.speciesId.ToString();
+                    iconImage.sprite = species.icon;
+                    iconImage.enabled = true;
                 }
                 else
                 {
-                    nameText.text = stats.speciesId.ToString();
+                    iconImage.enabled = false;
                 }
             }
 
-            // 가격 표시
-            if (priceText != null)
+            // 종 이름 표시
+            if (nameText != null)
             {
-                priceText.text = $"가격: {stats.price}";
-            }
-
-            // 무게 표시
-            if (obesityText != null)
-            {
-                obesityText.text = $"무게: {stats.weight:F1}kg";
+                nameText.text = species != null ? species.name : stats.speciesId.ToString();
             }
 
             // 상세정보 보기 버튼
@@ -73,6 +78,12 @@ namespace PigeonGame.UI
             {
                 sellButton.onClick.RemoveAllListeners();
                 sellButton.onClick.AddListener(OnSellButtonClicked);
+
+                // 판매 버튼 텍스트
+                if (sellButtonText != null)
+                {
+                    sellButtonText.text = $"판매\n{stats.price}G";
+                }
             }
         }
 

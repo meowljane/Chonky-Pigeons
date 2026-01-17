@@ -19,7 +19,7 @@ namespace PigeonGame.UI
         [Header("Trap Selection Panel")]
         [SerializeField] private GameObject trapSelectionPanel;
         [SerializeField] private Transform trapGridContainer;
-        [SerializeField] private GameObject trapItemPrefab;
+        [SerializeField] private GameObject trapSlot;
         [SerializeField] private Button closeButton;
         
         [Header("Info Display")]
@@ -35,10 +35,6 @@ namespace PigeonGame.UI
         [SerializeField] private TextMeshProUGUI totalPriceText;
         [SerializeField] private Button installButton;
 
-        [Header("Trap Item UI")]
-        [SerializeField] private Color unlockedColor = Color.white;
-        [SerializeField] private Color lockedColor = Color.gray;
-        [SerializeField] private Sprite checkmarkSprite; // 체크마크 이미지 (Inspector에서 할당)
 
         private TrapPlacer trapPlacer;
         private WorldPigeonManager pigeonManager;
@@ -69,16 +65,6 @@ namespace PigeonGame.UI
             if (trapSelectionPanel != null)
             {
                 trapSelectionPanel.SetActive(false);
-            }
-
-            // 닫기 버튼 찾기 및 연결
-            if (closeButton == null && trapSelectionPanel != null)
-            {
-                closeButton = trapSelectionPanel.GetComponentInChildren<Button>();
-                if (closeButton == null)
-                {
-                    closeButton = trapSelectionPanel.transform.Find("CloseButton")?.GetComponent<Button>();
-                }
             }
 
             if (closeButton != null)
@@ -138,188 +124,118 @@ namespace PigeonGame.UI
 
         private void CreateTrapGrid()
         {
-            if (trapGridContainer == null || trapItemPrefab == null)
+            if (trapGridContainer == null || trapSlot == null)
                 return;
 
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.Traps == null)
                 return;
 
-            ClearItemList(trapItemObjects);
+            ClearTrapItems();
 
             // 모든 덫 표시
             var allTraps = registry.Traps.traps;
             foreach (var trapData in allTraps)
             {
-                GameObject itemObj = Instantiate(trapItemPrefab, trapGridContainer, false);
-                SetupTrapItem(itemObj, trapData);
-                trapItemObjects.Add(itemObj);
+                GameObject slotObj = Instantiate(trapSlot, trapGridContainer, false);
+                SetupTrapSlot(slotObj, trapData);
+                trapItemObjects.Add(slotObj);
             }
         }
 
-        private void SetupTrapItem(GameObject itemObj, TrapDefinition trapData)
+        private void SetupTrapSlot(GameObject slotObj, TrapDefinition trapData)
         {
+            TrapPlacementSlotUI slotUI = slotObj.GetComponent<TrapPlacementSlotUI>();
+            if (slotUI == null)
+                return;
+
             bool isUnlocked = GameManager.Instance != null && 
                              GameManager.Instance.IsTrapUnlocked(trapData.trapType);
 
-            // 배경색 설정
-            Image bg = itemObj.GetComponent<Image>();
-            if (bg != null)
-            {
-                bg.color = isUnlocked ? unlockedColor : lockedColor;
-            }
+            // 해금 상태에 따른 색상 및 활성화 설정
+            slotUI.SetUnlocked(isUnlocked);
 
-            // 선택 체크마크 생성 (없으면)
-            GameObject checkmarkObj = itemObj.transform.Find("Checkmark")?.gameObject;
-            if (checkmarkObj == null)
+            // 아이콘 표시
+            if (slotUI.IconImage != null)
             {
-                checkmarkObj = new GameObject("Checkmark");
-                checkmarkObj.transform.SetParent(itemObj.transform, false);
-                
-                RectTransform checkmarkRect = checkmarkObj.AddComponent<RectTransform>();
-                // 버튼 중앙에 크게 표시
-                checkmarkRect.anchorMin = new Vector2(0.2f, 0.2f);
-                checkmarkRect.anchorMax = new Vector2(0.8f, 0.8f);
-                checkmarkRect.sizeDelta = Vector2.zero;
-                checkmarkRect.anchoredPosition = Vector2.zero;
-
-                Image checkmarkImage = checkmarkObj.AddComponent<Image>();
-                if (checkmarkSprite != null)
+                if (trapData.icon != null)
                 {
-                    checkmarkImage.sprite = checkmarkSprite;
+                    slotUI.IconImage.sprite = trapData.icon;
+                    slotUI.IconImage.enabled = true;
                 }
                 else
                 {
-                    // 스프라이트가 없으면 기본 색상으로 체크 표시
-                    checkmarkImage.color = new Color(0f, 1f, 0f, 0f); // 초기에는 투명
+                    slotUI.IconImage.enabled = false;
                 }
-                checkmarkImage.preserveAspect = true;
-                checkmarkImage.raycastTarget = false; // 클릭 이벤트 방해하지 않도록
+            }
+
+            // 덫 이름 표시
+            if (slotUI.NameText != null)
+            {
+                slotUI.NameText.text = isUnlocked ? trapData.name : $"{trapData.name}\n(해금 필요)";
             }
 
             // 버튼 클릭 이벤트
-            Button button = itemObj.GetComponent<Button>();
-            if (button != null)
+            if (slotUI.Button != null)
             {
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => OnTrapSelected(trapData.trapType));
+                slotUI.Button.onClick.RemoveAllListeners();
+                slotUI.Button.onClick.AddListener(() => OnTrapSelected(trapData.trapType));
             }
 
-            // 덫 이름 텍스트만 표시
-            TextMeshProUGUI nameText = itemObj.transform.Find("Text")?.GetComponent<TextMeshProUGUI>();
-            if (nameText == null)
-                nameText = itemObj.GetComponentInChildren<TextMeshProUGUI>();
-            
-            if (nameText != null)
+            // 체크마크 초기화
+            if (slotUI.Checkmark != null)
             {
-                nameText.text = isUnlocked ? trapData.name : $"{trapData.name}\n(해금 필요)";
-                nameText.color = isUnlocked ? Color.white : Color.gray;
-                nameText.fontSize = 14f;
-                nameText.alignment = TextAlignmentOptions.Center;
-            }
-
-            // 버튼 활성화/비활성화
-            if (button != null)
-            {
-                button.interactable = isUnlocked;
+                slotUI.Checkmark.SetActive(false);
             }
 
             // 선택 상태 업데이트
-            UpdateTrapItemSelection(itemObj, trapData.trapType);
+            UpdateTrapSlotSelection(slotObj, trapData.trapType);
         }
 
-        private void UpdateTrapItemSelection(GameObject itemObj, TrapType trapType)
+        private void UpdateTrapSlotSelection(GameObject slotObj, TrapType trapType)
         {
-            // 선택 체크마크 표시/숨김
-            GameObject checkmarkObj = itemObj.transform.Find("Checkmark")?.gameObject;
-            if (checkmarkObj != null)
+            TrapPlacementSlotUI slotUI = slotObj.GetComponent<TrapPlacementSlotUI>();
+            if (slotUI == null)
+                return;
+
+            if (selectedTrapId == trapType)
             {
-                Image checkmarkImage = checkmarkObj.GetComponent<Image>();
-                if (checkmarkImage != null)
+                if (slotUI.Checkmark != null)
                 {
-                    if (selectedTrapId == trapType)
-                    {
-                        if (checkmarkSprite != null)
-                        {
-                            checkmarkImage.sprite = checkmarkSprite;
-                            checkmarkImage.color = Color.white;
-                        }
-                        else
-                        {
-                            // 스프라이트가 없으면 초록색으로 표시
-                            checkmarkImage.color = new Color(0f, 1f, 0f, 1f);
-                        }
-                        checkmarkObj.SetActive(true);
-                        selectedTrapItem = itemObj;
-                    }
-                    else
-                    {
-                        checkmarkObj.SetActive(false);
-                    }
+                    slotUI.Checkmark.SetActive(true);
+                }
+                selectedTrapItem = slotObj;
+            }
+            else
+            {
+                if (slotUI.Checkmark != null)
+                {
+                    slotUI.Checkmark.SetActive(false);
                 }
             }
         }
 
         private void OnTrapSelected(TrapType trapType)
         {
-            // 이전 선택 해제
-            if (selectedTrapItem != null)
-            {
-                UpdateTrapItemSelection(selectedTrapItem, selectedTrapId);
-            }
-
             selectedTrapId = trapType;
-            
-            // 새로 선택한 덫 찾기
+
+            // 선택 상태 업데이트
             var registry = GameDataRegistry.Instance;
             if (registry != null && registry.Traps != null)
             {
-                var trapData = registry.Traps.GetTrapById(trapType);
-                if (trapData != null)
+                foreach (var itemObj in trapItemObjects)
                 {
-                    foreach (var itemObj in trapItemObjects)
+                    if (itemObj != null)
                     {
-                        if (itemObj != null)
+                        TrapPlacementSlotUI slotUI = itemObj.GetComponent<TrapPlacementSlotUI>();
+                        if (slotUI != null && slotUI.NameText != null)
                         {
-                            TextMeshProUGUI nameText = itemObj.transform.Find("Text")?.GetComponent<TextMeshProUGUI>();
-                            if (nameText == null)
-                                nameText = itemObj.GetComponentInChildren<TextMeshProUGUI>();
-                            
-                            if (nameText != null)
-                            {
-                                string itemName = nameText.text.Replace("\n(해금 필요)", "").Trim();
-                                if (itemName == trapData.name)
-                                {
-                                    selectedTrapItem = itemObj;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 선택 상태 업데이트
-            foreach (var itemObj in trapItemObjects)
-            {
-                if (itemObj != null)
-                {
-                    // trapId 찾기
-                    var registry2 = GameDataRegistry.Instance;
-                    if (registry2 != null && registry2.Traps != null)
-                    {
-                        TextMeshProUGUI nameText = itemObj.transform.Find("Text")?.GetComponent<TextMeshProUGUI>();
-                        if (nameText == null)
-                            nameText = itemObj.GetComponentInChildren<TextMeshProUGUI>();
-                        
-                        if (nameText != null)
-                        {
-                            string itemName = nameText.text.Replace("\n(해금 필요)", "").Trim();
-                            foreach (var trap in registry2.Traps.traps)
+                            string itemName = slotUI.NameText.text.Replace("\n(해금 필요)", "").Trim();
+                            foreach (var trap in registry.Traps.traps)
                             {
                                 if (trap.name == itemName)
                                 {
-                                    UpdateTrapItemSelection(itemObj, trap.trapType);
+                                    UpdateTrapSlotSelection(itemObj, trap.trapType);
                                     break;
                                 }
                             }
@@ -472,7 +388,7 @@ namespace PigeonGame.UI
             int installCost = GameManager.Instance.CalculateTrapInstallCost(selectedTrapId, feedAmount);
             int currentMoney = GameManager.Instance.CurrentMoney;
 
-            totalPriceText.text = $"총 비용: {installCost} 골드 / 보유 골드: {currentMoney} 골드";
+            totalPriceText.text = $"총 비용: {installCost}G / 현재 골드: {currentMoney}G";
             totalPriceText.color = currentMoney >= installCost ? Color.white : Color.red;
 
             // 설치 버튼 활성화/비활성화
@@ -556,7 +472,7 @@ namespace PigeonGame.UI
             {
                 if (trapItemObjects[i] != null)
                 {
-                    SetupTrapItem(trapItemObjects[i], allTraps[i]);
+                    SetupTrapSlot(trapItemObjects[i], allTraps[i]);
                 }
             }
 
@@ -565,36 +481,20 @@ namespace PigeonGame.UI
             {
                 if (itemObj != null)
                 {
-                    TextMeshProUGUI nameText = itemObj.transform.Find("Text")?.GetComponent<TextMeshProUGUI>();
-                    if (nameText == null)
-                        nameText = itemObj.GetComponentInChildren<TextMeshProUGUI>();
-                    
-                        if (nameText != null)
+                    TrapPlacementSlotUI slotUI = itemObj.GetComponent<TrapPlacementSlotUI>();
+                    if (slotUI != null && slotUI.NameText != null)
+                    {
+                        string itemName = slotUI.NameText.text.Replace("\n(해금 필요)", "").Trim();
+                        foreach (var trap in allTraps)
                         {
-                            string itemName = nameText.text.Replace("\n(해금 필요)", "").Trim();
-                            foreach (var trap in allTraps)
+                            if (trap.name == itemName)
                             {
-                                if (trap.name == itemName)
-                                {
-                                    UpdateTrapItemSelection(itemObj, trap.trapType);
-                                    if (trap.trapType == selectedTrapId)
-                                    {
-                                        selectedTrapItem = itemObj;
-                                    }
-                                    break;
-                                }
+                                UpdateTrapSlotSelection(itemObj, trap.trapType);
+                                break;
                             }
                         }
+                    }
                 }
-            }
-
-            // GameManager 돈 변경 이벤트 구독 (가격 업데이트용)
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.OnMoneyChanged -= OnMoneyChanged;
-                GameManager.Instance.OnTrapUnlocked -= OnTrapUnlocked;
-                GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
-                GameManager.Instance.OnTrapUnlocked += OnTrapUnlocked;
             }
         }
 
@@ -609,14 +509,14 @@ namespace PigeonGame.UI
             UpdatePriceDisplay();
         }
 
-        private void ClearItemList(List<GameObject> list)
+        private void ClearTrapItems()
         {
-            foreach (var item in list)
+            foreach (var item in trapItemObjects)
             {
                 if (item != null)
                     Destroy(item);
             }
-            list.Clear();
+            trapItemObjects.Clear();
         }
 
         private void OnDestroy()
