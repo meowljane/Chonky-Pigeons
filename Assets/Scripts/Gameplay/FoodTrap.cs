@@ -68,7 +68,6 @@ namespace PigeonGame.Gameplay
         public TrapType TrapId => trapId;
         public int CurrentFeedAmount => currentFeedAmount;
         public int MaxFeedAmount => initialFeedAmount > 0 ? initialFeedAmount : (trapData != null ? trapData.feedAmount : 20);
-        public bool IsDepleted => currentFeedAmount <= 0;
         public bool HasCapturedPigeon => isCaptured && capturedPigeonStats != null;
         public PigeonInstanceStats CapturedPigeonStats => capturedPigeonStats;
         public event System.Action<PigeonAI> OnCaptured;
@@ -125,9 +124,6 @@ namespace PigeonGame.Gameplay
         {
             // 포획된 상태면 더 이상 업데이트하지 않음
             if (isCaptured)
-                return;
-
-            if (IsDepleted)
                 return;
 
             // 주변 비둘기 감지
@@ -265,7 +261,7 @@ namespace PigeonGame.Gameplay
 
         private bool TryEat(PigeonAI pigeon)
         {
-            if (IsDepleted || !pigeon.CanEat())
+            if (isCaptured || !pigeon.CanEat())
                 return false;
 
             var controller = pigeon.GetComponent<PigeonController>();

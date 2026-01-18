@@ -7,7 +7,6 @@ namespace PigeonGame.Gameplay
     {
         [SerializeField] private GameObject trapPrefab;
         [SerializeField] private WorldPigeonManager pigeonManager;
-        [SerializeField] private bool requirePurchase = true; // 덫 설치 시 구매 필요 여부
 
         private void Start()
         {
@@ -24,7 +23,7 @@ namespace PigeonGame.Gameplay
             int count = 0;
             foreach (var trap in allTraps)
             {
-                if (trap != null && !trap.HasCapturedPigeon && !trap.IsDepleted)
+                if (trap != null)
                 {
                     count++;
                 }
@@ -33,22 +32,14 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
-        /// 플레이어 위치에 덫 설치
+        /// 플레이어 위치에 덫 설치 (feedAmount가 0이면 기본값 사용)
         /// </summary>
-        public bool PlaceTrapAtPlayerPosition(TrapType trapType)
-        {
-            return PlaceTrapAtPlayerPosition(trapType, 0); // 기본 feedAmount 사용
-        }
-
-        /// <summary>
-        /// 플레이어 위치에 덫 설치 (커스텀 feedAmount 포함)
-        /// </summary>
-        public bool PlaceTrapAtPlayerPosition(TrapType trapType, int feedAmount)
+        public bool PlaceTrapAtPlayerPosition(TrapType trapType, int feedAmount = 0)
         {
             if (PlayerController.Instance == null)
                 return false;
 
-            // 동시 덫 설치 개수 제한 확인
+            // 동시 덫 설치 개수 제한 확인ㄴ
             if (GameManager.Instance != null)
             {
                 int maxTrapCount = UpgradeData.Instance.MaxTrapCount;
@@ -64,8 +55,8 @@ namespace PigeonGame.Gameplay
 
             Vector3 playerPos = PlayerController.Instance.Position;
 
-            // 덫 해금 확인
-            if (requirePurchase && GameManager.Instance != null)
+            // 덫 해금 확인 및 구매 처리
+            if (GameManager.Instance != null)
             {
                 // 해금되지 않은 덫은 설치 불가
                 if (!GameManager.Instance.IsTrapUnlocked(trapType))
@@ -153,10 +144,5 @@ namespace PigeonGame.Gameplay
 
             return false;
         }
-
-        // 포획 이벤트 핸들러 제거됨
-        // 이제 TrapInteractionSystem에서 상호작용을 통해 비둘기를 수집함
-        // private void OnPigeonCaptured(PigeonAI pigeon) { ... }
     }
 }
-

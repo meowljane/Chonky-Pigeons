@@ -178,17 +178,8 @@ namespace PigeonGame.UI
             PigeonState state = pigeonAI.CurrentState;
             float alert = pigeonAI.Alert;
             
-            // Flee 상태일 때는 항상 100%로 표시
-            float fillAmount;
-            if (state == PigeonState.Flee)
-            {
-                fillAmount = 1.0f;
-            }
-            else
-            {
-                // alert 값을 0-100 범위로 정규화
-                fillAmount = Mathf.Clamp01(alert / 100.0f);
-            }
+            // alert 값을 0-100 범위로 정규화
+            float fillAmount = Mathf.Clamp01(alert / 100.0f);
 
             alertBar.fillAmount = fillAmount;
 
@@ -217,7 +208,7 @@ namespace PigeonGame.UI
 
             foreach (var trap in allTraps)
             {
-                if (trap == null || trap.IsDepleted)
+                if (trap == null || trap.HasCapturedPigeon)
                     continue;
 
                 // 덫에서 실제로 먹고 있는지 확인

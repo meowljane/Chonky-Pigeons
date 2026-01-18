@@ -98,7 +98,7 @@ namespace PigeonGame.UI
         }
 
         /// <summary>
-        /// 현재 맵의 활성 덫 수 계산
+        /// 현재 맵의 활성 덫 수 계산 (포획된 덫 포함)
         /// </summary>
         private int GetActiveTrapCountInMap(Collider2D mapCollider)
         {
@@ -109,7 +109,7 @@ namespace PigeonGame.UI
             int count = 0;
             foreach (var trap in allTraps)
             {
-                if (trap != null && !trap.HasCapturedPigeon && !trap.IsDepleted)
+                if (trap != null)
                 {
                     if (ColliderUtility.IsPositionInsideCollider(trap.transform.position, mapCollider))
                         count++;

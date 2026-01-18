@@ -187,7 +187,7 @@ namespace PigeonGame.Gameplay
 
             if (rb == null) return;
 
-            Vector2 targetPos = targetFoodTrap != null && !targetFoodTrap.IsDepleted
+            Vector2 targetPos = targetFoodTrap != null && !targetFoodTrap.HasCapturedPigeon
                 ? (Vector2)targetFoodTrap.transform.position
                 : wanderTarget;
             
@@ -317,7 +317,7 @@ namespace PigeonGame.Gameplay
                     continue;
 
                 FoodTrap trap = col.GetComponent<FoodTrap>();
-                if (trap != null && !trap.IsDepleted)
+                if (trap != null && !trap.HasCapturedPigeon)
                 {
                     float sqrDistance = ((Vector2)col.transform.position - myPosition).sqrMagnitude;
                     if (sqrDistance < nearestSqrDistance)

@@ -92,6 +92,10 @@ namespace PigeonGame.Gameplay
             if (movement == null)
                 return;
 
+            // 이미 Flee 상태면 상태 변경 건너뛰기 (ForceFlee로 설정된 경우 유지)
+            if (currentState == PigeonState.Flee)
+                return;
+
             PigeonState previousState = currentState;
 
             // Alert 값에 따라 상태 결정
