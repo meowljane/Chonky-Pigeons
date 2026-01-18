@@ -42,16 +42,8 @@ namespace PigeonGame.UI
                 speciesListPanel.SetActive(true);
             }
 
-            // 버튼 연결
-            if (encyclopediaButton != null)
-            {
-                encyclopediaButton.onClick.AddListener(OpenEncyclopedia);
-            }
-
-            if (closeButton != null)
-            {
-                closeButton.onClick.AddListener(CloseEncyclopedia);
-            }
+            UIHelper.SafeAddListener(encyclopediaButton, OpenEncyclopedia);
+            UIHelper.SafeAddListener(closeButton, CloseEncyclopedia);
 
 
             UpdateSpeciesList();
@@ -154,20 +146,13 @@ namespace PigeonGame.UI
 
         private void ClearSpeciesSlots()
         {
-            foreach (var item in speciesSlotObjects)
-            {
-                if (item != null)
-                    Destroy(item);
-            }
-            speciesSlotObjects.Clear();
+            UIHelper.ClearSlotList(speciesSlotObjects);
         }
 
         private void OnDestroy()
         {
-            if (encyclopediaButton != null)
-                encyclopediaButton.onClick.RemoveAllListeners();
-            if (closeButton != null)
-                closeButton.onClick.RemoveAllListeners();
+            UIHelper.SafeRemoveListener(encyclopediaButton);
+            UIHelper.SafeRemoveListener(closeButton);
         }
     }
 }

@@ -34,11 +34,7 @@ namespace PigeonGame.UI
                 speciesDetailPanel.SetActive(false);
             }
 
-            if (backButton != null)
-            {
-                backButton.onClick.RemoveAllListeners();
-                backButton.onClick.AddListener(CloseDetail);
-            }
+            UIHelper.SafeAddListener(backButton, CloseDetail);
         }
 
         /// <summary>
@@ -154,20 +150,12 @@ namespace PigeonGame.UI
 
         private void ClearFaceSlots()
         {
-            foreach (var item in faceSlotObjects)
-            {
-                if (item != null)
-                    Destroy(item);
-            }
-            faceSlotObjects.Clear();
+            UIHelper.ClearSlotList(faceSlotObjects);
         }
 
         private void OnDestroy()
         {
-            if (backButton != null)
-            {
-                backButton.onClick.RemoveAllListeners();
-            }
+            UIHelper.SafeRemoveListener(backButton);
         }
     }
 }

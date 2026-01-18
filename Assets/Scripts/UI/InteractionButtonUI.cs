@@ -28,11 +28,7 @@ namespace PigeonGame.UI
                 InteractionSystem.Instance.InitializeUIComponents();
             }
 
-            // 버튼 이벤트 연결
-            if (interactionButton != null)
-            {
-                interactionButton.onClick.AddListener(OnInteractionButtonClicked);
-            }
+            UIHelper.SafeAddListener(interactionButton, OnInteractionButtonClicked);
         }
 
         private void OnInteractionButtonClicked()
@@ -57,10 +53,7 @@ namespace PigeonGame.UI
 
         private void OnDestroy()
         {
-            if (interactionButton != null)
-            {
-                interactionButton.onClick.RemoveAllListeners();
-            }
+            UIHelper.SafeRemoveListener(interactionButton);
         }
     }
 }

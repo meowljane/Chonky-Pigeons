@@ -29,17 +29,8 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            if (detailCloseButton != null)
-            {
-                detailCloseButton.onClick.RemoveAllListeners();
-                detailCloseButton.onClick.AddListener(ClosePanel);
-            }
-
-            if (moveButton != null)
-            {
-                moveButton.onClick.RemoveAllListeners();
-                moveButton.onClick.AddListener(OnMoveButtonClicked);
-            }
+            UIHelper.SafeAddListener(detailCloseButton, ClosePanel);
+            UIHelper.SafeAddListener(moveButton, OnMoveButtonClicked);
 
             if (detailPanel != null)
             {
@@ -154,15 +145,8 @@ namespace PigeonGame.UI
 
         private void OnDestroy()
         {
-            if (detailCloseButton != null)
-            {
-                detailCloseButton.onClick.RemoveAllListeners();
-            }
-
-            if (moveButton != null)
-            {
-                moveButton.onClick.RemoveAllListeners();
-            }
+            UIHelper.SafeRemoveListener(detailCloseButton);
+            UIHelper.SafeRemoveListener(moveButton);
         }
     }
 }

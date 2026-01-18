@@ -15,7 +15,7 @@ namespace PigeonGame.Editor
         public static void CreateMapInfoUI()
         {
             // Canvas 찾기 또는 생성
-            Canvas canvas = FindObjectOfType<Canvas>();
+            Canvas canvas = FindFirstObjectByType<Canvas>();
             if (canvas == null)
             {
                 GameObject canvasObj = new GameObject("Canvas");
@@ -121,7 +121,7 @@ namespace PigeonGame.Editor
         public static void CreateMoneyDisplayUI()
         {
             // Canvas 찾기 또는 생성
-            Canvas canvas = FindObjectOfType<Canvas>();
+            Canvas canvas = FindFirstObjectByType<Canvas>();
             if (canvas == null)
             {
                 GameObject canvasObj = new GameObject("Canvas");
@@ -173,7 +173,7 @@ namespace PigeonGame.Editor
         public static void CreateTrapPlacementUI()
         {
             // Canvas 찾기 또는 생성
-            Canvas canvas = FindObjectOfType<Canvas>();
+            Canvas canvas = FindFirstObjectByType<Canvas>();
             if (canvas == null)
             {
                 GameObject canvasObj = new GameObject("Canvas");
@@ -521,7 +521,7 @@ namespace PigeonGame.Editor
         public static void CreateExhibitionUI()
         {
             // Canvas 찾기 또는 생성
-            Canvas canvas = FindObjectOfType<Canvas>();
+            Canvas canvas = FindFirstObjectByType<Canvas>();
             if (canvas == null)
             {
                 GameObject canvasObj = new GameObject("Canvas");

@@ -28,11 +28,7 @@ namespace PigeonGame.UI
                 shopPanel.SetActive(false);
             }
 
-            if (closeButton != null)
-            {
-                closeButton.onClick.RemoveAllListeners();
-                closeButton.onClick.AddListener(OnCloseButtonClicked);
-            }
+            UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
 
             // GameManager 이벤트 구독
             if (GameManager.Instance != null)
@@ -73,10 +69,7 @@ namespace PigeonGame.UI
 
         private void UpdateGoldText()
         {
-            if (goldText != null && GameManager.Instance != null)
-            {
-                goldText.text = $"현재 골드: {GameManager.Instance.CurrentMoney}G";
-            }
+            UIHelper.UpdateGoldText(goldText);
         }
 
         private void UpdateShopDisplay()
@@ -196,12 +189,7 @@ namespace PigeonGame.UI
 
         private void ClearTrapItems()
         {
-            foreach (var item in trapItems)
-            {
-                if (item != null)
-                    Destroy(item);
-            }
-            trapItems.Clear();
+            UIHelper.ClearSlotList(trapItems);
         }
 
         private void OnCloseButtonClicked()
@@ -219,11 +207,7 @@ namespace PigeonGame.UI
                 GameManager.Instance.OnTrapUnlocked -= OnTrapUnlocked;
                 GameManager.Instance.OnMoneyChanged -= OnMoneyChanged;
             }
-
-            if (closeButton != null)
-            {
-                closeButton.onClick.RemoveAllListeners();
-            }
+            UIHelper.SafeRemoveListener(closeButton);
         }
     }
 }

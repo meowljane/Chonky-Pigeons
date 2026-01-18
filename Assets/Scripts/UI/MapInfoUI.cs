@@ -76,59 +76,36 @@ namespace PigeonGame.UI
 
         private void UpdateSpeciesProbabilities()
         {
-            if (PlayerController.Instance == null)
+            if (PlayerController.Instance == null || pigeonManager == null || speciesProbabilityContainer == null)
                 return;
 
-            if (pigeonManager == null)
-                return;
+            UIHelper.ClearSlotList(probabilityItemObjects);
 
-            if (speciesProbabilityContainer == null)
-                return;
-
-            // 기존 아이템 제거
-            foreach (var obj in probabilityItemObjects)
-            {
-                if (obj != null)
-                    Destroy(obj);
-            }
-            probabilityItemObjects.Clear();
-
-            // 현재 플레이어가 있는 맵의 종별 스폰 확률 가져오기 (덫 위치 기반)
-            Collider2D currentMapCollider = PlayerController.Instance != null ? PlayerController.Instance.CurrentMapCollider : null;
-            var probabilities = pigeonManager.GetSpeciesSpawnProbabilities(currentMapCollider);
-            if (probabilities == null || probabilities.Count == 0)
-                return;
+            var probabilities = pigeonManager.GetSpeciesSpawnProbabilities(PlayerController.Instance.CurrentMapCollider);
+            if (probabilities == null || probabilities.Count == 0) return;
 
             var registry = GameDataRegistry.Instance;
-            if (registry == null || registry.SpeciesSet == null)
-                return;
+            if (registry?.SpeciesSet == null) return;
 
             // 확률이 높은 순으로 정렬
             List<KeyValuePair<PigeonSpecies, float>> sortedProbabilities = new List<KeyValuePair<PigeonSpecies, float>>(probabilities);
             sortedProbabilities.Sort((a, b) => b.Value.CompareTo(a.Value));
 
-            // 각 종별 확률 표시
             foreach (var kvp in sortedProbabilities)
             {
                 var species = registry.SpeciesSet.GetSpeciesById(kvp.Key);
-                if (species == null)
-                    continue;
+                if (species == null) continue;
 
-                if (speciesProbabilityItemPrefab != null)
+                GameObject itemObj = speciesProbabilityItemPrefab != null
+                    ? Instantiate(speciesProbabilityItemPrefab, speciesProbabilityContainer, false)
+                    : CreateProbabilityItemFallback(species.name, kvp.Value);
+                
+                if (itemObj != null)
                 {
-                    GameObject itemObj = Instantiate(speciesProbabilityItemPrefab, speciesProbabilityContainer, false);
+                    if (speciesProbabilityItemPrefab == null)
+                        itemObj.transform.SetParent(speciesProbabilityContainer, false);
                     SetupProbabilityItem(itemObj, species.name, kvp.Value);
                     probabilityItemObjects.Add(itemObj);
-                }
-                else
-                {
-                    // 프리팹이 없으면 직접 생성
-                    GameObject itemObj = CreateProbabilityItemFallback(species.name, kvp.Value);
-                    if (itemObj != null)
-                    {
-                        itemObj.transform.SetParent(speciesProbabilityContainer, false);
-                        probabilityItemObjects.Add(itemObj);
-                    }
                 }
             }
         }

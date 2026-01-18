@@ -40,11 +40,7 @@ namespace PigeonGame.UI
                 exhibitionPanel.SetActive(false);
             }
 
-            if (closeButton != null)
-            {
-                closeButton.onClick.RemoveAllListeners();
-                closeButton.onClick.AddListener(OnCloseButtonClicked);
-            }
+            UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
 
             // GameManager 이벤트 구독
             if (GameManager.Instance != null)
@@ -99,7 +95,7 @@ namespace PigeonGame.UI
             ClearSlots(inventorySlotInstances);
 
             var inventory = GameManager.Instance.Inventory;
-            int maxSlots = GameManager.Instance != null ? GameManager.Instance.MaxInventorySlots : 20;
+            int maxSlots = GameManager.Instance.MaxInventorySlots;
             int slotCount = Mathf.Min(inventory.Count, maxSlots);
 
             // 인벤토리 아이템으로 슬롯 채우기
@@ -161,18 +157,14 @@ namespace PigeonGame.UI
         private void SetupSlotUI(GameObject slotObj, PigeonInstanceStats stats, bool isInventory, int index)
         {
             InventorySlotUI slotUI = slotObj.GetComponent<InventorySlotUI>();
-            if (slotUI == null)
-                return;
+            if (slotUI == null) return;
 
             var registry = GameDataRegistry.Instance;
-            var species = (registry != null && registry.SpeciesSet != null) 
-                ? registry.SpeciesSet.GetSpeciesById(stats.speciesId) 
-                : null;
+            var species = (registry?.SpeciesSet != null) ? registry.SpeciesSet.GetSpeciesById(stats.speciesId) : null;
 
-            // 아이콘 설정
             if (slotUI.IconImage != null)
             {
-                if (species != null && species.icon != null)
+                if (species?.icon != null)
                 {
                     slotUI.IconImage.sprite = species.icon;
                     slotUI.IconImage.enabled = true;
@@ -183,13 +175,11 @@ namespace PigeonGame.UI
                 }
             }
 
-            // 이름 설정
             if (slotUI.NameText != null)
             {
-                slotUI.NameText.text = species != null ? species.name : stats.speciesId.ToString();
+                slotUI.NameText.text = species?.name ?? stats.speciesId.ToString();
             }
 
-            // 버튼 클릭 이벤트
             if (slotUI.Button != null)
             {
                 slotUI.Button.onClick.RemoveAllListeners();
@@ -197,32 +187,9 @@ namespace PigeonGame.UI
             }
         }
 
-        /// <summary>
-        /// 빈 슬롯 설정
-        /// </summary>
         private void SetupEmptySlot(GameObject slotObj)
         {
-            InventorySlotUI slotUI = slotObj.GetComponent<InventorySlotUI>();
-            if (slotUI == null)
-                return;
-
-            // 아이콘 비활성화
-            if (slotUI.IconImage != null)
-            {
-                slotUI.IconImage.enabled = false;
-            }
-
-            // 이름 비우기
-            if (slotUI.NameText != null)
-            {
-                slotUI.NameText.text = "";
-            }
-
-            // 버튼 비활성화
-            if (slotUI.Button != null)
-            {
-                slotUI.Button.interactable = false;
-            }
+            UIHelper.SetupEmptySlot(slotObj);
         }
 
         private void OnSlotClicked(PigeonInstanceStats stats, bool isInventory, int index)
@@ -312,12 +279,7 @@ namespace PigeonGame.UI
 
         private void ClearSlots(List<GameObject> list)
         {
-            foreach (var item in list)
-            {
-                if (item != null)
-                    Destroy(item);
-            }
-            list.Clear();
+            UIHelper.ClearSlotList(list);
         }
 
         private void OnDestroy()
@@ -328,12 +290,7 @@ namespace PigeonGame.UI
                 GameManager.Instance.OnPigeonAddedToExhibition -= OnPigeonAddedToExhibition;
                 GameManager.Instance.OnPigeonRemovedFromExhibition -= OnPigeonRemovedFromExhibition;
             }
-
-            if (closeButton != null)
-            {
-                closeButton.onClick.RemoveAllListeners();
-            }
-
+            UIHelper.SafeRemoveListener(closeButton);
         }
     }
 }

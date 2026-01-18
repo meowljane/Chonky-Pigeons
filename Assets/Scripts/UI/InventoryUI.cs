@@ -38,18 +38,8 @@ namespace PigeonGame.UI
             }
 
 
-            // 버튼 이벤트 연결
-            if (inventoryButton != null)
-            {
-                inventoryButton.onClick.RemoveAllListeners();
-                inventoryButton.onClick.AddListener(ToggleInventory);
-            }
-
-            if (closeButton != null)
-            {
-                closeButton.onClick.RemoveAllListeners();
-                closeButton.onClick.AddListener(OnCloseButtonClicked);
-            }
+            UIHelper.SafeAddListener(inventoryButton, ToggleInventory);
+            UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
 
 
             // GameManager 이벤트 구독
@@ -99,7 +89,7 @@ namespace PigeonGame.UI
                 return;
 
             var inventory = GameManager.Instance.Inventory;
-            int maxSlots = GameManager.Instance != null ? GameManager.Instance.MaxInventorySlots : 20;
+            int maxSlots = GameManager.Instance.MaxInventorySlots;
             int slotCount = Mathf.Min(inventory.Count, maxSlots);
 
             // 인벤토리 아이템으로 슬롯 채우기
@@ -131,80 +121,18 @@ namespace PigeonGame.UI
         {
             if (inventoryCountText != null)
             {
-                int maxSlots = GameManager.Instance != null ? GameManager.Instance.MaxInventorySlots : 20;
-                inventoryCountText.text = $"({currentCount}/{maxSlots})";
+                inventoryCountText.text = $"({currentCount}/{GameManager.Instance.MaxInventorySlots})";
             }
         }
 
-        /// <summary>
-        /// 슬롯 UI 설정 (아이콘 + 이름)
-        /// </summary>
         private void SetupSlotUI(GameObject slotObj, PigeonInstanceStats stats, int index)
         {
-            InventorySlotUI slotUI = slotObj.GetComponent<InventorySlotUI>();
-            if (slotUI == null)
-                return;
-
-            var registry = GameDataRegistry.Instance;
-            var species = (registry != null && registry.SpeciesSet != null) 
-                ? registry.SpeciesSet.GetSpeciesById(stats.speciesId) 
-                : null;
-
-            // 아이콘 설정
-            if (slotUI.IconImage != null)
-            {
-                if (species != null && species.icon != null)
-                    {
-                    slotUI.IconImage.sprite = species.icon;
-                    slotUI.IconImage.enabled = true;
-                }
-                else
-                {
-                    slotUI.IconImage.enabled = false;
-                }
-            }
-
-            // 이름 설정
-            if (slotUI.NameText != null)
-            {
-                slotUI.NameText.text = species != null ? species.name : stats.speciesId.ToString();
-            }
-
-            // 버튼 클릭 이벤트
-            if (slotUI.Button != null)
-            {
-                int capturedIndex = index; // 클로저를 위한 로컬 변수
-                slotUI.Button.onClick.RemoveAllListeners();
-                slotUI.Button.onClick.AddListener(() => OnSlotClicked(capturedIndex));
-            }
+            UIHelper.SetupPigeonSlot(slotObj, stats, index, OnSlotClicked);
         }
 
-        /// <summary>
-        /// 빈 슬롯 설정
-        /// </summary>
         private void SetupEmptySlot(GameObject slotObj)
         {
-            InventorySlotUI slotUI = slotObj.GetComponent<InventorySlotUI>();
-            if (slotUI == null)
-                return;
-
-            // 아이콘 비활성화
-            if (slotUI.IconImage != null)
-            {
-                slotUI.IconImage.enabled = false;
-            }
-
-            // 이름 비우기
-            if (slotUI.NameText != null)
-            {
-                slotUI.NameText.text = "";
-            }
-
-            // 버튼 비활성화
-            if (slotUI.Button != null)
-            {
-                slotUI.Button.interactable = false;
-            }
+            UIHelper.SetupEmptySlot(slotObj);
         }
 
         /// <summary>
@@ -274,12 +202,7 @@ namespace PigeonGame.UI
 
         private void ClearItemList(List<GameObject> list)
         {
-            foreach (var item in list)
-            {
-                if (item != null)
-                    Destroy(item);
-            }
-            list.Clear();
+            UIHelper.ClearSlotList(list);
         }
 
         private void OnDestroy()
@@ -288,17 +211,8 @@ namespace PigeonGame.UI
             {
                 GameManager.Instance.OnPigeonAddedToInventory -= OnPigeonAdded;
             }
-
-            if (closeButton != null)
-            {
-                closeButton.onClick.RemoveAllListeners();
-            }
-
-            if (inventoryButton != null)
-            {
-                inventoryButton.onClick.RemoveAllListeners();
-            }
-
+            UIHelper.SafeRemoveListener(closeButton);
+            UIHelper.SafeRemoveListener(inventoryButton);
         }
     }
 }
