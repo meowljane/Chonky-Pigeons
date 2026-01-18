@@ -41,85 +41,21 @@ namespace PigeonGame.UI
                 mainCamera = FindFirstObjectByType<Camera>();
             }
 
-            // UI가 없으면 자동 생성
+            // UI 요소가 프리팹에서 할당되지 않은 경우 경고
             if (foodText == null || foodBar == null)
             {
-                CreateUI();
-            }
-        }
-
-        private void CreateUI()
-        {
-            // World Space Canvas 생성
-            GameObject canvasObj = new GameObject("TrapFoodCanvas");
-            canvasObj.transform.SetParent(transform);
-            canvasObj.transform.localPosition = offset;
-            canvasObj.transform.localRotation = Quaternion.identity;
-            canvasObj.transform.localScale = Vector3.one * 0.01f; // World Space에서 적절한 크기
-
-            Canvas canvas = canvasObj.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.WorldSpace;
-            canvas.sortingOrder = 100;
-
-            CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-
-            GraphicRaycaster raycaster = canvasObj.AddComponent<GraphicRaycaster>();
-
-            // 배경 패널
-            GameObject panelObj = new GameObject("Panel");
-            panelObj.transform.SetParent(canvasObj.transform, false);
-            RectTransform panelRect = panelObj.AddComponent<RectTransform>();
-            panelRect.sizeDelta = new Vector2(200, 60);
-            panelRect.anchoredPosition = Vector2.zero;
-
-            Image panelImage = panelObj.AddComponent<Image>();
-            panelImage.color = new Color(0, 0, 0, 0.7f);
-
-            // 텍스트 생성
-            if (foodText == null)
-            {
-                GameObject textObj = new GameObject("FoodText");
-                textObj.transform.SetParent(panelObj.transform, false);
-                foodText = textObj.AddComponent<TextMeshProUGUI>();
-                foodText.text = "먹이: 20/20";
-                foodText.fontSize = 20;
-                foodText.color = Color.white;
-                foodText.alignment = TextAlignmentOptions.Center;
-
-                RectTransform textRect = foodText.GetComponent<RectTransform>();
-                textRect.anchorMin = new Vector2(0, 0.5f);
-                textRect.anchorMax = new Vector2(1, 1);
-                textRect.sizeDelta = Vector2.zero;
-                textRect.anchoredPosition = Vector2.zero;
+                Debug.LogWarning($"TrapFoodDisplay: UI 요소가 할당되지 않았습니다. 프리팹에서 foodText와 foodBar를 할당해주세요.", this);
+                enabled = false;
+                return;
             }
 
-            // 진행 바 생성
-            if (foodBar == null)
+            // 진행 바 초기 설정
+            if (foodBar != null)
             {
-                GameObject barBgObj = new GameObject("BarBackground");
-                barBgObj.transform.SetParent(panelObj.transform, false);
-                Image barBg = barBgObj.AddComponent<Image>();
-                barBg.color = new Color(0.3f, 0.3f, 0.3f, 0.8f);
-
-                RectTransform barBgRect = barBg.GetComponent<RectTransform>();
-                barBgRect.anchorMin = new Vector2(0, 0);
-                barBgRect.anchorMax = new Vector2(1, 0.5f);
-                barBgRect.sizeDelta = Vector2.zero;
-                barBgRect.anchoredPosition = Vector2.zero;
-
-                GameObject barObj = new GameObject("FoodBar");
-                barObj.transform.SetParent(barBgObj.transform, false);
-                foodBar = barObj.AddComponent<Image>();
-                foodBar.color = fullColor;
                 foodBar.type = Image.Type.Filled;
                 foodBar.fillMethod = Image.FillMethod.Horizontal;
-
-                RectTransform barRect = foodBar.GetComponent<RectTransform>();
-                barRect.anchorMin = Vector2.zero;
-                barRect.anchorMax = Vector2.one;
-                barRect.sizeDelta = Vector2.zero;
-                barRect.anchoredPosition = Vector2.zero;
+                foodBar.fillOrigin = (int)Image.OriginHorizontal.Left;
+                foodBar.fillAmount = 1f; // 초기값 100%
             }
         }
 
@@ -172,10 +108,11 @@ namespace PigeonGame.UI
 
             if (foodBar != null)
             {
-                float fillAmount = max > 0 ? (float)current / max : 0f;
+                // current가 max일 때 1.0 (100%), current가 0일 때 0.0 (0%)
+                float fillAmount = max > 0 ? Mathf.Clamp01((float)current / max) : 0f;
                 foodBar.fillAmount = fillAmount;
 
-                // 색상 보간
+                // 색상 보간 (100%일 때 fullColor, 0%일 때 emptyColor)
                 foodBar.color = Color.Lerp(emptyColor, fullColor, fillAmount);
             }
 

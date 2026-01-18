@@ -35,22 +35,42 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
-        /// 위치가 다른 건물이나 덫의 interactionRadius 내에 있는지 확인
+        /// 위치가 다른 건물이나 덫의 중심점이 2f 이내에 있는지 확인
         /// </summary>
         private bool IsPositionTooCloseToOtherObjects(Vector3 position)
         {
             Vector2 pos2D = new Vector2(position.x, position.y);
+            float minDistance = INTERACTION_RADIUS; // 2f
 
-            // Physics2D를 사용하여 interactionRadius 내의 모든 콜라이더 검사
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(pos2D, INTERACTION_RADIUS);
-            
-            foreach (var col in colliders)
+            // 모든 건물과 덫 검사
+            WorldShop[] allShops = FindObjectsByType<WorldShop>(FindObjectsSortMode.None);
+            FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
+
+            // 건물 중심점 거리 확인
+            foreach (var shop in allShops)
             {
-                if (col == null)
+                if (shop == null)
                     continue;
 
-                // 건물 또는 덫인지 확인
-                if (col.GetComponent<WorldShop>() != null || col.GetComponent<FoodTrap>() != null)
+                Vector2 shopPos = new Vector2(shop.transform.position.x, shop.transform.position.y);
+                float distance = Vector2.Distance(pos2D, shopPos);
+
+                if (distance < minDistance)
+                {
+                    return true;
+                }
+            }
+
+            // 덫 중심점 거리 확인
+            foreach (var trap in allTraps)
+            {
+                if (trap == null)
+                    continue;
+
+                Vector2 trapPos = new Vector2(trap.transform.position.x, trap.transform.position.y);
+                float distance = Vector2.Distance(pos2D, trapPos);
+
+                if (distance < minDistance)
                 {
                     return true;
                 }
