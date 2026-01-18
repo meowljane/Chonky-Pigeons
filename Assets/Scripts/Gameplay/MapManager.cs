@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using PigeonGame.Data;
 
 namespace PigeonGame.Gameplay
 {
@@ -122,6 +123,25 @@ namespace PigeonGame.Gameplay
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// 특정 위치의 지역 타입 반환 (TerrainType)
+        /// </summary>
+        public TerrainType GetTerrainTypeAtPosition(Vector3 position)
+        {
+            TerrainArea[] allTerrainAreas = FindObjectsByType<TerrainArea>(FindObjectsSortMode.None);
+            
+            // null 체크
+            if (allTerrainAreas == null || allTerrainAreas.Length == 0)
+                return TerrainType.SAND;
+            
+            foreach (var terrainArea in allTerrainAreas)
+            {
+                if (terrainArea != null && terrainArea.ContainsPosition(position))
+                    return terrainArea.TerrainType;
+            }
+            return TerrainType.SAND;
         }
     }
 }

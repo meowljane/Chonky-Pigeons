@@ -21,6 +21,7 @@ namespace PigeonGame.Gameplay
         private TrapShopUI trapShopUI;
         private UI.ExhibitionUI exhibitionUI;
         private UI.PigeonResearchUI pigeonResearchUI;
+        private UpgradeShopUI upgradeShopUI;
 
         private void Awake()
         {
@@ -51,6 +52,7 @@ namespace PigeonGame.Gameplay
             trapShopUI = FindFirstObjectByType<TrapShopUI>();
             exhibitionUI = FindFirstObjectByType<UI.ExhibitionUI>();
             pigeonResearchUI = FindFirstObjectByType<UI.PigeonResearchUI>();
+            upgradeShopUI = FindFirstObjectByType<UpgradeShopUI>();
         }
 
         private void OnDestroy()
@@ -141,6 +143,17 @@ namespace PigeonGame.Gameplay
             if (pigeonResearchUI != null)
             {
                 pigeonResearchUI.OpenShopPanel();
+            }
+        }
+
+        /// <summary>
+        /// 업그레이드 상점 열기 (UpgradeShopBuilding에서 호출)
+        /// </summary>
+        public void OpenUpgradeShop()
+        {
+            if (upgradeShopUI != null)
+            {
+                upgradeShopUI.OpenShopPanel();
             }
         }
 

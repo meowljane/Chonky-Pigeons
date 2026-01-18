@@ -13,7 +13,6 @@ namespace PigeonGame.Gameplay
         public static GameManager Instance { get; private set; }
 
         [SerializeField] private int startingMoney = 100;
-        [SerializeField] private int maxInventorySlots = 20; // 인벤토리 최대 슬롯 수 (강화 시스템으로 변경 가능)
         [SerializeField] private TrapType[] startingUnlockedTraps = { TrapType.BREAD }; // 시작 시 해금된 덫
         [SerializeField] private PigeonSpecies[] startingUnlockedSpecies = { };
 
@@ -24,7 +23,8 @@ namespace PigeonGame.Gameplay
         private List<PigeonInstanceStats> exhibition = new List<PigeonInstanceStats>(); // 전시관
 
         public int CurrentMoney => currentMoney;
-        public int MaxInventorySlots => maxInventorySlots; // 인벤토리 최대 슬롯 수
+        public int MaxInventorySlots => UpgradeData.Instance != null ? UpgradeData.Instance.MaxInventorySlots : 10; // UpgradeData에서 계산된 최종 값
+        public int MaxPigeonsPerMap => UpgradeData.Instance != null ? UpgradeData.Instance.MaxPigeonsPerMap : 5; // UpgradeData에서 계산된 최종 값
         public IReadOnlyList<PigeonInstanceStats> Inventory => inventory;
         public int InventoryCount => inventory.Count;
         public IReadOnlyList<PigeonInstanceStats> Exhibition => exhibition;
@@ -272,6 +272,7 @@ namespace PigeonGame.Gameplay
             SpendMoney(totalCost);
             return true;
         }
+
     }
 }
 

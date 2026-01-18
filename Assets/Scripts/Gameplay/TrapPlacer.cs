@@ -16,6 +16,23 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
+        /// 현재 설치된 덫 개수 확인
+        /// </summary>
+        private int GetCurrentTrapCount()
+        {
+            FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
+            int count = 0;
+            foreach (var trap in allTraps)
+            {
+                if (trap != null && !trap.HasCapturedPigeon && !trap.IsDepleted)
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        /// <summary>
         /// 플레이어 위치에 덫 설치
         /// </summary>
         public bool PlaceTrapAtPlayerPosition(TrapType trapType)
@@ -30,6 +47,20 @@ namespace PigeonGame.Gameplay
         {
             if (PlayerController.Instance == null)
                 return false;
+
+            // 동시 덫 설치 개수 제한 확인
+            if (GameManager.Instance != null)
+            {
+                int maxTrapCount = UpgradeData.Instance.MaxTrapCount;
+                if (maxTrapCount > 0) // 0 이하면 제한 없음
+                {
+                    int currentTrapCount = GetCurrentTrapCount();
+                    if (currentTrapCount >= maxTrapCount)
+                    {
+                        return false; // 제한 초과
+                    }
+                }
+            }
 
             Vector3 playerPos = PlayerController.Instance.Position;
 
@@ -99,7 +130,21 @@ namespace PigeonGame.Gameplay
                     var trapData = registry.Traps.GetTrapById(trapType);
                     if (trapData != null && trapData.pigeonSpawnCount > 0)
                     {
-                        pigeonManager.SpawnPigeonsInMap(playerPos, trapData.pigeonSpawnCount, true);
+                        // 위치로 맵 콜라이더 찾기
+                        Collider2D mapCollider = null;
+                        if (MapManager.Instance != null)
+                        {
+                            var mapInfo = MapManager.Instance.GetMapAtPosition(playerPos);
+                            if (mapInfo != null)
+                            {
+                                mapCollider = mapInfo.mapCollider;
+                            }
+                        }
+                        
+                        if (mapCollider != null)
+                        {
+                            pigeonManager.SpawnPigeonAtPosition(playerPos, mapCollider, trapData.pigeonSpawnCount);
+                        }
                     }
                 }
 

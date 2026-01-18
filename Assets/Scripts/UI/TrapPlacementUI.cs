@@ -208,9 +208,9 @@ namespace PigeonGame.UI
 
             // 현재 Terrain 정보
             TerrainType currentTerrain = TerrainType.SAND;
-            if (PlayerController.Instance != null && pigeonManager != null)
+            if (PlayerController.Instance != null && MapManager.Instance != null)
             {
-                currentTerrain = pigeonManager.GetTerrainTypeAtPosition(PlayerController.Instance.Position);
+                currentTerrain = MapManager.Instance.GetTerrainTypeAtPosition(PlayerController.Instance.Position);
             }
 
             // Terrain 표시

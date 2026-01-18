@@ -10,6 +10,7 @@ namespace PigeonGame.Data
         [SerializeField] private PigeonSpeciesSet speciesSet;
         [SerializeField] private TerrainTypeSet terrainTypes;
         [SerializeField] private TrapTypeSet traps;
+        [SerializeField] private UpgradeDefinitionSet upgradeDefinitions;
 
         public static GameDataRegistry Instance { get; private set; }
 
@@ -18,6 +19,7 @@ namespace PigeonGame.Data
         public PigeonSpeciesSet SpeciesSet => speciesSet;
         public TerrainTypeSet TerrainTypes => terrainTypes;
         public TrapTypeSet Traps => traps;
+        public UpgradeDefinitionSet UpgradeDefinitions => upgradeDefinitions;
 
         private void Awake()
         {

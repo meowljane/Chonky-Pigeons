@@ -77,8 +77,14 @@ namespace PigeonGame.Gameplay
         /// </summary>
         public void ForceFlee()
         {
-            alert = 1000f; // 최대값으로 설정하여 Flee 상태로 만듦
-            UpdateState();
+            PigeonState previousState = currentState;
+            currentState = PigeonState.Flee;
+            
+            // Flee 상태가 되면 시간 기록
+            if (previousState != PigeonState.Flee)
+            {
+                fleeStateStartTime = Time.time;
+            }
         }
 
         private void UpdateState()

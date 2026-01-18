@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a02651985cd2e134db97c3bd3168abd0, type: 3}
+  m_Name: UpgradeDefinitions
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Data.UpgradeDefinitionSet
+  version: 1
+  upgrades:
+  - upgradeName: "\uC778\uBCA4\uD1A0\uB9AC \uD655\uC7A5"
+    costs: 3200000064000000c8000000
+    values: 0f0000001400000019000000
+    upgradeType: 0
+  - upgradeName: "\uBE44\uB458\uAE30 \uC2A4\uD3F0 \uC99D\uAC00"
+    costs: 1e0000005000000096000000
+    values: 0a0000000f00000014000000
+    upgradeType: 1
+  - upgradeName: "\uB36B \uC124\uCE58 \uAC1C\uC218 \uC99D\uAC00"
+    costs: 2800000078000000fa000000
+    values: 05000000070000000a000000
+    upgradeType: 2
