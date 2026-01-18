@@ -17,6 +17,7 @@ namespace PigeonGame.UI
         [SerializeField] private TextMeshProUGUI speciesNameText;
         [SerializeField] private Image speciesIconImage;
         [SerializeField] private TextMeshProUGUI speciesWeightText;
+        [SerializeField] private TextMeshProUGUI preferenceText;
         [SerializeField] private Transform faceGridContainer;
         [SerializeField] private GameObject faceSlot;
         [SerializeField] private Button backButton;
@@ -73,6 +74,34 @@ namespace PigeonGame.UI
                     speciesWeightText.text = "미발견";
                     speciesWeightText.color = Color.gray;
                 }
+            }
+
+            // 선호 지형 및 덫 표시
+            if (preferenceText != null)
+            {
+                var registry = GameDataRegistry.Instance;
+                string terrainName = species.favoriteTerrain.ToString();
+                string trapName = species.favoriteTrapType.ToString();
+
+                if (registry?.TerrainTypes != null)
+                {
+                    var terrainDef = registry.TerrainTypes.GetTerrainById(species.favoriteTerrain);
+                    if (terrainDef != null)
+                    {
+                        terrainName = terrainDef.koreanName;
+                    }
+                }
+
+                if (registry?.Traps != null)
+                {
+                    var trapDef = registry.Traps.GetTrapById(species.favoriteTrapType);
+                    if (trapDef != null)
+                    {
+                        trapName = trapDef.name;
+                    }
+                }
+
+                preferenceText.text = $"선호 지형: {terrainName} / 선호 덫: {trapName}";
             }
 
             // Faces 목록 표시

@@ -6,6 +6,8 @@ namespace PigeonGame.Gameplay
 {
     public class TrapPlacer : MonoBehaviour
     {
+        private const float INTERACTION_RADIUS = 2f; // 모든 건물과 덫의 통일된 interactionRadius
+
         [SerializeField] private GameObject trapPrefab;
         [SerializeField] private WorldPigeonManager pigeonManager;
 
@@ -33,6 +35,31 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
+        /// 위치가 다른 건물이나 덫의 interactionRadius 내에 있는지 확인
+        /// </summary>
+        private bool IsPositionTooCloseToOtherObjects(Vector3 position)
+        {
+            Vector2 pos2D = new Vector2(position.x, position.y);
+
+            // Physics2D를 사용하여 interactionRadius 내의 모든 콜라이더 검사
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(pos2D, INTERACTION_RADIUS);
+            
+            foreach (var col in colliders)
+            {
+                if (col == null)
+                    continue;
+
+                // 건물 또는 덫인지 확인
+                if (col.GetComponent<WorldShop>() != null || col.GetComponent<FoodTrap>() != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// 플레이어 위치에 덫 설치 (feedAmount가 0이면 기본값 사용)
         /// </summary>
         public bool PlaceTrapAtPlayerPosition(TrapType trapType, int feedAmount = 0)
@@ -57,6 +84,13 @@ namespace PigeonGame.Gameplay
             }
 
             Vector3 playerPos = PlayerController.Instance.Position;
+
+            // 다른 건물이나 덫의 interactionRadius 내에 있는지 확인
+            if (IsPositionTooCloseToOtherObjects(playerPos))
+            {
+                ToastNotificationManager.ShowWarning("다른 사물이 너무 가까이 있습니다!");
+                return false;
+            }
 
             // 덫 해금 확인 및 구매 처리
             if (GameManager.Instance != null)
