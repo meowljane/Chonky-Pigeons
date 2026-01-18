@@ -1,5 +1,6 @@
 using UnityEngine;
 using PigeonGame.Data;
+using PigeonGame.UI;
 
 namespace PigeonGame.Gameplay
 {
@@ -48,6 +49,8 @@ namespace PigeonGame.Gameplay
                     int currentTrapCount = GetCurrentTrapCount();
                     if (currentTrapCount >= maxTrapCount)
                     {
+                        // 토스트 알림 표시
+                        ToastNotificationManager.ShowWarning($"덫 개수 제한에 도달했습니다! (최대 {maxTrapCount}개)");
                         return false; // 제한 초과
                     }
                 }
@@ -61,6 +64,7 @@ namespace PigeonGame.Gameplay
                 // 해금되지 않은 덫은 설치 불가
                 if (!GameManager.Instance.IsTrapUnlocked(trapType))
                 {
+                    ToastNotificationManager.ShowWarning("아직 해금되지 않은 덫입니다!");
                     return false;
                 }
 
@@ -78,6 +82,7 @@ namespace PigeonGame.Gameplay
                 // 구매 처리 (설치 + 모이)
                 if (!GameManager.Instance.PurchaseTrapInstallation(trapType, actualFeedAmount))
                 {
+                    ToastNotificationManager.ShowWarning("골드가 부족합니다!");
                     return false; // 구매 실패
                 }
             }
@@ -139,6 +144,7 @@ namespace PigeonGame.Gameplay
                     }
                 }
 
+                ToastNotificationManager.ShowSuccess("덫 설치 완료!");
                 return true;
             }
 

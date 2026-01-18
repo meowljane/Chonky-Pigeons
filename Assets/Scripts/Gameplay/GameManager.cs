@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using PigeonGame.Data;
+using PigeonGame.UI;
 
 namespace PigeonGame.Gameplay
 {
@@ -94,6 +95,7 @@ namespace PigeonGame.Gameplay
 
             if (currentMoney < amount)
             {
+                ToastNotificationManager.ShowWarning("골드가 부족합니다!");
                 return false;
             }
 
@@ -110,10 +112,18 @@ namespace PigeonGame.Gameplay
             if (stats == null)
                 return;
 
+            // 인벤토리 제한 확인
+            if (inventory.Count >= MaxInventorySlots)
+            {
+                ToastNotificationManager.ShowWarning("인벤토리가 가득 찼습니다!");
+                return;
+            }
+
             var clonedStats = stats.Clone();
             inventory.Add(clonedStats);
             OnPigeonAddedToInventory?.Invoke(clonedStats);
             EncyclopediaManager.Instance.RecordPigeon(clonedStats);
+            ToastNotificationManager.ShowSuccess("포획 성공!");
         }
 
         /// <summary>
@@ -129,6 +139,7 @@ namespace PigeonGame.Gameplay
             
             inventory.RemoveAt(index);
             AddMoney(price);
+            ToastNotificationManager.ShowSuccess("판매 완료!");
             
             return true;
         }
@@ -174,6 +185,7 @@ namespace PigeonGame.Gameplay
 
             unlockedTraps.Add(trapType);
             OnTrapUnlocked?.Invoke(trapType);
+            ToastNotificationManager.ShowSuccess("해금 성공!");
             return true;
         }
 
@@ -201,6 +213,7 @@ namespace PigeonGame.Gameplay
 
             unlockedSpecies.Add(speciesType);
             OnSpeciesUnlocked?.Invoke(speciesType);
+            ToastNotificationManager.ShowSuccess("해금 성공!");
             return true;
         }
 
@@ -216,6 +229,7 @@ namespace PigeonGame.Gameplay
             exhibition.Add(clonedStats);
             inventory.RemoveAt(inventoryIndex);
             OnPigeonAddedToExhibition?.Invoke(clonedStats);
+            ToastNotificationManager.ShowSuccess("전시 완료!");
             return true;
         }
 
@@ -233,6 +247,7 @@ namespace PigeonGame.Gameplay
             exhibition.RemoveAt(exhibitionIndex);
             OnPigeonRemovedFromExhibition?.Invoke(pigeon);
             OnPigeonAddedToInventory?.Invoke(clonedStats);
+            ToastNotificationManager.ShowSuccess("꺼내기 완료!");
             return true;
         }
 
@@ -267,7 +282,10 @@ namespace PigeonGame.Gameplay
             int totalCost = CalculateTrapInstallCost(trapType, feedAmount);
 
             if (currentMoney < totalCost)
+            {
+                ToastNotificationManager.ShowWarning("골드가 부족합니다!");
                 return false;
+            }
 
             SpendMoney(totalCost);
             return true;
