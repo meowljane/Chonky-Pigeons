@@ -18,6 +18,7 @@ namespace PigeonGame.Gameplay
         [SerializeField] private float backoffThreshold = 70f;
         [SerializeField] private float fleeThreshold = 100f;
         
+        public float DetectionRadius => detectionRadius;
         public float WarnThreshold => warnThreshold;
         public float BackoffThreshold => backoffThreshold;
         public float FleeThreshold => fleeThreshold;

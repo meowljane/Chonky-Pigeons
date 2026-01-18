@@ -65,11 +65,14 @@ namespace PigeonGame.Gameplay
         private Collider2D interactionTrigger; // 상호작용 트리거 영역 (포획 후에만 활성화)
         private bool isPlayerInRange = false; // 플레이어가 범위 안에 있는지
 
+        private const float INTERACTION_RADIUS = 2f; // 덫 상호작용 반경 (고정값)
+
         public TrapType TrapId => trapId;
         public int CurrentFeedAmount => currentFeedAmount;
         public int MaxFeedAmount => initialFeedAmount > 0 ? initialFeedAmount : (trapData != null ? trapData.feedAmount : 20);
         public bool HasCapturedPigeon => isCaptured && capturedPigeonStats != null;
         public PigeonInstanceStats CapturedPigeonStats => capturedPigeonStats;
+        public float InteractionRadius => INTERACTION_RADIUS; // 항상 2f
         public event System.Action<PigeonAI> OnCaptured;
 
         /// <summary>
@@ -344,14 +347,18 @@ namespace PigeonGame.Gameplay
             if (interactionTrigger == null)
             {
                 CircleCollider2D interactionCol = gameObject.AddComponent<CircleCollider2D>();
-                interactionCol.radius = 2f; // 상호작용 범위
+                interactionCol.radius = INTERACTION_RADIUS; // 상호작용 범위 (2f)
                 interactionCol.isTrigger = true;
                 interactionTrigger = interactionCol;
             }
             else
             {
-                // 기존 트리거를 상호작용용으로 설정
+                // 기존 트리거를 상호작용용으로 설정하고 반경 업데이트
                 interactionTrigger.isTrigger = true;
+                if (interactionTrigger is CircleCollider2D circleCol)
+                {
+                    circleCol.radius = INTERACTION_RADIUS;
+                }
             }
             
             // 비둘기 감지용 콜라이더는 항상 활성화
@@ -360,10 +367,10 @@ namespace PigeonGame.Gameplay
                 detectionCollider.enabled = true;
             }
 
-            // 포획되지 않았을 때는 상호작용 트리거 비활성화
+            // 상호작용 트리거는 항상 활성화 (포획 상태 체크는 OnTrigger에서 처리)
             if (interactionTrigger != null)
             {
-                interactionTrigger.enabled = false;
+                interactionTrigger.enabled = true;
             }
         }
 
