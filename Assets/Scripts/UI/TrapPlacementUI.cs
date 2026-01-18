@@ -198,16 +198,16 @@ namespace PigeonGame.UI
             if (slotUI == null)
                 return;
 
-            if (selectedTrapId == trapType)
-            {
+                    if (selectedTrapId == trapType)
+                    {
                 if (slotUI.Checkmark != null)
-                {
+                        {
                     slotUI.Checkmark.SetActive(true);
                 }
                 selectedTrapItem = slotObj;
-            }
-            else
-            {
+                        }
+                        else
+                        {
                 if (slotUI.Checkmark != null)
                 {
                     slotUI.Checkmark.SetActive(false);
@@ -218,15 +218,15 @@ namespace PigeonGame.UI
         private void OnTrapSelected(TrapType trapType)
         {
             selectedTrapId = trapType;
-
+            
             // 선택 상태 업데이트
             var registry = GameDataRegistry.Instance;
             if (registry != null && registry.Traps != null)
             {
-                foreach (var itemObj in trapItemObjects)
+            foreach (var itemObj in trapItemObjects)
+            {
+                if (itemObj != null)
                 {
-                    if (itemObj != null)
-                    {
                         TrapPlacementSlotUI slotUI = itemObj.GetComponent<TrapPlacementSlotUI>();
                         if (slotUI != null && slotUI.NameText != null)
                         {
@@ -483,17 +483,17 @@ namespace PigeonGame.UI
                 {
                     TrapPlacementSlotUI slotUI = itemObj.GetComponent<TrapPlacementSlotUI>();
                     if (slotUI != null && slotUI.NameText != null)
-                    {
-                        string itemName = slotUI.NameText.text.Replace("\n(해금 필요)", "").Trim();
-                        foreach (var trap in allTraps)
                         {
-                            if (trap.name == itemName)
+                        string itemName = slotUI.NameText.text.Replace("\n(해금 필요)", "").Trim();
+                            foreach (var trap in allTraps)
                             {
+                                if (trap.name == itemName)
+                                {
                                 UpdateTrapSlotSelection(itemObj, trap.trapType);
-                                break;
+                                    break;
+                                }
                             }
                         }
-                    }
                 }
             }
         }

@@ -27,6 +27,7 @@ namespace PigeonGame.UI
 
         private List<GameObject> inventorySlotInstances = new List<GameObject>();
         private List<GameObject> exhibitionSlotInstances = new List<GameObject>();
+        private const int MAX_INVENTORY_SLOTS = 20; // 인벤토리 최대 슬롯 수
         private const int MAX_EXHIBITION_SLOTS = 50; // 전시관 최대 슬롯 수
 
         private PigeonInstanceStats currentDetailPigeonStats;
@@ -97,12 +98,23 @@ namespace PigeonGame.UI
             ClearSlots(inventorySlotInstances);
 
             var inventory = GameManager.Instance.Inventory;
-            for (int i = 0; i < inventory.Count; i++)
+            int slotCount = Mathf.Min(inventory.Count, MAX_INVENTORY_SLOTS);
+
+            // 인벤토리 아이템으로 슬롯 채우기
+            for (int i = 0; i < slotCount; i++)
             {
                 var pigeon = inventory[i];
                 GameObject slotObj = Instantiate(inventorySlot, inventoryGridContainer, false);
                 inventorySlotInstances.Add(slotObj);
                 SetupSlotUI(slotObj, pigeon, true, i);
+            }
+
+            // 빈 슬롯 채우기
+            for (int i = slotCount; i < MAX_INVENTORY_SLOTS; i++)
+            {
+                GameObject slotObj = Instantiate(inventorySlot, inventoryGridContainer, false);
+                inventorySlotInstances.Add(slotObj);
+                SetupEmptySlot(slotObj);
             }
 
             if (inventoryCountText != null)
@@ -119,12 +131,23 @@ namespace PigeonGame.UI
             ClearSlots(exhibitionSlotInstances);
 
             var exhibition = GameManager.Instance.Exhibition;
-            for (int i = 0; i < exhibition.Count; i++)
+            int slotCount = Mathf.Min(exhibition.Count, MAX_EXHIBITION_SLOTS);
+
+            // 전시관 아이템으로 슬롯 채우기
+            for (int i = 0; i < slotCount; i++)
             {
                 var pigeon = exhibition[i];
                 GameObject slotObj = Instantiate(inventorySlot, exhibitionGridContainer, false);
                 exhibitionSlotInstances.Add(slotObj);
                 SetupSlotUI(slotObj, pigeon, false, i);
+            }
+
+            // 빈 슬롯 채우기
+            for (int i = slotCount; i < MAX_EXHIBITION_SLOTS; i++)
+            {
+                GameObject slotObj = Instantiate(inventorySlot, exhibitionGridContainer, false);
+                exhibitionSlotInstances.Add(slotObj);
+                SetupEmptySlot(slotObj);
             }
 
             if (exhibitionCountText != null)
@@ -169,6 +192,34 @@ namespace PigeonGame.UI
             {
                 slotUI.Button.onClick.RemoveAllListeners();
                 slotUI.Button.onClick.AddListener(() => OnSlotClicked(stats, isInventory, index));
+            }
+        }
+
+        /// <summary>
+        /// 빈 슬롯 설정
+        /// </summary>
+        private void SetupEmptySlot(GameObject slotObj)
+        {
+            InventorySlotUI slotUI = slotObj.GetComponent<InventorySlotUI>();
+            if (slotUI == null)
+                return;
+
+            // 아이콘 비활성화
+            if (slotUI.IconImage != null)
+            {
+                slotUI.IconImage.enabled = false;
+            }
+
+            // 이름 비우기
+            if (slotUI.NameText != null)
+            {
+                slotUI.NameText.text = "";
+            }
+
+            // 버튼 비활성화
+            if (slotUI.Button != null)
+            {
+                slotUI.Button.interactable = false;
             }
         }
 

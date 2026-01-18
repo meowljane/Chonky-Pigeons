@@ -21,6 +21,7 @@ namespace PigeonGame.UI
         [SerializeField] private Button closeButton;
 
         private List<GameObject> itemInstances = new List<GameObject>();
+        private const int MAX_SLOTS = 20; // 최대 슬롯 수
 
         private void Start()
         {
@@ -84,19 +85,29 @@ namespace PigeonGame.UI
 
             ClearShopItems();
 
-            // 인벤토리 아이템 표시
+            if (itemContainer == null || shopSlot == null)
+                return;
+
             var inventory = GameManager.Instance.Inventory;
-            if (itemContainer != null && shopSlot != null)
+            int slotCount = Mathf.Min(inventory.Count, MAX_SLOTS);
+
+            // 인벤토리 아이템으로 슬롯 채우기
+            for (int i = 0; i < slotCount; i++)
             {
-                for (int i = 0; i < inventory.Count; i++)
-                {
-                    int index = i; // 클로저를 위한 로컬 변수
-                    var pigeon = inventory[index];
-                    
-                    GameObject slotObj = Instantiate(shopSlot, itemContainer, false);
-                    itemInstances.Add(slotObj);
-                    SetupShopSlot(slotObj, pigeon, index);
-                }
+                int index = i; // 클로저를 위한 로컬 변수
+                var pigeon = inventory[index];
+                
+                GameObject slotObj = Instantiate(shopSlot, itemContainer, false);
+                itemInstances.Add(slotObj);
+                SetupShopSlot(slotObj, pigeon, index);
+            }
+
+            // 빈 슬롯 채우기
+            for (int i = slotCount; i < MAX_SLOTS; i++)
+            {
+                GameObject slotObj = Instantiate(shopSlot, itemContainer, false);
+                itemInstances.Add(slotObj);
+                SetupEmptySlot(slotObj);
             }
 
             // 인벤토리 개수 업데이트
@@ -112,6 +123,39 @@ namespace PigeonGame.UI
             if (slotUI != null)
             {
                 slotUI.Setup(stats, index, ShowPigeonDetail, SellPigeon);
+            }
+        }
+
+        /// <summary>
+        /// 빈 슬롯 설정
+        /// </summary>
+        private void SetupEmptySlot(GameObject slotObj)
+        {
+            PigeonShopSlotUI slotUI = slotObj.GetComponent<PigeonShopSlotUI>();
+            if (slotUI == null)
+                return;
+
+            // 아이콘 비활성화
+            if (slotUI.IconImage != null)
+            {
+                slotUI.IconImage.enabled = false;
+            }
+
+            // 이름 비우기
+            if (slotUI.NameText != null)
+            {
+                slotUI.NameText.text = "";
+            }
+
+            // 버튼 숨기기
+            if (slotUI.DetailButton != null)
+            {
+                slotUI.DetailButton.gameObject.SetActive(false);
+            }
+
+            if (slotUI.SellButton != null)
+            {
+                slotUI.SellButton.gameObject.SetActive(false);
             }
         }
 

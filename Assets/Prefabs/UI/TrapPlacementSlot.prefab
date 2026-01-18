@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 8864024614671236438}
   - component: {fileID: 3366606143764247422}
   m_Layer: 0
-  m_Name: TrapPlacementItem
+  m_Name: TrapPlacementSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

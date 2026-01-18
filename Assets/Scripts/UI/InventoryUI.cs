@@ -150,7 +150,7 @@ namespace PigeonGame.UI
             if (slotUI.IconImage != null)
             {
                 if (species != null && species.icon != null)
-                {
+                    {
                     slotUI.IconImage.sprite = species.icon;
                     slotUI.IconImage.enabled = true;
                 }
@@ -237,11 +237,11 @@ namespace PigeonGame.UI
             detailPanelUI.ShowDetail(stats, (closedStats) => {
                 // 디테일 패널이 닫힐 때 콜백 호출
                 if (onDetailPanelClosed != null && currentDetailPigeonStats != null)
-                {
+            {
                     var savedStats = currentDetailPigeonStats;
                     onDetailPanelClosed.Invoke(savedStats);
                     onDetailPanelClosed = null;
-                }
+            }
                 currentDetailPigeonStats = null;
             });
         }
