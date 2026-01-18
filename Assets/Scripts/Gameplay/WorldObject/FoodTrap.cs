@@ -310,8 +310,15 @@ namespace PigeonGame.Gameplay
             if (pigeonStats == null)
                 return;
 
+            // 인벤토리가 가득 찼는지 먼저 확인
             if (GameManager.Instance != null)
             {
+                if (GameManager.Instance.InventoryCount >= GameManager.Instance.MaxInventorySlots)
+                {
+                    UI.ToastNotificationManager.ShowWarning("인벤토리가 가득 찼습니다!");
+                    return; // 인벤토리가 가득 차면 아무것도 하지 않고 토스트만 표시
+                }
+
                 GameManager.Instance.AddPigeonToInventory(pigeonStats);
             }
 

@@ -246,7 +246,7 @@ namespace PigeonGame.UI
                 // 전시관으로 이동
                 if (GameManager.Instance.ExhibitionCount >= MAX_EXHIBITION_SLOTS)
                 {
-                    Debug.LogWarning("전시관이 가득 찼습니다!");
+                    ToastNotificationManager.ShowWarning("전시관이 가득 찼습니다!");
                     return;
                 }
 
@@ -265,7 +265,7 @@ namespace PigeonGame.UI
                 // 인벤토리로 이동
                 if (GameManager.Instance != null && GameManager.Instance.InventoryCount >= GameManager.Instance.MaxInventorySlots)
                 {
-                    Debug.LogWarning("인벤토리가 가득 찼습니다!");
+                    ToastNotificationManager.ShowWarning("인벤토리가 가득 찼습니다!");
                     return;
                 }
 

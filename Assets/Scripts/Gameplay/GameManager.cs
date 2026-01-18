@@ -224,6 +224,14 @@ namespace PigeonGame.Gameplay
             if (inventoryIndex < 0 || inventoryIndex >= inventory.Count)
                 return false;
 
+            // 전시관이 가득 찼는지 확인
+            const int MAX_EXHIBITION_SLOTS = 50;
+            if (exhibition.Count >= MAX_EXHIBITION_SLOTS)
+            {
+                ToastNotificationManager.ShowWarning("전시관이 가득 찼습니다!");
+                return false;
+            }
+
             var clonedStats = inventory[inventoryIndex].Clone();
             exhibition.Add(clonedStats);
             inventory.RemoveAt(inventoryIndex);
@@ -239,6 +247,13 @@ namespace PigeonGame.Gameplay
         {
             if (exhibitionIndex < 0 || exhibitionIndex >= exhibition.Count)
                 return false;
+
+            // 인벤토리가 가득 찼는지 확인
+            if (inventory.Count >= MaxInventorySlots)
+            {
+                ToastNotificationManager.ShowWarning("인벤토리가 가득 찼습니다!");
+                return false;
+            }
 
             var pigeon = exhibition[exhibitionIndex];
             var clonedStats = pigeon.Clone();
