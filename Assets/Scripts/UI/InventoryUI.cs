@@ -75,6 +75,8 @@ namespace PigeonGame.UI
             if (!isActive)
             {
                 UpdateInventoryDisplay();
+                // 스크롤을 맨 위로 초기화
+                ScrollRectHelper.ScrollToTop(inventoryPanel);
             }
         }
 
@@ -97,7 +99,8 @@ namespace PigeonGame.UI
                 return;
 
             var inventory = GameManager.Instance.Inventory;
-            int slotCount = Mathf.Min(inventory.Count, MAX_SLOTS);
+            int maxSlots = GameManager.Instance != null ? GameManager.Instance.MaxInventorySlots : 20;
+            int slotCount = Mathf.Min(inventory.Count, maxSlots);
 
             // 인벤토리 아이템으로 슬롯 채우기
             for (int i = 0; i < slotCount; i++)
@@ -110,7 +113,7 @@ namespace PigeonGame.UI
             }
 
             // 빈 슬롯 채우기
-            for (int i = slotCount; i < MAX_SLOTS; i++)
+            for (int i = slotCount; i < maxSlots; i++)
             {
                 GameObject slotObj = Instantiate(inventorySlot, gridContainer, false);
                 slotInstances.Add(slotObj);
@@ -128,7 +131,8 @@ namespace PigeonGame.UI
         {
             if (inventoryCountText != null)
             {
-                inventoryCountText.text = $"({currentCount}/{MAX_SLOTS})";
+                int maxSlots = GameManager.Instance != null ? GameManager.Instance.MaxInventorySlots : 20;
+                inventoryCountText.text = $"({currentCount}/{maxSlots})";
             }
         }
 

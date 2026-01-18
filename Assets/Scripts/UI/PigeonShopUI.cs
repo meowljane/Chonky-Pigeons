@@ -21,7 +21,6 @@ namespace PigeonGame.UI
         [SerializeField] private Button closeButton;
 
         private List<GameObject> itemInstances = new List<GameObject>();
-        private const int MAX_SLOTS = 20; // 최대 슬롯 수
 
         private void Start()
         {
@@ -57,6 +56,8 @@ namespace PigeonGame.UI
                 shopPanel.SetActive(true);
                 UpdateGoldText();
                 UpdateInventoryDisplay();
+                // 스크롤을 맨 위로 초기화
+                ScrollRectHelper.ScrollToTop(shopPanel);
             }
         }
 
@@ -89,7 +90,8 @@ namespace PigeonGame.UI
                 return;
 
             var inventory = GameManager.Instance.Inventory;
-            int slotCount = Mathf.Min(inventory.Count, MAX_SLOTS);
+            int maxSlots = GameManager.Instance != null ? GameManager.Instance.MaxInventorySlots : 20;
+            int slotCount = Mathf.Min(inventory.Count, maxSlots);
 
             // 인벤토리 아이템으로 슬롯 채우기
             for (int i = 0; i < slotCount; i++)
@@ -103,7 +105,7 @@ namespace PigeonGame.UI
             }
 
             // 빈 슬롯 채우기
-            for (int i = slotCount; i < MAX_SLOTS; i++)
+            for (int i = slotCount; i < maxSlots; i++)
             {
                 GameObject slotObj = Instantiate(shopSlot, itemContainer, false);
                 itemInstances.Add(slotObj);

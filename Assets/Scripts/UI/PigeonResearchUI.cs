@@ -55,6 +55,8 @@ namespace PigeonGame.UI
                 shopPanel.SetActive(true);
                 UpdateGoldText();
                 UpdateShopDisplay();
+                // 스크롤을 맨 위로 초기화
+                ScrollRectHelper.ScrollToTop(shopPanel);
             }
         }
 

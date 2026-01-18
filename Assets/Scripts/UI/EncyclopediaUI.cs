@@ -63,6 +63,8 @@ namespace PigeonGame.UI
             {
                 encyclopediaPanel.SetActive(true);
                 UpdateSpeciesList();
+                // 스크롤을 맨 위로 초기화
+                ScrollRectHelper.ScrollToTop(encyclopediaPanel);
             }
         }
 

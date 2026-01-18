@@ -27,7 +27,6 @@ namespace PigeonGame.UI
 
         private List<GameObject> inventorySlotInstances = new List<GameObject>();
         private List<GameObject> exhibitionSlotInstances = new List<GameObject>();
-        private const int MAX_INVENTORY_SLOTS = 20; // 인벤토리 최대 슬롯 수
         private const int MAX_EXHIBITION_SLOTS = 50; // 전시관 최대 슬롯 수
 
         private PigeonInstanceStats currentDetailPigeonStats;
@@ -66,6 +65,8 @@ namespace PigeonGame.UI
             {
                 exhibitionPanel.SetActive(true);
                 UpdateDisplay();
+                // 스크롤을 맨 위로 초기화
+                ScrollRectHelper.ScrollToTop(exhibitionPanel);
             }
         }
 
@@ -98,7 +99,8 @@ namespace PigeonGame.UI
             ClearSlots(inventorySlotInstances);
 
             var inventory = GameManager.Instance.Inventory;
-            int slotCount = Mathf.Min(inventory.Count, MAX_INVENTORY_SLOTS);
+            int maxSlots = GameManager.Instance != null ? GameManager.Instance.MaxInventorySlots : 20;
+            int slotCount = Mathf.Min(inventory.Count, maxSlots);
 
             // 인벤토리 아이템으로 슬롯 채우기
             for (int i = 0; i < slotCount; i++)
@@ -110,7 +112,7 @@ namespace PigeonGame.UI
             }
 
             // 빈 슬롯 채우기
-            for (int i = slotCount; i < MAX_INVENTORY_SLOTS; i++)
+            for (int i = slotCount; i < maxSlots; i++)
             {
                 GameObject slotObj = Instantiate(inventorySlot, inventoryGridContainer, false);
                 inventorySlotInstances.Add(slotObj);
@@ -277,7 +279,7 @@ namespace PigeonGame.UI
             else
             {
                 // 인벤토리로 이동
-                if (GameManager.Instance.InventoryCount >= 20)
+                if (GameManager.Instance != null && GameManager.Instance.InventoryCount >= GameManager.Instance.MaxInventorySlots)
                 {
                     Debug.LogWarning("인벤토리가 가득 찼습니다!");
                     return;
