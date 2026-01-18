@@ -17,9 +17,9 @@ namespace PigeonGame.Gameplay
         {
             trapId = trapType;
             LoadTrapData();
-            if (trapData != null)
-            {
-                currentFeedAmount = trapData.feedAmount;
+                if (trapData != null)
+                {
+                    currentFeedAmount = trapData.feedAmount;
             }
         }
 
@@ -77,15 +77,15 @@ namespace PigeonGame.Gameplay
             base.Start();
 
             LoadTrapData();
-            if (trapData != null)
-            {
-                if (currentFeedAmount <= 0)
+                if (trapData != null)
                 {
-                    currentFeedAmount = trapData.feedAmount;
-                }
-                if (initialFeedAmount <= 0)
-                {
-                    initialFeedAmount = currentFeedAmount;
+                    if (currentFeedAmount <= 0)
+                    {
+                        currentFeedAmount = trapData.feedAmount;
+                    }
+                    if (initialFeedAmount <= 0)
+                    {
+                        initialFeedAmount = currentFeedAmount;
                 }
             }
 

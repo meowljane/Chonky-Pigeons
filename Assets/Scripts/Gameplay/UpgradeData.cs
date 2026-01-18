@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using PigeonGame.Data;
 
-namespace PigeonGame.Data
+namespace PigeonGame.Gameplay
 {
     /// <summary>
     /// 업그레이드 데이터 저장 클래스 (싱글톤)
@@ -195,7 +195,6 @@ namespace PigeonGame.Data
             if (Instance == null)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
                 
                 // 게임 시작 시 모든 업그레이드 값 초기화 (이전 저장된 값 제거)
                 Reset();

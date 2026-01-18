@@ -72,7 +72,6 @@ namespace PigeonGame.UI
             if (Instance == null)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
                 
                 // 필수 참조 확인
                 if (toastCanvas == null || belowGoldParent == null || messageParent == null || toastPrefab == null)

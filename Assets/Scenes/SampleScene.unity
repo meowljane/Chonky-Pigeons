@@ -5630,6 +5630,11 @@ GameObject:
   - component: {fileID: 384587253}
   - component: {fileID: 384587256}
   - component: {fileID: 384587257}
+  - component: {fileID: 384587262}
+  - component: {fileID: 384587261}
+  - component: {fileID: 384587260}
+  - component: {fileID: 384587259}
+  - component: {fileID: 384587258}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -5694,6 +5699,86 @@ MonoBehaviour:
   - {fileID: 1021151199}
   - {fileID: 1412061641}
   - {fileID: 533644029}
+--- !u!114 &384587258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 384587252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b8a6039f12f40f42b839486c40a5b67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.InteractionSystem
+  highlightColor: {r: 1, g: 1, b: 0, a: 0.3}
+--- !u!114 &384587259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 384587252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 171c7a712bc0f45489b4081266997dc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.EncyclopediaManager
+--- !u!114 &384587260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 384587252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63ba33b4d5d085c4d84e941b7f36e0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Data.GameDataRegistry
+  aiProfiles: {fileID: 11400000, guid: ff4f01cb9a19c9741a1efdc04e3ad644, type: 2}
+  faces: {fileID: 11400000, guid: cb758ccf4e6a5a04a91416d2d8248e12, type: 2}
+  speciesSet: {fileID: 11400000, guid: 9570d5dbe05e8f942a542e260b5d0ae8, type: 2}
+  terrainTypes: {fileID: 11400000, guid: 1d29a9d37dd1b114e912ba90acf20e8d, type: 2}
+  traps: {fileID: 11400000, guid: cb1f921256b67a049a1d8b2986d98d9b, type: 2}
+  upgradeDefinitions: {fileID: 11400000, guid: c278368dcede0474eaa91cc44fb59603, type: 2}
+--- !u!114 &384587261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 384587252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aca9da70eae64df4fad1ebd3fdd0f075, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.UpgradeData
+  baseMaxInventorySlots: 10
+  baseMaxTrapCount: 2
+  basePigeonsPerMap: 5
+  inventorySlotBonus: 0
+  maxTrapCount: 2
+  pigeonsPerMapUnlockedLevel: 0
+  pigeonsPerMapSelectedValue: 5
+  inspectorMaxInventorySlots: 10
+  inspectorMaxPigeonsPerMap: 5
+  inspectorMaxTrapCount: 2
+--- !u!114 &384587262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 384587252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.GameManager
+  startingMoney: 10000
+  startingUnlockedTraps: 00000000
+  startingUnlockedSpecies: 000000000100000002000000
 --- !u!1 &395045963
 GameObject:
   m_ObjectHideFlags: 0
@@ -18437,11 +18522,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1527790806}
-  - component: {fileID: 1527790810}
-  - component: {fileID: 1527790809}
-  - component: {fileID: 1527790808}
-  - component: {fileID: 1527790807}
-  - component: {fileID: 1527790811}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -18468,97 +18548,6 @@ Transform:
   - {fileID: 2131084054}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1527790807
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1527790805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 171c7a712bc0f45489b4081266997dc9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.EncyclopediaManager
---- !u!114 &1527790808
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1527790805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63ba33b4d5d085c4d84e941b7f36e0b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Data.GameDataRegistry
-  aiProfiles: {fileID: 11400000, guid: ff4f01cb9a19c9741a1efdc04e3ad644, type: 2}
-  faces: {fileID: 11400000, guid: cb758ccf4e6a5a04a91416d2d8248e12, type: 2}
-  speciesSet: {fileID: 11400000, guid: 9570d5dbe05e8f942a542e260b5d0ae8, type: 2}
-  terrainTypes: {fileID: 11400000, guid: 1d29a9d37dd1b114e912ba90acf20e8d, type: 2}
-  traps: {fileID: 11400000, guid: cb1f921256b67a049a1d8b2986d98d9b, type: 2}
-  upgradeDefinitions: {fileID: 11400000, guid: c278368dcede0474eaa91cc44fb59603, type: 2}
---- !u!114 &1527790809
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1527790805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.GameManager
-  startingMoney: 10000
-  startingUnlockedTraps: 00000000
-  startingUnlockedSpecies: 000000000100000002000000
---- !u!114 &1527790810
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1527790805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5eb9e5ce9788682459c145ff9bf420d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Data.UpgradeData
-  baseMaxInventorySlots: 10
-  baseMaxTrapCount: 2
-  basePigeonsPerMap: 5
-  inventorySlotBonus: 0
-  maxTrapCount: 2
-  pigeonsPerMapUnlockedLevel: 0
-  pigeonsPerMapSelectedValue: 5
-  inspectorMaxInventorySlots: 10
-  inspectorMaxPigeonsPerMap: 5
-  inspectorMaxTrapCount: 2
---- !u!114 &1527790811
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1527790805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6be0ee4ef24b9da498be5aff9a3a7615, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.InteractionSystem
-  highlightColor:
-    r: 1
-    g: 1
-    b: 0
-    a: 0.3
-  currentOutlineObject: {fileID: 0}
-  inventoryUI: {fileID: 0}
-  pigeonShopUI: {fileID: 0}
-  trapShopUI: {fileID: 0}
-  exhibitionUI: {fileID: 0}
-  pigeonResearchUI: {fileID: 0}
-  upgradeShopUI: {fileID: 0}
 --- !u!1 &1543052226
 GameObject:
   m_ObjectHideFlags: 0

@@ -216,7 +216,16 @@ namespace PigeonGame.UI
             // Terrain 표시
             if (currentTerrainText != null)
             {
-                currentTerrainText.text = $"현재 지형: {currentTerrain}";
+                string terrainName = currentTerrain.ToString();
+                if (registry.TerrainTypes != null)
+                {
+                    var terrainDef = registry.TerrainTypes.GetTerrainById(currentTerrain);
+                    if (terrainDef != null)
+                    {
+                        terrainName = terrainDef.koreanName;
+                    }
+                }
+                currentTerrainText.text = $"현재 지형: {terrainName}";
             }
 
             // 선택한 덫 이름 표시

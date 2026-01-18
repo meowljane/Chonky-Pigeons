@@ -52,7 +52,17 @@ namespace PigeonGame.UI
 
             // 현재 플레이어 위치의 terrain 타입 표시
             TerrainType currentTerrain = MapManager.Instance != null ? MapManager.Instance.GetTerrainTypeAtPosition(PlayerController.Instance.Position) : TerrainType.SAND;
-            string terrainDisplay = $"Terrain: {currentTerrain}";
+            string terrainName = currentTerrain.ToString();
+            var registry = GameDataRegistry.Instance;
+            if (registry?.TerrainTypes != null)
+            {
+                var terrainDef = registry.TerrainTypes.GetTerrainById(currentTerrain);
+                if (terrainDef != null)
+                {
+                    terrainName = terrainDef.koreanName;
+                }
+            }
+            string terrainDisplay = $"현재 지형: {terrainName}";
             
             if (terrainTypeText != null)
             {

@@ -35,7 +35,6 @@ namespace PigeonGame.Gameplay
             if (Instance == null)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
             }
             else
             {

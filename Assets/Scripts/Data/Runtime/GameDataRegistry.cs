@@ -26,7 +26,6 @@ namespace PigeonGame.Data
             if (Instance == null)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
                 
                 // 런타임에 Dictionary 초기화
                 InitializeData();

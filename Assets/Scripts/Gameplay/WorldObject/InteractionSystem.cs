@@ -28,8 +28,6 @@ namespace PigeonGame.Gameplay
             if (Instance == null)
             {
                 Instance = this;
-                // 씬 전환 시에도 유지
-                DontDestroyOnLoad(gameObject);
             }
             else
             {
