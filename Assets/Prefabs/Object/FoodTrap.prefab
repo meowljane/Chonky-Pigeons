@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3261536370091823362}
   - component: {fileID: 8371566422970891740}
   - component: {fileID: 1243121207746668557}
-  - component: {fileID: 7706528658669481188}
+  - component: {fileID: 218586867324098390}
   m_Layer: 0
   m_Name: FoodTrap
   m_TagString: Untagged
@@ -129,7 +129,7 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.34770304
---- !u!114 &7706528658669481188
+--- !u!114 &218586867324098390
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -138,8 +138,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1046078026758184712}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 300caa398a49f444680542532c2f48df, type: 3}
+  m_Script: {fileID: 11500000, guid: 8f40b3378ec0bc543b389213a9a7290e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.FoodTrap
-  trapId: BREAD
-  capturedTrapSprite: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
+  interactionRadius: 2
+  trapId: 0
+  capturedTrapSprite: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}

@@ -125,7 +125,7 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
-        /// 전시관 열기 (ExhibitionBuilding에서 호출)
+        /// 전시관 열기 (WorldShop에서 호출)
         /// </summary>
         public void OpenExhibition()
         {
@@ -136,7 +136,7 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
-        /// 비둘기 연구소 열기 (PigeonResearchBuilding에서 호출)
+        /// 비둘기 연구소 열기 (WorldShop에서 호출)
         /// </summary>
         public void OpenPigeonResearch()
         {
@@ -147,7 +147,7 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
-        /// 업그레이드 상점 열기 (UpgradeShopBuilding에서 호출)
+        /// 업그레이드 상점 열기 (WorldShop에서 호출)
         /// </summary>
         public void OpenUpgradeShop()
         {

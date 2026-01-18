@@ -114,27 +114,6 @@ namespace PigeonGame.Gameplay
             }
 
             // 건물 확인
-            PigeonResearchBuilding researchBuilding = clickedObject.GetComponent<PigeonResearchBuilding>();
-            if (researchBuilding != null)
-            {
-                ShowBuildingRange(clickedObject, researchBuilding.InteractionRadius);
-                return;
-            }
-
-            UpgradeShopBuilding upgradeShop = clickedObject.GetComponent<UpgradeShopBuilding>();
-            if (upgradeShop != null)
-            {
-                ShowBuildingRange(clickedObject, upgradeShop.InteractionRadius);
-                return;
-            }
-
-            ExhibitionBuilding exhibition = clickedObject.GetComponent<ExhibitionBuilding>();
-            if (exhibition != null)
-            {
-                ShowBuildingRange(clickedObject, exhibition.InteractionRadius);
-                return;
-            }
-
             WorldShop shop = clickedObject.GetComponent<WorldShop>();
             if (shop != null)
             {
