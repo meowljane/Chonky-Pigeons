@@ -22,6 +22,7 @@ namespace PigeonGame.Gameplay
         private UI.ExhibitionUI exhibitionUI;
         private UI.PigeonResearchUI pigeonResearchUI;
         private UpgradeShopUI upgradeShopUI;
+        private BridgeGatePurchaseUI bridgeGatePurchaseUI;
 
         private void Awake()
         {
@@ -51,6 +52,7 @@ namespace PigeonGame.Gameplay
             exhibitionUI = FindFirstObjectByType<UI.ExhibitionUI>();
             pigeonResearchUI = FindFirstObjectByType<UI.PigeonResearchUI>();
             upgradeShopUI = FindFirstObjectByType<UpgradeShopUI>();
+            bridgeGatePurchaseUI = FindFirstObjectByType<BridgeGatePurchaseUI>();
         }
 
         private void OnDestroy()
@@ -152,6 +154,17 @@ namespace PigeonGame.Gameplay
             if (upgradeShopUI != null)
             {
                 upgradeShopUI.OpenShopPanel();
+            }
+        }
+
+        /// <summary>
+        /// 다리 게이트 구매 패널 열기 (BridgeGate에서 호출)
+        /// </summary>
+        public void OpenBridgeGatePurchase(BridgeGate gate, int areaNumber, int cost, string areaName = null)
+        {
+            if (bridgeGatePurchaseUI != null)
+            {
+                bridgeGatePurchaseUI.OpenPurchasePanel(gate, areaNumber, cost, areaName);
             }
         }
 

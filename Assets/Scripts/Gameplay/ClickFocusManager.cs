@@ -121,6 +121,14 @@ namespace PigeonGame.Gameplay
                 return;
             }
 
+            // 다리 게이트 확인
+            BridgeGate gate = clickedObject.GetComponent<BridgeGate>();
+            if (gate != null)
+            {
+                ShowBuildingRange(clickedObject, gate.InteractionRadius);
+                return;
+            }
+
             // 덫 확인 (포획 여부와 관계없이 표시)
             FoodTrap trap = clickedObject.GetComponent<FoodTrap>();
             if (trap != null)

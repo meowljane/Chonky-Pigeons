@@ -50,7 +50,6 @@ namespace PigeonGame.Gameplay
             var mapColliders = MapColliders;
             foreach (var mapCollider in mapColliders)
                 pigeonsByMap[mapCollider] = new List<PigeonController>();
-            SpawnInitialPigeons();
         }
 
         /// <summary>
@@ -86,31 +85,6 @@ namespace PigeonGame.Gameplay
             return 5; // 최후의 기본값 (GameManager가 없는 경우)
         }
 
-        /// <summary>
-        /// 게임 시작 시 각 맵에 초기 비둘기 스폰 (맵당 설정된 수만큼)
-        /// </summary>
-        private void SpawnInitialPigeons()
-        {
-            if (pigeonPrefab == null)
-                return;
-
-            var registry = GameDataRegistry.Instance;
-            if (registry == null || registry.SpeciesSet == null)
-                return;
-
-            int pigeonsPerMap = GetPigeonsPerMap();
-
-            // 각 맵 콜라이더마다 비둘기 스폰
-            var mapColliders = MapColliders;
-            foreach (var mapCollider in mapColliders)
-            {
-                for (int i = 0; i < pigeonsPerMap; i++)
-                {
-                    Vector3 spawnPos = GetRandomPositionInCollider(mapCollider);
-                    SpawnPigeonAtPosition(spawnPos, mapCollider);
-                }
-            }
-        }
 
         /// <summary>
         /// 비둘기 수 체크 및 보충/감소 관리
@@ -491,7 +465,6 @@ namespace PigeonGame.Gameplay
             
             if (mapCollider == null)
             {
-                Debug.LogWarning("GetSpeciesSpawnProbabilities: 플레이어 위치의 맵을 찾을 수 없습니다.");
                 return new Dictionary<PigeonSpecies, float>();
             }
             

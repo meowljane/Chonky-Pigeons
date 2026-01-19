@@ -135,9 +135,20 @@ namespace PigeonGame.Gameplay
             
             if (isOnBridge)
             {
-                // 다리 위에서는 자유롭게 이동 가능 (맵 경계 제한 없음)
-                // 다리 위에서 벗어나면 다시 맵 경계로 제한되도록 맵 업데이트
-                UpdateMapIfNeeded(newPosition);
+                // 다리 접근 가능 여부 확인 (해금 여부 체크)
+                bool canAccessBridge = CanAccessBridge(newPosition);
+                
+                if (canAccessBridge)
+                {
+                    // 다리 위에서는 자유롭게 이동 가능 (맵 경계 제한 없음)
+                    // 다리 위에서 벗어나면 다시 맵 경계로 제한되도록 맵 업데이트
+                    UpdateMapIfNeeded(newPosition);
+                }
+                else
+                {
+                    // 해금되지 않은 다리로는 이동 불가 (현재 위치 유지)
+                    newPosition = transform.position;
+                }
             }
             else
             {
@@ -220,6 +231,17 @@ namespace PigeonGame.Gameplay
                 return false;
             
             return MapManager.Instance.IsPositionOnBridge(position);
+        }
+
+        /// <summary>
+        /// 다리에 접근 가능한지 확인 (해금 여부 체크)
+        /// </summary>
+        private bool CanAccessBridge(Vector2 position)
+        {
+            if (MapManager.Instance == null)
+                return false;
+            
+            return MapManager.Instance.CanAccessBridgeAtPosition(position);
         }
         
         /// <summary>

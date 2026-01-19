@@ -20,6 +20,7 @@ namespace PigeonGame.Gameplay
         private int currentMoney;
         private HashSet<TrapType> unlockedTraps = new HashSet<TrapType>();
         private HashSet<PigeonSpecies> unlockedSpecies = new HashSet<PigeonSpecies>(); // 해금된 비둘기 종
+        private HashSet<int> unlockedAreas = new HashSet<int>(); // 해금된 지역 (2, 3, 4, 5)
         private List<PigeonInstanceStats> inventory = new List<PigeonInstanceStats>();
         private List<PigeonInstanceStats> exhibition = new List<PigeonInstanceStats>(); // 전시관
 
@@ -37,6 +38,7 @@ namespace PigeonGame.Gameplay
         public event System.Action<PigeonSpecies> OnSpeciesUnlocked; // 종 해금 이벤트
         public event System.Action<PigeonInstanceStats> OnPigeonAddedToExhibition;
         public event System.Action<PigeonInstanceStats> OnPigeonRemovedFromExhibition;
+        public event System.Action<int> OnAreaUnlocked; // 지역 해금 이벤트
 
         private void Awake()
         {
@@ -302,6 +304,31 @@ namespace PigeonGame.Gameplay
             }
 
             SpendMoney(totalCost);
+            return true;
+        }
+
+        /// <summary>
+        /// 지역이 해금되어 있는지 확인
+        /// </summary>
+        public bool IsAreaUnlocked(int areaNumber)
+        {
+            return unlockedAreas.Contains(areaNumber);
+        }
+
+        /// <summary>
+        /// 지역 구매/해금
+        /// </summary>
+        public bool UnlockArea(int areaNumber, int cost)
+        {
+            if (unlockedAreas.Contains(areaNumber))
+                return false;
+
+            if (!SpendMoney(cost))
+                return false;
+
+            unlockedAreas.Add(areaNumber);
+            OnAreaUnlocked?.Invoke(areaNumber);
+            ToastNotificationManager.ShowSuccess($"지역 {areaNumber} 해금 성공!");
             return true;
         }
 

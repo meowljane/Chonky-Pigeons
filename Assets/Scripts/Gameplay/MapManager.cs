@@ -12,6 +12,8 @@ namespace PigeonGame.Gameplay
     {
         public string mapName;
         public Collider2D mapCollider;
+        public Collider2D bridgeCollider; // 다리 콜라이더 (Map2, 3, 4, 5에만 있음)
+        public BridgeGate bridgeGate; // 게이트 오브젝트 (Map2, 3, 4, 5에만 있음)
 
         public MapInfo(string name, Collider2D collider)
         {
@@ -28,8 +30,7 @@ namespace PigeonGame.Gameplay
     {
         public static MapManager Instance { get; private set; }
 
-        [SerializeField] private MapInfo[] maps; // 맵 정보 배열
-        [SerializeField] private Collider2D[] bridges; // 다리 콜라이더 배열
+        [SerializeField] private MapInfo[] maps; // 맵 정보 배열 (다리와 게이트 포함)
 
         private void Awake()
         {
@@ -112,17 +113,121 @@ namespace PigeonGame.Gameplay
         /// </summary>
         public bool IsPositionOnBridge(Vector2 position)
         {
-            if (bridges == null)
+            if (maps == null)
                 return false;
             
-            foreach (var bridge in bridges)
+            foreach (var map in maps)
             {
-                if (bridge != null && ColliderUtility.IsPositionInsideCollider(position, bridge))
+                if (map?.bridgeCollider != null && 
+                    ColliderUtility.IsPositionInsideCollider(position, map.bridgeCollider))
                 {
                     return true;
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// 특정 위치의 다리에 접근 가능한지 확인 (해금 여부 체크)
+        /// </summary>
+        public bool CanAccessBridgeAtPosition(Vector2 position)
+        {
+            if (maps == null)
+                return false;
+
+            // 해당 위치가 속한 다리 찾기
+            for (int i = 0; i < maps.Length; i++)
+            {
+                var map = maps[i];
+                if (map?.bridgeCollider != null && 
+                    ColliderUtility.IsPositionInsideCollider(position, map.bridgeCollider))
+                {
+                    // bridgeGate가 있으면 그 areaNumber를 사용, 없으면 배열 인덱스로 추정
+                    int areaNumber;
+                    if (map.bridgeGate != null)
+                    {
+                        // bridgeGate의 areaNumber를 직접 사용 (가장 정확)
+                        areaNumber = map.bridgeGate.AreaNumber;
+                    }
+                    else
+                    {
+                        // bridgeGate가 없으면 배열 인덱스로 추정
+                        areaNumber = i + 1; // Map1=1, Map2=2, ...
+                    }
+                    
+                    // Map1은 다리가 없으므로 다리가 있는 맵(2, 3, 4, 5)만 체크
+                    if (areaNumber >= 2 && areaNumber <= 5)
+                    {
+                        // 해금 여부 확인
+                        return IsAreaUnlocked(areaNumber);
+                    }
+                    
+                    // Map1이거나 다리가 없는 맵은 접근 가능
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 지역 번호로 맵 정보 가져오기 (Map1=1, Map2=2, ...)
+        /// </summary>
+        public MapInfo GetMapByAreaNumber(int areaNumber)
+        {
+            if (maps == null || areaNumber < 1)
+                return null;
+
+            // 배열 인덱스는 0부터 시작하므로 areaNumber - 1
+            int index = areaNumber - 1;
+            if (index >= 0 && index < maps.Length)
+            {
+                return maps[index];
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 지역 번호로 지역 이름 가져오기
+        /// </summary>
+        public string GetAreaName(int areaNumber)
+        {
+            MapInfo mapInfo = GetMapByAreaNumber(areaNumber);
+            if (mapInfo != null && !string.IsNullOrEmpty(mapInfo.mapName))
+            {
+                return mapInfo.mapName;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 지역 해금 여부 확인 (GameManager 래핑)
+        /// </summary>
+        public bool IsAreaUnlocked(int areaNumber)
+        {
+            if (GameManager.Instance != null)
+            {
+                return GameManager.Instance.IsAreaUnlocked(areaNumber);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 모든 다리 콜라이더 가져오기 (하위 호환성)
+        /// </summary>
+        public Collider2D[] GetAllBridgeColliders()
+        {
+            if (maps == null)
+                return null;
+
+            List<Collider2D> bridgeColliders = new List<Collider2D>();
+            foreach (var map in maps)
+            {
+                if (map?.bridgeCollider != null)
+                {
+                    bridgeColliders.Add(map.bridgeCollider);
+                }
+            }
+            return bridgeColliders.Count > 0 ? bridgeColliders.ToArray() : null;
         }
 
         /// <summary>

@@ -35,44 +35,72 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
-        /// 위치가 다른 건물이나 덫의 중심점이 2f 이내에 있는지 확인
+        /// 위치가 다른 건물이나 덫의 중심점이 2f 이내에 있는지, 또는 문 영역 내에 있는지 확인
         /// </summary>
         private bool IsPositionTooCloseToOtherObjects(Vector3 position)
         {
             Vector2 pos2D = new Vector2(position.x, position.y);
             float minDistance = INTERACTION_RADIUS; // 2f
 
-            // 모든 건물과 덫 검사
-            WorldShop[] allShops = FindObjectsByType<WorldShop>(FindObjectsSortMode.None);
-            FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
-
             // 건물 중심점 거리 확인
-            foreach (var shop in allShops)
+            WorldShop[] allShops = FindObjectsByType<WorldShop>(FindObjectsSortMode.None);
+            if (allShops != null)
             {
-                if (shop == null)
-                    continue;
-
-                Vector2 shopPos = new Vector2(shop.transform.position.x, shop.transform.position.y);
-                float distance = Vector2.Distance(pos2D, shopPos);
-
-                if (distance < minDistance)
+                foreach (var shop in allShops)
                 {
-                    return true;
+                    if (shop == null)
+                        continue;
+
+                    Vector2 shopPos = new Vector2(shop.transform.position.x, shop.transform.position.y);
+                    float distance = Vector2.Distance(pos2D, shopPos);
+
+                    if (distance < minDistance)
+                    {
+                        return true;
+                    }
                 }
             }
 
             // 덫 중심점 거리 확인
-            foreach (var trap in allTraps)
+            FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
+            if (allTraps != null)
             {
-                if (trap == null)
-                    continue;
-
-                Vector2 trapPos = new Vector2(trap.transform.position.x, trap.transform.position.y);
-                float distance = Vector2.Distance(pos2D, trapPos);
-
-                if (distance < minDistance)
+                foreach (var trap in allTraps)
                 {
-                    return true;
+                    if (trap == null)
+                        continue;
+
+                    Vector2 trapPos = new Vector2(trap.transform.position.x, trap.transform.position.y);
+                    float distance = Vector2.Distance(pos2D, trapPos);
+
+                    if (distance < minDistance)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            // 게이트 중심점 거리 확인 (해금된 게이트는 콜라이더가 비활성화되어 있으므로 자동으로 제외됨)
+            BridgeGate[] allGates = FindObjectsByType<BridgeGate>(FindObjectsSortMode.None);
+            if (allGates != null)
+            {
+                foreach (var gate in allGates)
+                {
+                    if (gate == null)
+                        continue;
+
+                    // 게이트 콜라이더가 활성화되어 있는지 확인 (해금된 게이트는 이미 비활성화되어 있음)
+                    var gateCollider = gate.GateCollider;
+                    if (gateCollider != null && gateCollider.enabled)
+                    {
+                        Vector2 gatePos = new Vector2(gate.transform.position.x, gate.transform.position.y);
+                        float distance = Vector2.Distance(pos2D, gatePos);
+
+                        if (distance < minDistance)
+                        {
+                            return true;
+                        }
+                    }
                 }
             }
 
@@ -105,7 +133,20 @@ namespace PigeonGame.Gameplay
 
             Vector3 playerPos = PlayerController.Instance.Position;
 
-            // 다른 건물이나 덫의 interactionRadius 내에 있는지 확인
+            // 현재 맵 정보 확인
+            MapInfo currentMapInfo = null;
+            if (MapManager.Instance != null)
+            {
+                currentMapInfo = MapManager.Instance.GetMapAtPosition(playerPos);
+            }
+
+            if (currentMapInfo == null)
+            {
+                ToastNotificationManager.ShowWarning("맵에서 벗어났습니다!");
+                return false;
+            }
+
+            // 다른 건물이나 덫의 interactionRadius 내에 있는지, 또는 문 영역 내에 있는지 확인
             if (IsPositionTooCloseToOtherObjects(playerPos))
             {
                 ToastNotificationManager.ShowWarning("다른 사물이 너무 가까이 있습니다!");
