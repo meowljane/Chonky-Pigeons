@@ -52,24 +52,21 @@ namespace PigeonGame.Gameplay
 
         public void AddPlayerAlert(float deltaTime)
         {
-            // Flee 상태일 때는 alert 증가 안 함
-            if (currentState == PigeonState.Flee)
-                return;
-
-            if (movement == null)
+            if (!CanAddAlert())
                 return;
             alert += stats.playerAlertPerSec * movement.AlertWeight * deltaTime;
         }
 
         public void AddCrowdAlert(int neighborCount, float deltaTime)
         {
-            // Flee 상태일 때는 alert 증가 안 함
-            if (currentState == PigeonState.Flee)
-                return;
-
-            if (movement == null)
+            if (!CanAddAlert())
                 return;
             alert += stats.crowdAlertPerNeighborPerSec * movement.AlertWeight * neighborCount * deltaTime;
+        }
+
+        private bool CanAddAlert()
+        {
+            return currentState != PigeonState.Flee && movement != null;
         }
 
         /// <summary>
@@ -136,14 +133,10 @@ namespace PigeonGame.Gameplay
             float chance = stats.eatChance;
             if (currentState == PigeonState.Cautious)
             {
-                var registry = GameDataRegistry.Instance;
-                if (registry != null && registry.AIProfiles != null)
+                var modifier = GetStressModifier();
+                if (modifier?.enabled == true)
                 {
-                    var modifier = registry.AIProfiles.stressToEatModifier;
-                    if (modifier.enabled)
-                    {
-                        chance *= modifier.warnEatChanceMultiplier;
-                    }
+                    chance *= modifier.warnEatChanceMultiplier;
                 }
             }
             return chance;
@@ -157,17 +150,18 @@ namespace PigeonGame.Gameplay
             float interval = stats.eatInterval;
             if (currentState == PigeonState.Cautious)
             {
-                var registry = GameDataRegistry.Instance;
-                if (registry != null && registry.AIProfiles != null)
+                var modifier = GetStressModifier();
+                if (modifier?.enabled == true)
                 {
-                    var modifier = registry.AIProfiles.stressToEatModifier;
-                    if (modifier.enabled)
-                    {
-                        interval *= modifier.warnEatIntervalMultiplier;
-                    }
+                    interval *= modifier.warnEatIntervalMultiplier;
                 }
             }
             return interval;
+        }
+
+        private PigeonGame.Data.StressToEatModifier GetStressModifier()
+        {
+            return GameDataRegistry.Instance?.AIProfiles?.stressToEatModifier;
         }
     }
 }

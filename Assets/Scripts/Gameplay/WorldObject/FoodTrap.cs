@@ -17,9 +17,9 @@ namespace PigeonGame.Gameplay
         {
             trapId = trapType;
             LoadTrapData();
-                if (trapData != null)
-                {
-                    currentFeedAmount = trapData.feedAmount;
+            if (trapData != null)
+            {
+                currentFeedAmount = trapData.feedAmount;
             }
         }
 
@@ -39,11 +39,7 @@ namespace PigeonGame.Gameplay
 
         private void LoadTrapData()
         {
-            var registry = GameDataRegistry.Instance;
-            if (registry != null)
-            {
-                trapData = registry.Traps.GetTrapById(trapId);
-            }
+            trapData = GameDataRegistry.Instance?.Traps?.GetTrapById(trapId);
         }
         private int currentFeedAmount;
         private int initialFeedAmount; // 설치 시 초기 모이 수량 (MaxFeedAmount로 사용)
@@ -59,7 +55,7 @@ namespace PigeonGame.Gameplay
 
         public TrapType TrapId => trapId;
         public int CurrentFeedAmount => currentFeedAmount;
-        public int MaxFeedAmount => initialFeedAmount > 0 ? initialFeedAmount : (trapData != null ? trapData.feedAmount : 20);
+        public int MaxFeedAmount => initialFeedAmount > 0 ? initialFeedAmount : trapData?.feedAmount ?? 20;
         public bool HasCapturedPigeon => isCaptured && capturedPigeonStats != null;
         public PigeonInstanceStats CapturedPigeonStats => capturedPigeonStats;
         public event System.Action<PigeonAI> OnCaptured;
@@ -77,15 +73,15 @@ namespace PigeonGame.Gameplay
             base.Start();
 
             LoadTrapData();
-                if (trapData != null)
+            if (trapData != null)
+            {
+                if (currentFeedAmount <= 0)
                 {
-                    if (currentFeedAmount <= 0)
-                    {
-                        currentFeedAmount = trapData.feedAmount;
-                    }
-                    if (initialFeedAmount <= 0)
-                    {
-                        initialFeedAmount = currentFeedAmount;
+                    currentFeedAmount = trapData.feedAmount;
+                }
+                if (initialFeedAmount <= 0)
+                {
+                    initialFeedAmount = currentFeedAmount;
                 }
             }
 
@@ -259,12 +255,7 @@ namespace PigeonGame.Gameplay
                 isCaptured = true;
                 ChangeToCapturedState();
                 OnCaptured?.Invoke(pigeon);
-                
-                if (pigeon != null)
-                {
-                    Destroy(pigeon.gameObject);
-                }
-                
+                Destroy(pigeon.gameObject);
                 return true;
             }
 
@@ -307,26 +298,20 @@ namespace PigeonGame.Gameplay
                 return;
 
             var pigeonStats = CapturedPigeonStats;
-            if (pigeonStats == null)
+            if (pigeonStats == null || GameManager.Instance == null)
                 return;
 
             // 인벤토리가 가득 찼는지 먼저 확인
-            if (GameManager.Instance != null)
+            if (GameManager.Instance.InventoryCount >= GameManager.Instance.MaxInventorySlots)
             {
-                if (GameManager.Instance.InventoryCount >= GameManager.Instance.MaxInventorySlots)
-                {
-                    UI.ToastNotificationManager.ShowWarning("인벤토리가 가득 찼습니다!");
-                    return; // 인벤토리가 가득 차면 아무것도 하지 않고 토스트만 표시
-                }
-
-                GameManager.Instance.AddPigeonToInventory(pigeonStats);
+                UI.ToastNotificationManager.ShowWarning("인벤토리가 가득 찼습니다!");
+                return;
             }
+
+            GameManager.Instance.AddPigeonToInventory(pigeonStats);
 
             var detailPanelUI = UnityEngine.Object.FindFirstObjectByType<UI.PigeonDetailPanelUI>();
-            if (detailPanelUI != null)
-            {
-                detailPanelUI.ShowDetail(pigeonStats);
-            }
+            detailPanelUI?.ShowDetail(pigeonStats);
 
             Destroy(gameObject);
         }

@@ -78,11 +78,7 @@ namespace PigeonGame.Gameplay
         /// </summary>
         private int GetPigeonsPerMap()
         {
-            if (UpgradeData.Instance != null)
-            {
-                return GameManager.Instance.MaxPigeonsPerMap;
-            }
-            return 5; // 최후의 기본값 (GameManager가 없는 경우)
+            return GameManager.Instance?.MaxPigeonsPerMap ?? 5;
         }
 
 
@@ -160,14 +156,11 @@ namespace PigeonGame.Gameplay
             
             foreach (var pigeon in pigeons)
             {
-                if (pigeon == null || pigeon.gameObject == null)
-                    continue;
-                    
                 if (pigeon.IsExhibitionPigeon)
                     continue;
                     
                 var ai = pigeon.GetComponent<PigeonAI>();
-                if (ai == null || ai.CurrentState == PigeonState.Flee)
+                if (ai?.CurrentState == PigeonState.Flee)
                     continue;
                     
                 validPigeons.Add(pigeon);
@@ -315,8 +308,8 @@ namespace PigeonGame.Gameplay
                 return;
 
             var registry = GameDataRegistry.Instance;
-            var allSpecies = registry.SpeciesSet.species;
-            if (allSpecies.Length == 0)
+            var allSpecies = registry?.SpeciesSet?.species;
+            if (allSpecies == null || allSpecies.Length == 0)
                 return;
 
             // 해금된 종만 필터링
@@ -337,7 +330,7 @@ namespace PigeonGame.Gameplay
         /// 비둘기 생성 및 맵에 등록
         /// </summary>
         private void CreateAndRegisterPigeon(SpeciesDefinition species, Vector3 position, Collider2D mapCollider)
-            {
+        {
             var registry = GameDataRegistry.Instance;
             
             // 무게를 소수점 첫째 자리까지 랜덤 생성 (1.0~5.0), 내부 저장은 정수로 (1~5)
@@ -452,21 +445,18 @@ namespace PigeonGame.Gameplay
         public Dictionary<PigeonSpecies, float> GetSpeciesSpawnProbabilities()
         {
             var registry = GameDataRegistry.Instance;
-            var allSpecies = registry.SpeciesSet.species;
+            var allSpecies = registry?.SpeciesSet?.species;
+            if (allSpecies == null)
+                return new Dictionary<PigeonSpecies, float>();
             
             // 항상 현재 플레이어 위치의 맵 사용
-            Collider2D mapCollider = null;
-            if (PlayerController.Instance != null && MapManager.Instance != null)
-            {
-                var mapInfo = MapManager.Instance.GetMapAtPosition(PlayerController.Instance.Position);
-                if (mapInfo != null)
-                    mapCollider = mapInfo.mapCollider;
-            }
-            
-            if (mapCollider == null)
+            var mapInfo = MapManager.Instance?.GetMapAtPosition(PlayerController.Instance?.Position ?? Vector2.zero);
+            if (mapInfo?.mapCollider == null)
             {
                 return new Dictionary<PigeonSpecies, float>();
             }
+            
+            Collider2D mapCollider = mapInfo.mapCollider;
             
             List<FoodTrap> activeTraps = GetActiveTrapsInMap(mapCollider);
 

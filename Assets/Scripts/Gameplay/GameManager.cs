@@ -25,8 +25,8 @@ namespace PigeonGame.Gameplay
         private List<PigeonInstanceStats> exhibition = new List<PigeonInstanceStats>(); // 전시관
 
         public int CurrentMoney => currentMoney;
-        public int MaxInventorySlots => UpgradeData.Instance != null ? UpgradeData.Instance.MaxInventorySlots : 10; // UpgradeData에서 계산된 최종 값
-        public int MaxPigeonsPerMap => UpgradeData.Instance != null ? UpgradeData.Instance.MaxPigeonsPerMap : 5; // UpgradeData에서 계산된 최종 값
+        public int MaxInventorySlots => UpgradeData.Instance?.MaxInventorySlots ?? 10;
+        public int MaxPigeonsPerMap => UpgradeData.Instance?.MaxPigeonsPerMap ?? 5;
         public IReadOnlyList<PigeonInstanceStats> Inventory => inventory;
         public int InventoryCount => inventory.Count;
         public IReadOnlyList<PigeonInstanceStats> Exhibition => exhibition;

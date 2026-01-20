@@ -3,6 +3,16 @@ using System.Collections.Generic;
 
 namespace PigeonGame.Gameplay
 {
+    /// <summary>
+    /// 비둘기의 이동 상태
+    /// </summary>
+    public enum MovementState
+    {
+        Idle,      // 멈춤
+        Walking,   // 걷기
+        Flying     // 날기 (Flee 상태일 때)
+    }
+
     [RequireComponent(typeof(Rigidbody2D))]
     public class PigeonMovement : MonoBehaviour
     {
@@ -24,6 +34,63 @@ namespace PigeonGame.Gameplay
         public float FleeThreshold => fleeThreshold;
         public float AlertWeight => alertWeight;
         
+        /// <summary>
+        /// 현재 이동 상태를 반환합니다.
+        /// </summary>
+        public MovementState CurrentMovementState
+        {
+            get
+            {
+                if (rb == null)
+                    return MovementState.Idle;
+                
+                // Flee 상태면 Flying으로 처리
+                if (ai != null && ai.CurrentState == PigeonState.Flee)
+                {
+                    return MovementState.Flying;
+                }
+                
+                // 현재 목적지까지의 거리 체크
+                Vector2? currentTarget = GetCurrentTarget();
+                if (currentTarget == null)
+                {
+                    return MovementState.Idle; // 목적지가 없으면 Idle
+                }
+                
+                float sqrDistance = ((Vector2)transform.position - currentTarget.Value).sqrMagnitude;
+                const float arrivalThreshold = 0.01f; // 도착 판정 거리 (MoveTowardsTarget과 동일)
+                
+                if (sqrDistance < arrivalThreshold)
+                {
+                    return MovementState.Idle; // 목적지에 도착했으면 Idle
+                }
+                else
+                {
+                    return MovementState.Walking; // 목적지로 가는 중이면 Walking
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 현재 활성 목적지 반환 (없으면 null)
+        /// </summary>
+        private Vector2? GetCurrentTarget()
+        {
+            // BackOff 중이면 backoffTarget
+            if (backoffTargetSet)
+            {
+                return backoffTarget;
+            }
+            
+            // Normal 상태면 targetFoodTrap 또는 wanderTarget
+            if (targetFoodTrap != null && !targetFoodTrap.HasCapturedPigeon)
+            {
+                return targetFoodTrap.transform.position;
+            }
+            
+            return wanderTarget;
+        }
+        
         private Rigidbody2D rb;
         private PigeonAI ai;
         private PigeonController controller;
@@ -38,6 +105,12 @@ namespace PigeonGame.Gameplay
         private float backoffEndTime = 0f; // BackOff 종료 시간
         private const float BACKOFF_COOLDOWN = 2f; // BackOff 종료 후 먹이 탐색 금지 시간 (초)
         private Collider2D myMapCollider; // 이 비둘기가 속한 맵 콜라이더
+        private Vector2 lastMovementDirection = Vector2.right; // 마지막 이동 방향 (기본값: 오른쪽)
+        
+        /// <summary>
+        /// 현재 이동 방향 (정규화된 벡터)
+        /// </summary>
+        public Vector2 MovementDirection => lastMovementDirection;
 
         private void Awake()
         {
@@ -249,7 +322,15 @@ namespace PigeonGame.Gameplay
                 mainCamera = Camera.main;
 
             // Flee 상태일 때는 맵 경계를 무시하고 자유롭게 이동
-            rb.linearVelocity = CalculateFleeDirection() * fleeSpeed;
+            Vector2 fleeDirection = CalculateFleeDirection();
+            
+            // 이동 방향 추적 (스프라이트 반전용)
+            if (fleeDirection.sqrMagnitude > 0.01f)
+            {
+                lastMovementDirection = fleeDirection;
+            }
+            
+            rb.linearVelocity = fleeDirection * fleeSpeed;
         }
 
         private Vector2 CalculateFleeDirection()
@@ -283,6 +364,13 @@ namespace PigeonGame.Gameplay
             else
             {
                 Vector2 direction = toTarget.normalized;
+                
+                // 이동 방향 추적 (스프라이트 반전용)
+                if (direction.sqrMagnitude > 0.01f)
+                {
+                    lastMovementDirection = direction;
+                }
+                
                 Vector2 newVelocity = direction * speed;
                 Vector2 newPosition = (Vector2)transform.position + newVelocity * Time.fixedDeltaTime;
                 
@@ -379,6 +467,13 @@ namespace PigeonGame.Gameplay
             else
             {
                 Vector2 direction = toTarget.normalized;
+                
+                // 이동 방향 추적 (스프라이트 반전용)
+                if (direction.sqrMagnitude > 0.01f)
+                {
+                    lastMovementDirection = direction;
+                }
+                
                 Vector2 newVelocity = direction * speed;
                 Vector2 newPosition = (Vector2)transform.position + newVelocity * Time.fixedDeltaTime;
                 

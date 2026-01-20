@@ -237,13 +237,12 @@ namespace PigeonGame.Gameplay
         {
             TerrainArea[] allTerrainAreas = FindObjectsByType<TerrainArea>(FindObjectsSortMode.None);
             
-            // null 체크
             if (allTerrainAreas == null || allTerrainAreas.Length == 0)
                 return TerrainType.SAND;
             
             foreach (var terrainArea in allTerrainAreas)
             {
-                if (terrainArea != null && terrainArea.ContainsPosition(position))
+                if (terrainArea?.ContainsPosition(position) == true)
                     return terrainArea.TerrainType;
             }
             return TerrainType.SAND;

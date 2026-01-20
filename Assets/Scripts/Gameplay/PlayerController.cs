@@ -16,17 +16,7 @@ namespace PigeonGame.Gameplay
         public static PlayerController Instance { get; private set; }
         public Vector2 Position => (Vector2)transform.position;
         public Collider2D CurrentMapCollider => myMapCollider;
-        public string CurrentMapName
-        {
-            get
-            {
-                if (myMapCollider != null && MapManager.Instance != null)
-                {
-                    return MapManager.Instance.GetMapName(myMapCollider);
-                }
-                return "Unknown";
-            }
-        }
+        public string CurrentMapName => MapManager.Instance?.GetMapName(myMapCollider) ?? "Unknown";
 
         private void Awake()
         {
@@ -58,32 +48,13 @@ namespace PigeonGame.Gameplay
         
         private void FindMyMapCollider()
         {
-            // MapManager를 통해 현재 위치가 속한 맵 찾기
-            if (MapManager.Instance != null)
+            if (MapManager.Instance == null)
+                return;
+
+            var mapInfo = MapManager.Instance.GetMapAtPosition(transform.position);
+            if (mapInfo?.mapCollider != null)
             {
-                var mapInfo = MapManager.Instance.GetMapAtPosition(transform.position);
-                if (mapInfo != null && mapInfo.mapCollider != null)
-                {
-                    myMapCollider = mapInfo.mapCollider;
-                    return;
-                }
-            }
-            
-            // 폴백: WorldPigeonManager 사용
-            if (WorldPigeonManager.Instance != null)
-            {
-                var mapColliders = WorldPigeonManager.Instance.MapColliders;
-                if (mapColliders != null)
-                {
-                    foreach (var collider in mapColliders)
-                    {
-                        if (collider != null && ColliderUtility.IsPositionInsideCollider(transform.position, collider))
-                        {
-                            myMapCollider = collider;
-                            return;
-                        }
-                    }
-                }
+                myMapCollider = mapInfo.mapCollider;
             }
         }
 
@@ -177,20 +148,10 @@ namespace PigeonGame.Gameplay
         /// </summary>
         private Collider2D FindMapColliderForPosition(Vector2 position)
         {
-            Collider2D[] allMaps = null;
-            
-            // MapManager를 통해 맵 찾기
-            if (MapManager.Instance != null)
-            {
-                allMaps = MapManager.Instance.GetAllMapColliders();
-            }
-            
-            // 폴백: WorldPigeonManager 사용
-            if (allMaps == null && WorldPigeonManager.Instance != null)
-            {
-                allMaps = WorldPigeonManager.Instance.MapColliders;
-            }
-            
+            if (MapManager.Instance == null)
+                return null;
+
+            Collider2D[] allMaps = MapManager.Instance.GetAllMapColliders();
             if (allMaps == null)
                 return null;
             
@@ -227,10 +188,7 @@ namespace PigeonGame.Gameplay
         /// </summary>
         private bool IsOnBridge(Vector2 position)
         {
-            if (MapManager.Instance == null)
-                return false;
-            
-            return MapManager.Instance.IsPositionOnBridge(position);
+            return MapManager.Instance?.IsPositionOnBridge(position) ?? false;
         }
 
         /// <summary>
@@ -238,10 +196,7 @@ namespace PigeonGame.Gameplay
         /// </summary>
         private bool CanAccessBridge(Vector2 position)
         {
-            if (MapManager.Instance == null)
-                return false;
-            
-            return MapManager.Instance.CanAccessBridgeAtPosition(position);
+            return MapManager.Instance?.CanAccessBridgeAtPosition(position) ?? false;
         }
         
         /// <summary>

@@ -23,15 +23,7 @@ namespace PigeonGame.Gameplay
         private int GetCurrentTrapCount()
         {
             FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
-            int count = 0;
-            foreach (var trap in allTraps)
-            {
-                if (trap != null)
-                {
-                    count++;
-                }
-            }
-            return count;
+            return allTraps?.Length ?? 0;
         }
 
         /// <summary>
@@ -40,45 +32,15 @@ namespace PigeonGame.Gameplay
         private bool IsPositionTooCloseToOtherObjects(Vector3 position)
         {
             Vector2 pos2D = new Vector2(position.x, position.y);
-            float minDistance = INTERACTION_RADIUS; // 2f
+            float minDistance = INTERACTION_RADIUS;
 
             // 건물 중심점 거리 확인
-            WorldShop[] allShops = FindObjectsByType<WorldShop>(FindObjectsSortMode.None);
-            if (allShops != null)
-            {
-                foreach (var shop in allShops)
-                {
-                    if (shop == null)
-                        continue;
-
-                    Vector2 shopPos = new Vector2(shop.transform.position.x, shop.transform.position.y);
-                    float distance = Vector2.Distance(pos2D, shopPos);
-
-                    if (distance < minDistance)
-                    {
-                        return true;
-                    }
-                }
-            }
+            if (IsTooCloseToObjects<WorldShop>(pos2D, minDistance))
+                return true;
 
             // 덫 중심점 거리 확인
-            FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
-            if (allTraps != null)
-            {
-                foreach (var trap in allTraps)
-                {
-                    if (trap == null)
-                        continue;
-
-                    Vector2 trapPos = new Vector2(trap.transform.position.x, trap.transform.position.y);
-                    float distance = Vector2.Distance(pos2D, trapPos);
-
-                    if (distance < minDistance)
-                    {
-                        return true;
-                    }
-                }
-            }
+            if (IsTooCloseToObjects<FoodTrap>(pos2D, minDistance))
+                return true;
 
             // 게이트 중심점 거리 확인 (해금된 게이트는 콜라이더가 비활성화되어 있으므로 자동으로 제외됨)
             BridgeGate[] allGates = FindObjectsByType<BridgeGate>(FindObjectsSortMode.None);
@@ -86,24 +48,33 @@ namespace PigeonGame.Gameplay
             {
                 foreach (var gate in allGates)
                 {
-                    if (gate == null)
-                        continue;
-
-                    // 게이트 콜라이더가 활성화되어 있는지 확인 (해금된 게이트는 이미 비활성화되어 있음)
-                    var gateCollider = gate.GateCollider;
-                    if (gateCollider != null && gateCollider.enabled)
+                    if (gate?.GateCollider?.enabled == true)
                     {
-                        Vector2 gatePos = new Vector2(gate.transform.position.x, gate.transform.position.y);
-                        float distance = Vector2.Distance(pos2D, gatePos);
-
+                        float distance = Vector2.Distance(pos2D, gate.transform.position);
                         if (distance < minDistance)
-                        {
                             return true;
-                        }
                     }
                 }
             }
 
+            return false;
+        }
+
+        private bool IsTooCloseToObjects<T>(Vector2 pos2D, float minDistance) where T : MonoBehaviour
+        {
+            T[] objects = FindObjectsByType<T>(FindObjectsSortMode.None);
+            if (objects == null)
+                return false;
+
+            foreach (var obj in objects)
+            {
+                if (obj != null)
+                {
+                    float distance = Vector2.Distance(pos2D, obj.transform.position);
+                    if (distance < minDistance)
+                        return true;
+                }
+            }
             return false;
         }
 
@@ -115,31 +86,22 @@ namespace PigeonGame.Gameplay
             if (PlayerController.Instance == null)
                 return false;
 
-            // 동시 덫 설치 개수 제한 확인ㄴ
-            if (GameManager.Instance != null)
+            // 동시 덫 설치 개수 제한 확인
+            int maxTrapCount = UpgradeData.Instance?.MaxTrapCount ?? 0;
+            if (maxTrapCount > 0)
             {
-                int maxTrapCount = UpgradeData.Instance.MaxTrapCount;
-                if (maxTrapCount > 0) // 0 이하면 제한 없음
+                int currentTrapCount = GetCurrentTrapCount();
+                if (currentTrapCount >= maxTrapCount)
                 {
-                    int currentTrapCount = GetCurrentTrapCount();
-                    if (currentTrapCount >= maxTrapCount)
-                    {
-                        // 토스트 알림 표시
-                        ToastNotificationManager.ShowWarning($"덫 개수 제한에 도달했습니다! (최대 {maxTrapCount}개)");
-                        return false; // 제한 초과
-                    }
+                    ToastNotificationManager.ShowWarning($"덫 개수 제한에 도달했습니다! (최대 {maxTrapCount}개)");
+                    return false;
                 }
             }
 
             Vector3 playerPos = PlayerController.Instance.Position;
 
             // 현재 맵 정보 확인
-            MapInfo currentMapInfo = null;
-            if (MapManager.Instance != null)
-            {
-                currentMapInfo = MapManager.Instance.GetMapAtPosition(playerPos);
-            }
-
+            MapInfo currentMapInfo = MapManager.Instance?.GetMapAtPosition(playerPos);
             if (currentMapInfo == null)
             {
                 ToastNotificationManager.ShowWarning("맵에서 벗어났습니다!");
@@ -154,96 +116,68 @@ namespace PigeonGame.Gameplay
             }
 
             // 덫 해금 확인 및 구매 처리
-            if (GameManager.Instance != null)
+            if (GameManager.Instance == null)
+                return false;
+
+            // 해금되지 않은 덫은 설치 불가
+            if (!GameManager.Instance.IsTrapUnlocked(trapType))
             {
-                // 해금되지 않은 덫은 설치 불가
-                if (!GameManager.Instance.IsTrapUnlocked(trapType))
-                {
-                    ToastNotificationManager.ShowWarning("아직 해금되지 않은 덫입니다!");
-                    return false;
-                }
+                ToastNotificationManager.ShowWarning("아직 해금되지 않은 덫입니다!");
+                return false;
+            }
 
-                var registry = GameDataRegistry.Instance;
-                if (registry == null || registry.Traps == null)
-                    return false;
+            var registry = GameDataRegistry.Instance;
+            if (registry?.Traps == null)
+                return false;
 
-                var trapData = registry.Traps.GetTrapById(trapType);
-                if (trapData == null)
-                    return false;
+            var trapData = registry.Traps.GetTrapById(trapType);
+            if (trapData == null)
+                return false;
 
-                // feedAmount가 0이면 기본값 사용
-                int actualFeedAmount = feedAmount > 0 ? feedAmount : trapData.feedAmount;
+            // feedAmount가 0이면 기본값 사용
+            int actualFeedAmount = feedAmount > 0 ? feedAmount : trapData.feedAmount;
 
-                // 구매 처리 (설치 + 모이)
-                if (!GameManager.Instance.PurchaseTrapInstallation(trapType, actualFeedAmount))
-                {
-                    ToastNotificationManager.ShowWarning("골드가 부족합니다!");
-                    return false; // 구매 실패
-                }
+            // 구매 처리 (설치 + 모이)
+            if (!GameManager.Instance.PurchaseTrapInstallation(trapType, actualFeedAmount))
+            {
+                ToastNotificationManager.ShowWarning("골드가 부족합니다!");
+                return false;
             }
 
             // 덫 프리팹 생성
             GameObject trapObj = Instantiate(trapPrefab, playerPos, Quaternion.identity);
             FoodTrap trap = trapObj.GetComponent<FoodTrap>();
             
-            if (trap != null)
+            if (trap == null)
+                return false;
+
+            if (trapData != null)
             {
-                var registry = GameDataRegistry.Instance;
-                if (registry != null && registry.Traps != null)
-                {
-                    var trapData = registry.Traps.GetTrapById(trapType);
-                    if (trapData != null)
-                    {
-                        // feedAmount가 0이면 기본값 사용
-                        int actualFeedAmount = feedAmount > 0 ? feedAmount : trapData.feedAmount;
-                        trap.SetTrapIdAndFeedAmount(trapType, actualFeedAmount);
-                    }
-                    else
-                    {
-                        trap.SetTrapId(trapType);
-                    }
-                }
-                else
-                {
-                    trap.SetTrapId(trapType);
-                }
-
-                // 덫에 먹이 표시 UI 추가 (없으면)
-                var foodDisplay = trapObj.GetComponent<UI.TrapFoodDisplay>();
-                if (foodDisplay == null)
-                {
-                    foodDisplay = trapObj.AddComponent<UI.TrapFoodDisplay>();
-                }
-
-                // 덫 설치 시 비둘기 추가 스폰 (해당 맵 내 랜덤 위치)
-                if (registry != null && registry.Traps != null && pigeonManager != null)
-                {
-                    var trapData = registry.Traps.GetTrapById(trapType);
-                    if (trapData != null && trapData.pigeonSpawnCount > 0)
-                    {
-                        // 위치로 맵 콜라이더 찾기
-                        Collider2D mapCollider = null;
-                        if (MapManager.Instance != null)
-                        {
-                            var mapInfo = MapManager.Instance.GetMapAtPosition(playerPos);
-                            if (mapInfo != null)
-                            {
-                                mapCollider = mapInfo.mapCollider;
-                            }
-                        }
-                        
-                        if (mapCollider != null)
-                        {
-                            pigeonManager.SpawnPigeonAtPosition(playerPos, mapCollider, trapData.pigeonSpawnCount);
-                        }
-                    }
-                }
-
-                ToastNotificationManager.ShowSuccess("덫 설치 완료!");
-                return true;
+                trap.SetTrapIdAndFeedAmount(trapType, actualFeedAmount);
+            }
+            else
+            {
+                trap.SetTrapId(trapType);
             }
 
-            return false;
+            // 덫에 먹이 표시 UI 추가 (없으면)
+            if (trapObj.GetComponent<UI.TrapFoodDisplay>() == null)
+            {
+                trapObj.AddComponent<UI.TrapFoodDisplay>();
+            }
+
+            // 덫 설치 시 비둘기 추가 스폰 (해당 맵 내 랜덤 위치)
+            if (trapData != null && trapData.pigeonSpawnCount > 0 && pigeonManager != null)
+            {
+                var mapInfo = MapManager.Instance?.GetMapAtPosition(playerPos);
+                if (mapInfo?.mapCollider != null)
+                {
+                    pigeonManager.SpawnPigeonAtPosition(playerPos, mapInfo.mapCollider, trapData.pigeonSpawnCount);
+                }
+            }
+
+            ToastNotificationManager.ShowSuccess("덫 설치 완료!");
+            return true;
         }
     }
 }

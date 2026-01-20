@@ -33,6 +33,10 @@ namespace PigeonGame.Data
         public TrapType favoriteTrapType; // enum 타입 (Inspector에서 선택)
         public TerrainType favoriteTerrain; // enum 타입 (Inspector에서 선택)
         public Sprite icon; // 에디터에서 직접 할당
+        
+        // 애니메이션 관련
+        [Tooltip("종별 Animator Controller (Idle, Walking, Flying 애니메이션 포함)")]
+        public RuntimeAnimatorController animatorController; // 종별 애니메이션 컨트롤러
     }
 
     [CreateAssetMenu(fileName = "SpeciesSet", menuName = "PigeonGame/Species Set")]

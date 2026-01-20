@@ -32,7 +32,7 @@ namespace PigeonGame.Gameplay
             }
 
             // 이미 해금된 지역이면 게이트 제거
-            if (MapManager.Instance != null && MapManager.Instance.IsAreaUnlocked(areaNumber))
+            if (MapManager.Instance?.IsAreaUnlocked(areaNumber) == true)
             {
                 UnlockGate();
             }
@@ -44,30 +44,22 @@ namespace PigeonGame.Gameplay
                 return;
 
             // 이미 해금된 지역이면 상호작용 불가
-            if (MapManager.Instance != null && MapManager.Instance.IsAreaUnlocked(areaNumber))
+            if (MapManager.Instance?.IsAreaUnlocked(areaNumber) == true)
             {
                 return;
             }
 
             // MapManager에서 지역 이름 가져오기
-            string areaName = MapManager.Instance != null ? MapManager.Instance.GetAreaName(areaNumber) : null;
+            string areaName = MapManager.Instance?.GetAreaName(areaNumber);
 
             // InteractionSystem을 통해 구매 패널 열기
-            var interactionSystem = InteractionSystem.Instance;
-            if (interactionSystem != null)
-            {
-                interactionSystem.OpenBridgeGatePurchase(this, areaNumber, unlockCost, areaName);
-            }
-            else
-            {
-                Debug.LogWarning("InteractionSystem을 찾을 수 없습니다!");
-            }
+            InteractionSystem.Instance?.OpenBridgeGatePurchase(this, areaNumber, unlockCost, areaName);
         }
 
         public override bool CanInteract()
         {
             // 이미 해금된 지역이면 상호작용 불가
-            if (MapManager.Instance != null && MapManager.Instance.IsAreaUnlocked(areaNumber))
+            if (MapManager.Instance?.IsAreaUnlocked(areaNumber) == true)
             {
                 return false;
             }
