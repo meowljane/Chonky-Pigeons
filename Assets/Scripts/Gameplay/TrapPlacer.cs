@@ -100,11 +100,10 @@ namespace PigeonGame.Gameplay
 
             Vector3 playerPos = PlayerController.Instance.Position;
 
-            // 현재 맵 정보 확인
-            MapInfo currentMapInfo = MapManager.Instance?.GetMapAtPosition(playerPos);
-            if (currentMapInfo == null)
+            // 타일맵 기반 맵 범위 확인
+            if (TilemapRangeManager.Instance == null || !TilemapRangeManager.Instance.IsInMapRange(playerPos))
             {
-                ToastNotificationManager.ShowWarning("맵에서 벗어났습니다!");
+                ToastNotificationManager.ShowWarning("맵 범위를 벗어났습니다!");
                 return false;
             }
 
@@ -169,10 +168,10 @@ namespace PigeonGame.Gameplay
             // 덫 설치 시 비둘기 추가 스폰 (해당 맵 내 랜덤 위치)
             if (trapData != null && trapData.pigeonSpawnCount > 0 && pigeonManager != null)
             {
-                var mapInfo = MapManager.Instance?.GetMapAtPosition(playerPos);
-                if (mapInfo?.mapCollider != null)
+                string mapName = TilemapRangeManager.Instance?.GetMapNameAtPosition(playerPos);
+                if (!string.IsNullOrEmpty(mapName) && mapName != "Unknown")
                 {
-                    pigeonManager.SpawnPigeonAtPosition(playerPos, mapInfo.mapCollider, trapData.pigeonSpawnCount);
+                    pigeonManager.SpawnPigeonAtPosition(playerPos, mapName, trapData.pigeonSpawnCount);
                 }
             }
 

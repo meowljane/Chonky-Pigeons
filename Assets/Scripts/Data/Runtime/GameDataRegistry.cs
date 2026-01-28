@@ -9,6 +9,7 @@ namespace PigeonGame.Data
         [SerializeField] private PigeonFaceSet faces;
         [SerializeField] private PigeonSpeciesSet speciesSet;
         [SerializeField] private TerrainTypeSet terrainTypes;
+        [SerializeField] private MapTypeSet mapTypes;
         [SerializeField] private TrapTypeSet traps;
         [SerializeField] private UpgradeDefinitionSet upgradeDefinitions;
 
@@ -18,6 +19,7 @@ namespace PigeonGame.Data
         public PigeonFaceSet Faces => faces;
         public PigeonSpeciesSet SpeciesSet => speciesSet;
         public TerrainTypeSet TerrainTypes => terrainTypes;
+        public MapTypeSet MapTypes => mapTypes;
         public TrapTypeSet Traps => traps;
         public UpgradeDefinitionSet UpgradeDefinitions => upgradeDefinitions;
 

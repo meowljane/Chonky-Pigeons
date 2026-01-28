@@ -11,12 +11,10 @@ namespace PigeonGame.Gameplay
         [SerializeField] private MobileJoystick mobileJoystick; // 모바일 조이스틱 참조
         private Rigidbody2D rb;
         private Vector2 moveInput;
-        private Collider2D myMapCollider; // 현재 위치한 맵 콜라이더
 
         public static PlayerController Instance { get; private set; }
         public Vector2 Position => (Vector2)transform.position;
-        public Collider2D CurrentMapCollider => myMapCollider;
-        public string CurrentMapName => MapManager.Instance?.GetMapName(myMapCollider) ?? "Unknown";
+        public string CurrentMapName => TilemapRangeManager.Instance?.GetMapNameAtPosition(transform.position) ?? "Unknown";
 
         private void Awake()
         {
@@ -40,21 +38,6 @@ namespace PigeonGame.Gameplay
             if (mobileJoystick == null)
             {
                 mobileJoystick = FindFirstObjectByType<MobileJoystick>();
-            }
-            
-            // 현재 위치한 맵 콜라이더 찾기
-            FindMyMapCollider();
-        }
-        
-        private void FindMyMapCollider()
-        {
-            if (MapManager.Instance == null)
-                return;
-
-            var mapInfo = MapManager.Instance.GetMapAtPosition(transform.position);
-            if (mapInfo?.mapCollider != null)
-            {
-                myMapCollider = mapInfo.mapCollider;
             }
         }
 
@@ -81,16 +64,16 @@ namespace PigeonGame.Gameplay
                 Keyboard keyboard = Keyboard.current;
                 if (keyboard != null)
                 {
-            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
-                moveInput.y += 1f;
-            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
-                moveInput.y -= 1f;
-            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
-                moveInput.x += 1f;
-            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
-                moveInput.x -= 1f;
-            
-            moveInput.Normalize();
+                    if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
+                        moveInput.y += 1f;
+                    if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
+                        moveInput.y -= 1f;
+                    if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
+                        moveInput.x += 1f;
+                    if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
+                        moveInput.x -= 1f;
+                    
+                    moveInput.Normalize();
                 }
             }
         }
@@ -101,130 +84,19 @@ namespace PigeonGame.Gameplay
             Vector2 newVelocity = moveInput * moveSpeed;
             Vector2 newPosition = (Vector2)transform.position + newVelocity * Time.fixedDeltaTime;
             
-            // 다리 위에 있는지 확인
-            bool isOnBridge = IsOnBridge(newPosition);
-            
-            if (isOnBridge)
+            // 타일맵 기반 이동 범위 체크
+            if (TilemapRangeManager.Instance != null)
             {
-                // 다리 접근 가능 여부 확인 (해금 여부 체크)
-                bool canAccessBridge = CanAccessBridge(newPosition);
-                
-                if (canAccessBridge)
+                // 플레이어 이동 가능 범위 내에 있는지 확인
+                if (!TilemapRangeManager.Instance.IsInPlayerMovementRange(newPosition))
                 {
-                    // 다리 위에서는 자유롭게 이동 가능 (맵 경계 제한 없음)
-                    // 다리 위에서 벗어나면 다시 맵 경계로 제한되도록 맵 업데이트
-                    UpdateMapIfNeeded(newPosition);
-                }
-                else
-                {
-                    // 해금되지 않은 다리로는 이동 불가 (현재 위치 유지)
+                    // 이동 불가능한 위치면 현재 위치 유지
                     newPosition = transform.position;
-                }
-            }
-            else
-            {
-                // 다리 위가 아니면 맵 경계 내로 제한
-                Collider2D targetMapCollider = FindMapColliderForPosition(newPosition);
-                
-                if (targetMapCollider != null)
-                {
-                    myMapCollider = targetMapCollider;
-                    newPosition = ClampToMapBounds(newPosition, targetMapCollider);
-                }
-                else if (myMapCollider != null)
-                {
-                    // 어떤 맵에도 속하지 않으면 현재 맵의 경계로 제한
-                    newPosition = ClampToMapBounds(newPosition, myMapCollider);
                 }
             }
             
             // 위치 직접 설정
             rb.MovePosition(newPosition);
         }
-        
-        /// <summary>
-        /// 특정 위치가 속한 맵 콜라이더 찾기
-        /// 겹치는 영역에서는 현재 맵이 아닌 다른 맵을 우선적으로 선택 (맵 전환 용이)
-        /// </summary>
-        private Collider2D FindMapColliderForPosition(Vector2 position)
-        {
-            if (MapManager.Instance == null)
-                return null;
-
-            Collider2D[] allMaps = MapManager.Instance.GetAllMapColliders();
-            if (allMaps == null)
-                return null;
-            
-            // 먼저 현재 맵이 아닌 다른 맵을 찾기 (맵 전환 우선)
-            foreach (var collider in allMaps)
-            {
-                if (collider != null && collider != myMapCollider && 
-                    ColliderUtility.IsPositionInsideCollider(position, collider))
-                {
-                    return collider;
-                }
-            }
-            
-            // 다른 맵을 찾지 못했으면 현재 맵 확인
-            if (myMapCollider != null && ColliderUtility.IsPositionInsideCollider(position, myMapCollider))
-            {
-                return myMapCollider;
-            }
-            
-            // 현재 맵에도 없으면 다른 맵 중 하나라도 찾기
-            foreach (var collider in allMaps)
-            {
-                if (collider != null && ColliderUtility.IsPositionInsideCollider(position, collider))
-                {
-                    return collider;
-                }
-            }
-            
-            return null;
-        }
-        
-        /// <summary>
-        /// 위치가 다리 위에 있는지 확인
-        /// </summary>
-        private bool IsOnBridge(Vector2 position)
-        {
-            return MapManager.Instance?.IsPositionOnBridge(position) ?? false;
-        }
-
-        /// <summary>
-        /// 다리에 접근 가능한지 확인 (해금 여부 체크)
-        /// </summary>
-        private bool CanAccessBridge(Vector2 position)
-        {
-            return MapManager.Instance?.CanAccessBridgeAtPosition(position) ?? false;
-        }
-        
-        /// <summary>
-        /// 다리 위에서 벗어날 때 맵 업데이트 (다리에서 나가면 다시 맵 경계로 제한)
-        /// </summary>
-        private void UpdateMapIfNeeded(Vector2 position)
-        {
-            // 다리 위에서 벗어나려고 할 때, 목적지 맵 확인
-            var targetMap = FindMapColliderForPosition(position);
-            if (targetMap != null)
-            {
-                myMapCollider = targetMap;
-            }
-        }
-        
-        /// <summary>
-        /// 특정 맵 콜라이더의 bounds로 위치 제한
-        /// </summary>
-        private Vector2 ClampToMapBounds(Vector2 position, Collider2D mapCollider)
-        {
-            if (mapCollider == null)
-                return position;
-            
-            Bounds bounds = mapCollider.bounds;
-            position.x = Mathf.Clamp(position.x, bounds.min.x, bounds.max.x);
-            position.y = Mathf.Clamp(position.y, bounds.min.y, bounds.max.y);
-            return position;
-        }
     }
 }
-

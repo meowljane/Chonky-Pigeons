@@ -104,7 +104,6 @@ namespace PigeonGame.Gameplay
         private bool backoffCausedByPlayer = false;
         private float backoffEndTime = 0f; // BackOff 종료 시간
         private const float BACKOFF_COOLDOWN = 2f; // BackOff 종료 후 먹이 탐색 금지 시간 (초)
-        private Collider2D myMapCollider; // 이 비둘기가 속한 맵 콜라이더
         private Vector2 lastMovementDirection = Vector2.right; // 마지막 이동 방향 (기본값: 오른쪽)
         
         /// <summary>
@@ -129,16 +128,6 @@ namespace PigeonGame.Gameplay
         private void Start()
         {
             SetNewWanderTarget();
-            FindMyMapCollider();
-        }
-        
-        private void FindMyMapCollider()
-        {
-            // WorldPigeonManager에서 이 비둘기가 속한 맵 콜라이더 가져오기
-            if (WorldPigeonManager.Instance != null && controller != null)
-            {
-                myMapCollider = WorldPigeonManager.Instance.GetMapColliderForPigeon(controller);
-            }
         }
 
         private void Update()
@@ -282,8 +271,8 @@ namespace PigeonGame.Gameplay
                 backoffStartPosition = transform.position;
                 Vector2 backoffDirection = CalculateBackoffDirection();
                 backoffTarget = backoffStartPosition + backoffDirection * backoffDistance;
-                // 맵 경계 내로 제한 (자신이 속한 맵 콜라이더만 사용)
-                backoffTarget = ClampToMyMapBounds(backoffTarget);
+                // 타일맵 기반 맵 경계 내로 제한
+                backoffTarget = ClampToMapBounds(backoffTarget);
                 backoffTargetSet = true;
             }
 
@@ -294,8 +283,8 @@ namespace PigeonGame.Gameplay
                 // 목표에 도달했으면 현재 위치에서 더 멀리 떨어진 새로운 목표 설정
                 Vector2 backoffDirection = CalculateBackoffDirection();
                 backoffTarget = (Vector2)transform.position + backoffDirection * backoffDistance;
-                // 맵 경계 내로 제한 (자신이 속한 맵 콜라이더만 사용)
-                backoffTarget = ClampToMyMapBounds(backoffTarget);
+                // 타일맵 기반 맵 경계 내로 제한
+                backoffTarget = ClampToMapBounds(backoffTarget);
             }
 
             MoveTowardsTarget(backoffTarget, backoffSpeed);
@@ -374,23 +363,34 @@ namespace PigeonGame.Gameplay
                 Vector2 newVelocity = direction * speed;
                 Vector2 newPosition = (Vector2)transform.position + newVelocity * Time.fixedDeltaTime;
                 
-                // 맵 경계 체크 (자신이 속한 맵 콜라이더만 사용)
-                newPosition = ClampToMyMapBounds(newPosition);
+                // 타일맵 기반 맵 경계 체크
+                newPosition = ClampToMapBounds(newPosition);
                 
                 // 위치 직접 설정 (경계를 벗어나지 않도록)
                 rb.MovePosition(newPosition);
             }
         }
         
-        private Vector2 ClampToMyMapBounds(Vector2 position)
+        /// <summary>
+        /// 맵 경계 내로 위치 제한 (타일맵 기반)
+        /// </summary>
+        private Vector2 ClampToMapBounds(Vector2 position)
         {
-            if (myMapCollider == null)
-                return position;
+            // 타일맵 기반 체크
+            if (TilemapRangeManager.Instance != null)
+            {
+                // 맵 범위 내에 있으면 그대로 반환
+                if (TilemapRangeManager.Instance.IsInMapRange(position))
+                {
+                    return position;
+                }
+                
+                // 맵 범위를 벗어났으면 현재 위치 유지
+                return transform.position;
+            }
             
-            Bounds bounds = myMapCollider.bounds;
-            position.x = Mathf.Clamp(position.x, bounds.min.x, bounds.max.x);
-            position.y = Mathf.Clamp(position.y, bounds.min.y, bounds.max.y);
-            return position;
+            // TilemapRangeManager가 없으면 현재 위치 유지
+            return transform.position;
         }
 
         private void FindNearestFoodTrap()

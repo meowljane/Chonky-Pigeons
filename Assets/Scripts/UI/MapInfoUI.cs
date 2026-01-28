@@ -41,24 +41,19 @@ namespace PigeonGame.UI
             if (PlayerController.Instance == null || pigeonManager == null)
                 return;
 
-            // 현재 맵 정보 확인
-            MapInfo currentMapInfo = null;
-            if (MapManager.Instance != null)
+            // 현재 맵 이름 가져오기
+            string currentMapName = "없음";
+            if (TilemapRangeManager.Instance != null)
             {
-                currentMapInfo = MapManager.Instance.GetMapAtPosition(PlayerController.Instance.Position);
+                currentMapName = TilemapRangeManager.Instance.GetMapNameAtPosition(PlayerController.Instance.Position);
+                if (string.IsNullOrEmpty(currentMapName) || currentMapName == "Unknown")
+                {
+                    currentMapName = "없음";
+                }
             }
 
             // 현재 맵 이름 표시
-            string mapDisplay;
-            if (currentMapInfo != null && !string.IsNullOrEmpty(currentMapInfo.mapName))
-            {
-                mapDisplay = $"현재 맵: {currentMapInfo.mapName}";
-            }
-            else
-            {
-                mapDisplay = "현재 맵: 없음";
-            }
-            
+            string mapDisplay = $"현재 맵: {currentMapName}";
             if (mapNameText != null)
             {
                 mapNameText.text = mapDisplay;
@@ -92,12 +87,12 @@ namespace PigeonGame.UI
 
         private void UpdateTrapAndPigeonCount()
         {
-            if (PlayerController.Instance == null || MapManager.Instance == null)
+            if (PlayerController.Instance == null || TilemapRangeManager.Instance == null)
                 return;
 
-            // 현재 맵 정보 가져오기
-            var mapInfo = MapManager.Instance.GetMapAtPosition(PlayerController.Instance.Position);
-            if (mapInfo == null || mapInfo.mapCollider == null)
+            // 현재 맵 이름 가져오기
+            string currentMapName = TilemapRangeManager.Instance.GetMapNameAtPosition(PlayerController.Instance.Position);
+            if (string.IsNullOrEmpty(currentMapName) || currentMapName == "Unknown")
             {
                 // 맵 정보가 없을 때 "없음" 표시
                 if (trapCountText != null)
@@ -112,7 +107,7 @@ namespace PigeonGame.UI
             }
 
             // 현재 맵의 활성 덫 수 계산
-            int activeTrapCount = GetActiveTrapCountInMap(mapInfo.mapCollider);
+            int activeTrapCount = GetActiveTrapCountInMap(currentMapName);
             int maxTrapCount = UpgradeData.Instance != null ? UpgradeData.Instance.MaxTrapCount : 2;
             string trapDisplay = $"덫: {activeTrapCount}/{maxTrapCount}개";
 
@@ -122,7 +117,7 @@ namespace PigeonGame.UI
             }
 
             // 현재 맵의 비둘기 수 계산
-            int currentPigeonCount = GetPigeonCountInMap(mapInfo.mapCollider);
+            int currentPigeonCount = GetPigeonCountInMap(currentMapName);
             int maxPigeonCount = GameManager.Instance != null ? GameManager.Instance.MaxPigeonsPerMap : 5;
             string pigeonDisplay = $"비둘기: {currentPigeonCount}/{maxPigeonCount}마리";
 
@@ -135,9 +130,9 @@ namespace PigeonGame.UI
         /// <summary>
         /// 현재 맵의 활성 덫 수 계산 (포획된 덫 포함)
         /// </summary>
-        private int GetActiveTrapCountInMap(Collider2D mapCollider)
+        private int GetActiveTrapCountInMap(string mapName)
         {
-            if (mapCollider == null)
+            if (string.IsNullOrEmpty(mapName) || TilemapRangeManager.Instance == null)
                 return 0;
 
             FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
@@ -146,7 +141,8 @@ namespace PigeonGame.UI
             {
                 if (trap != null)
                 {
-                    if (ColliderUtility.IsPositionInsideCollider(trap.transform.position, mapCollider))
+                    string trapMapName = TilemapRangeManager.Instance.GetMapNameAtPosition(trap.transform.position);
+                    if (trapMapName == mapName)
                         count++;
                 }
             }
@@ -156,12 +152,12 @@ namespace PigeonGame.UI
         /// <summary>
         /// 현재 맵의 비둘기 수 계산 (WorldPigeonManager에서 가져옴)
         /// </summary>
-        private int GetPigeonCountInMap(Collider2D mapCollider)
+        private int GetPigeonCountInMap(string mapName)
         {
-            if (mapCollider == null || pigeonManager == null)
+            if (string.IsNullOrEmpty(mapName) || pigeonManager == null)
                 return 0;
 
-            return pigeonManager.GetPigeonCountInMap(mapCollider);
+            return pigeonManager.GetPigeonCountInMap(mapName);
         }
 
         private void UpdateSpeciesProbabilities()
