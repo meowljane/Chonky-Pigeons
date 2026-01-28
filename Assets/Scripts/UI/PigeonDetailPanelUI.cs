@@ -13,7 +13,8 @@ namespace PigeonGame.UI
     {
         [Header("Detail Panel")]
         [SerializeField] private GameObject detailPanel;
-        [SerializeField] private Image detailIconImage;
+        [SerializeField] private Image detailIconImage; // Species 아이콘 또는 기본 표정이 적용된 몸+표정 이미지
+        [SerializeField] private Image detailFaceIconImage; // Face 아이콘 (몸+표정 합쳐진 이미지, 선택적)
         [SerializeField] private TextMeshProUGUI detailNameText;
         [SerializeField] private TextMeshProUGUI detailWeightText;
         [SerializeField] private TextMeshProUGUI detailPriceText;
@@ -52,10 +53,14 @@ namespace PigeonGame.UI
                 return;
 
             var species = registry.SpeciesSet.GetSpeciesById(stats.speciesId);
-            if (species == null)
-                return;
-
             var face = registry.Faces != null ? registry.Faces.GetFaceById(stats.faceId) : null;
+
+            // 기본값 설정
+            var defaultSpecies = registry.SpeciesSet.GetSpeciesById(PigeonSpecies.SP01);
+            var defaultFace = registry.Faces != null ? registry.Faces.GetFaceById(FaceType.F00) : null;
+
+            // species가 없어도 기본값으로 표시 가능하므로 return 제거
+            // if (species == null) return; // 제거됨
 
             currentStats = stats;
             onClosed = onClosedCallback;
@@ -63,25 +68,34 @@ namespace PigeonGame.UI
 
             detailPanel.SetActive(true);
 
-            // 아이콘
+            // detailIconImage: Species icon 표시 (없으면 기본값 SP01 사용)
             if (detailIconImage != null)
             {
-                if (species.icon != null)
+                var iconToUse = species?.icon ?? defaultSpecies?.icon;
+                if (iconToUse != null)
                 {
-                    detailIconImage.sprite = species.icon;
+                    detailIconImage.sprite = iconToUse;
                     detailIconImage.enabled = true;
                 }
-                else
+            }
+
+            // detailFaceIconImage: Face icon 표시 (없으면 기본값 F00 사용)
+            if (detailFaceIconImage != null)
+            {
+                var faceIconToUse = face?.icon ?? defaultFace?.icon;
+                if (faceIconToUse != null)
                 {
-                    detailIconImage.enabled = false;
+                    detailFaceIconImage.sprite = faceIconToUse;
+                    detailFaceIconImage.enabled = true;
                 }
             }
 
             // 종 이름 (얼굴 포함)
             if (detailNameText != null)
             {
-                string faceName = face != null ? face.name : stats.faceId.ToString();
-                detailNameText.text = $"{species.name}({faceName})";
+                string speciesName = species?.name ?? defaultSpecies?.name ?? stats.speciesId.ToString();
+                string faceName = face?.name ?? defaultFace?.name ?? stats.faceId.ToString();
+                detailNameText.text = $"{speciesName}({faceName})";
             }
 
             // 무게

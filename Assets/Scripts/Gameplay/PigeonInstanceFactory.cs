@@ -48,11 +48,11 @@ namespace PigeonGame.Gameplay
             stats.bitePower = obesity;
 
             // EatInterval 계산 (비만도 기반, tier 1 base 값 사용)
-            float baseEatInterval = 0.65f; // tier 1 값으로 통일
+            float baseEatInterval = 1.8f; // tier 1 값으로 통일
             float obesityIntervalMultiplier = 1.0f;
             
             // EatChance 계산 (비만도 기반)
-            float baseEatChance = 0.95f; // tier 1 값으로 통일
+            float baseEatChance = 0.75f; // tier 1 값으로 통일
             float obesityChanceMultiplier = 1.0f;
             
             // 비만도별 설정 가져오기 (obesity는 1~5 범위)

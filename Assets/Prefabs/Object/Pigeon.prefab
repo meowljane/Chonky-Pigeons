@@ -450,8 +450,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 123752185
-  m_SortingLayer: 2
+  m_SortingLayerID: -1780385187
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -3747651091676111297, guid: d4eaa0c15f457394d8e4544d5852753a, type: 3}
@@ -554,8 +554,11 @@ MonoBehaviour:
   ai: {fileID: 1627123271924891322}
   spriteRenderer: {fileID: 1153266226339589489}
   animator: {fileID: 6472419123257406449}
+  faceSpriteRenderer: {fileID: 0}
+  faceAnimator: {fileID: 0}
   flipSpriteOnMovement: 1
   flipOnLeft: 0
+  baseSortingOrder: 0
 --- !u!114 &1965305811106822532
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -610,7 +613,7 @@ Animator:
   m_GameObject: {fileID: 7369415880916472406}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: fe5acffbae9b604439c398ae93c97419, type: 2}
+  m_Controller: {fileID: 9100000, guid: 6f6fc4cd84db72e49a273bab25032874, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -681,8 +684,8 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
-  m_SortingOrder: 100
+  m_SortingLayerID: -1780385187
+  m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!114 &2528650902867270870
 MonoBehaviour:

@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 using PigeonGame.UI;
 
 namespace PigeonGame.Gameplay
@@ -14,7 +16,8 @@ namespace PigeonGame.Gameplay
         [Header("Highlight Settings")]
         [SerializeField] private Color highlightColor = new Color(1f, 1f, 0f, 0.3f); // 노란색 반투명
 
-        private IInteractable currentInteractable; // 현재 상호작용 가능한 오브젝트
+        private HashSet<IInteractable> nearbyInteractables = new HashSet<IInteractable>(); // 범위 내 상호작용 가능한 오브젝트들
+        private IInteractable currentInteractable; // 현재 상호작용 가능한 오브젝트 (가장 가까운 것)
         private GameObject currentOutlineObject; // 현재 테두리 오브젝트
         private InventoryUI inventoryUI;
         private PigeonShopUI pigeonShopUI;
@@ -70,12 +73,9 @@ namespace PigeonGame.Gameplay
         {
             if (interactable != null && interactable.CanInteract())
             {
-                // 이미 다른 오브젝트가 있으면 무시 (가장 먼저 등록된 것 사용)
-                if (currentInteractable == null)
-                {
-                    currentInteractable = interactable;
-                    ShowOutline(interactable);
-                }
+                nearbyInteractables.Add(interactable);
+                // 오브젝트가 추가될 때만 가장 가까운 것 업데이트
+                UpdateClosestInteractable();
             }
         }
 
@@ -84,10 +84,79 @@ namespace PigeonGame.Gameplay
         /// </summary>
         public void UnregisterInteractable(IInteractable interactable)
         {
-            if (currentInteractable == interactable)
+            if (interactable != null)
             {
-                HideOutline();
-                currentInteractable = null;
+                nearbyInteractables.Remove(interactable);
+                
+                // 현재 선택된 오브젝트가 제거되면 가장 가까운 것 다시 찾기
+                if (currentInteractable == interactable)
+                {
+                    HideOutline();
+                    currentInteractable = null;
+                    // 다른 오브젝트가 있으면 가장 가까운 것 선택
+                    if (nearbyInteractables.Count > 0)
+                    {
+                        UpdateClosestInteractable();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 가장 가까운 상호작용 가능한 오브젝트 찾기
+        /// Register/Unregister 시에만 호출되어 성능 최적화
+        /// </summary>
+        private void UpdateClosestInteractable()
+        {
+            if (PlayerController.Instance == null)
+            {
+                if (currentInteractable != null)
+                {
+                    HideOutline();
+                    currentInteractable = null;
+                }
+                return;
+            }
+
+            Vector2 playerPosition = PlayerController.Instance.Position;
+            IInteractable closestInteractable = null;
+            float closestSqrDistance = float.MaxValue; // 제곱 거리 사용 (sqrt 제거로 최적화)
+
+            // 유효하지 않은 오브젝트 제거
+            nearbyInteractables.RemoveWhere(interactable => interactable == null || !interactable.CanInteract());
+
+            // 가장 가까운 오브젝트 찾기 (제곱 거리로 비교하여 성능 최적화)
+            foreach (var interactable in nearbyInteractables)
+            {
+                if (interactable == null || !interactable.CanInteract())
+                    continue;
+
+                // MonoBehaviour에서 위치 가져오기
+                if (interactable is MonoBehaviour monoBehaviour)
+                {
+                    Vector2 toObject = (Vector2)monoBehaviour.transform.position - playerPosition;
+                    float sqrDistance = toObject.sqrMagnitude; // sqrt 제거로 최적화
+                    if (sqrDistance < closestSqrDistance)
+                    {
+                        closestSqrDistance = sqrDistance;
+                        closestInteractable = interactable;
+                    }
+                }
+            }
+
+            // 가장 가까운 오브젝트가 변경되었으면 업데이트
+            if (closestInteractable != currentInteractable)
+            {
+                currentInteractable = closestInteractable;
+                
+                if (currentInteractable != null)
+                {
+                    ShowOutline(currentInteractable);
+                }
+                else
+                {
+                    HideOutline();
+                }
             }
         }
 

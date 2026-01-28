@@ -120,18 +120,31 @@ namespace PigeonGame.UI
                 slotUI.NameText.text = speciesData.name;
             }
 
-            // 아이콘 표시
+            // 기본값 설정
+            var registry = GameDataRegistry.Instance;
+            var defaultSpecies = (registry != null && registry.SpeciesSet != null)
+                ? registry.SpeciesSet.GetSpeciesById(PigeonSpecies.SP01)
+                : null;
+            var defaultFace = (registry != null && registry.Faces != null)
+                ? registry.Faces.GetFaceById(FaceType.F00)
+                : null;
+
+            // IconImage: Species icon 표시 (없으면 기본값 SP01 사용)
             if (slotUI.IconImage != null)
             {
-                if (speciesData.icon != null)
+                var iconToUse = speciesData?.icon ?? defaultSpecies?.icon;
+                if (iconToUse != null)
                 {
-                    slotUI.IconImage.sprite = speciesData.icon;
+                    slotUI.IconImage.sprite = iconToUse;
                     slotUI.IconImage.enabled = true;
                 }
-                else
-                {
-                    slotUI.IconImage.enabled = false;
-                }
+            }
+
+            // FaceIconImage: 기본 표정(F00) icon 표시 (무조건 표시)
+            if (slotUI.FaceIconImage != null && defaultFace?.icon != null)
+            {
+                slotUI.FaceIconImage.sprite = defaultFace.icon;
+                slotUI.FaceIconImage.enabled = true;
             }
 
             // 구매 버튼

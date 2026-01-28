@@ -61,101 +61,101 @@ namespace PigeonGame.Data
                     new SpeciesDefinition
                     {
                         speciesType = PigeonSpecies.SP01,
-                        name = "도시회색",
+                        name = "집둘기",
                         rarityTier = 1,
                         baseSpawnWeight = 5.0f,
-                        basePrice = 8,
+                        basePrice = 7,
                         unlockCost = 0, // 티어 1은 초기 해금
-                        favoriteTrapType = TrapType.BREAD,
+                        favoriteTrapType = TrapType.SEED,
                         favoriteTerrain = TerrainType.SAND
                     },
                     new SpeciesDefinition
                     {
                         speciesType = PigeonSpecies.SP02,
-                        name = "회색도시",
+                        name = "돌둘기",
                         rarityTier = 1,
-                        baseSpawnWeight = 5.0f,
+                        baseSpawnWeight = 4.5f,
                         basePrice = 8,
                         unlockCost = 0, // 티어 1은 초기 해금
-                        favoriteTrapType = TrapType.BREAD,
-                        favoriteTerrain = TerrainType.SAND
+                        favoriteTrapType = TrapType.CORN,
+                        favoriteTerrain = TerrainType.WETLAND
                     },
                     new SpeciesDefinition
                     {
                         speciesType = PigeonSpecies.SP03,
-                        name = "빵중독",
-                        rarityTier = 1,
-                        baseSpawnWeight = 5.0f,
-                        basePrice = 8,
-                        unlockCost = 0, // 티어 1은 초기 해금
-                        favoriteTrapType = TrapType.BREAD,
-                        favoriteTerrain = TerrainType.SAND
+                        name = "흑둘기",
+                        rarityTier = 2,
+                        baseSpawnWeight = 3.0f,
+                        basePrice = 18,
+                        unlockCost = 120, 
+                        favoriteTrapType = TrapType.CORN,
+                        favoriteTerrain = TerrainType.WETLAND
                     },
                     new SpeciesDefinition
                     {
                         speciesType = PigeonSpecies.SP04,
-                        name = "검은비둘기",
+                        name = "백둘기",
                         rarityTier = 2,
-                        baseSpawnWeight = 3.0f,
-                        basePrice = 18,
-                        unlockCost = 100, // 티어 2 * 50
-                        favoriteTrapType = TrapType.CORN,
-                        favoriteTerrain = TerrainType.FLOWER
+                        baseSpawnWeight = 2.5f,
+                        basePrice = 22,
+                        unlockCost = 180,
+                        favoriteTrapType = TrapType.BREAD,
+                        favoriteTerrain = TerrainType.SNOWY
                     },
                     new SpeciesDefinition
                     {
                         speciesType = PigeonSpecies.SP05,
-                        name = "흰비둘기",
-                        rarityTier = 2,
-                        baseSpawnWeight = 3.0f,
-                        basePrice = 18,
-                        unlockCost = 100, // 티어 2 * 50
+                        name = "꽃둘기",
+                        rarityTier = 3,
+                        baseSpawnWeight = 1.5f,
+                        basePrice = 45,
+                        unlockCost = 380,
                         favoriteTrapType = TrapType.BREAD,
                         favoriteTerrain = TerrainType.GRASS
                     },
                     new SpeciesDefinition
                     {
                         speciesType = PigeonSpecies.SP06,
-                        name = "무지개기름광",
+                        name = "금둘기",
                         rarityTier = 3,
-                        baseSpawnWeight = 1.5f,
-                        basePrice = 40,
-                        unlockCost = 150, // 티어 3 * 50
-                        favoriteTrapType = TrapType.SEEDS,
-                        favoriteTerrain = TerrainType.FLOWER
+                        baseSpawnWeight = 1.0f,
+                        basePrice = 55,
+                        unlockCost = 520,
+                        favoriteTrapType = TrapType.LUXURY,
+                        favoriteTerrain = TerrainType.ROAD
                     },
                     new SpeciesDefinition
                     {
                         speciesType = PigeonSpecies.SP07,
-                        name = "무지개비둘기",
+                        name = "산타둘기",
                         rarityTier = 4,
                         baseSpawnWeight = 0.8f,
-                        basePrice = 90,
-                        unlockCost = 200, // 티어 4 * 50
-                        favoriteTrapType = TrapType.SEEDS,
-                        favoriteTerrain = TerrainType.GRASS
+                        basePrice = 110,
+                        unlockCost = 900,
+                        favoriteTrapType = TrapType.LUXURY,
+                        favoriteTerrain = TerrainType.SNOWY
                     },
                     new SpeciesDefinition
                     {
                         speciesType = PigeonSpecies.SP08,
-                        name = "왕관비둘기",
-                        rarityTier = 5,
-                        baseSpawnWeight = 0.3f,
-                        basePrice = 180,
-                        unlockCost = 250, // 티어 5 * 50
-                        favoriteTrapType = TrapType.PELLET,
-                        favoriteTerrain = TerrainType.WETLAND
+                        name = "아이돌기",
+                        rarityTier = 4,
+                        baseSpawnWeight = 0.5f,
+                        basePrice = 135,
+                        unlockCost = 1150,
+                        favoriteTrapType = TrapType.SHINY,
+                        favoriteTerrain = TerrainType.ROAD
                     },
                     new SpeciesDefinition
                     {
                         speciesType = PigeonSpecies.SP09,
-                        name = "황금비둘기",
+                        name = "냥둘기",
                         rarityTier = 5,
                         baseSpawnWeight = 0.3f,
-                        basePrice = 180,
-                        unlockCost = 250, // 티어 5 * 50
-                        favoriteTrapType = TrapType.PELLET,
-                        favoriteTerrain = TerrainType.WETLAND
+                        basePrice = 280,
+                        unlockCost = 1900,
+                        favoriteTrapType = TrapType.SHINY,
+                        favoriteTerrain = TerrainType.GRASS
                     }
                 };
             }

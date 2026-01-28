@@ -21,6 +21,9 @@ namespace PigeonGame.Data
         public FaceType faceType;
         public string name;
         public float priceMultiplier;
+        public Sprite icon; // UI에서 사용할 아이콘 (face가 덮어씌워진 최종 이미지)
+        [Tooltip("Face 애니메이션 컨트롤러 (Idle, Walking, Flying 애니메이션 포함, 비둘기 바디와 동일한 구조)")]
+        public RuntimeAnimatorController animatorController; // Face 애니메이션 컨트롤러
     }
 
     [CreateAssetMenu(fileName = "FaceSet", menuName = "PigeonGame/Face Set")]
@@ -42,11 +45,11 @@ namespace PigeonGame.Data
                 faces = new FaceDefinition[]
                 {
                     new FaceDefinition { faceType = FaceType.F00, name = "기본", priceMultiplier = 1.0f },
-                    new FaceDefinition { faceType = FaceType.F01, name = "찡긋", priceMultiplier = 1.05f },
-                    new FaceDefinition { faceType = FaceType.F02, name = "상처", priceMultiplier = 1.08f },
-                    new FaceDefinition { faceType = FaceType.F03, name = "하트눈", priceMultiplier = 1.15f },
-                    new FaceDefinition { faceType = FaceType.F04, name = "왕눈", priceMultiplier = 1.2f },
-                    new FaceDefinition { faceType = FaceType.F05, name = "마스크", priceMultiplier = 1.25f }
+                    new FaceDefinition { faceType = FaceType.F01, name = "콩눈이", priceMultiplier = 1.05f },
+                    new FaceDefinition { faceType = FaceType.F02, name = "찡긋", priceMultiplier = 1.08f },
+                    new FaceDefinition { faceType = FaceType.F03, name = "번쩍", priceMultiplier = 1.15f },
+                    new FaceDefinition { faceType = FaceType.F04, name = "눈물", priceMultiplier = 1.2f },
+                    new FaceDefinition { faceType = FaceType.F05, name = "하트", priceMultiplier = 1.25f }
                 };
             }
         }

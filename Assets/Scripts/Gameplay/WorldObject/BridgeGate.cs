@@ -11,7 +11,7 @@ namespace PigeonGame.Gameplay
     {
         [Header("Gate Settings")]
         [SerializeField] private int areaNumber = 2; // 지역 번호 (2, 3, 4, 5)
-        [SerializeField] private int unlockCost = 100; // 해금 비용
+        [SerializeField] private int unlockCost = 200; // 해금 비용 (Region 2: 200, Region 3: 550, Region 4: 1200, Region 5: 2500)
         [SerializeField] private GameObject gateVisual; // 게이트 시각적 오브젝트 (문 등)
         [SerializeField] private Collider2D gateCollider; // 게이트 콜라이더 (다리를 막는 콜라이더)
 

@@ -7,7 +7,6 @@ namespace PigeonGame.Gameplay
     public class FoodTrap : InteractableBase
     {
         [SerializeField] private TrapType trapId;
-        [SerializeField] private Sprite capturedTrapSprite; // 포획된 덫의 스프라이트 (Inspector에서 설정)
         private TrapDefinition trapData;
         
         /// <summary>
@@ -52,6 +51,10 @@ namespace PigeonGame.Gameplay
         private PigeonInstanceStats capturedPigeonStats; // 포획된 비둘기 정보
         private bool isCaptured = false; // 포획 상태
         private SpriteRenderer spriteRenderer;
+        
+        [Header("Captured Pigeon Overlay")]
+        [SerializeField] private SpriteRenderer pigeonIconSpriteRenderer; // 포획된 비둘기 종 아이콘 (Inspector에서 설정)
+        [SerializeField] private SpriteRenderer pigeonFaceIconSpriteRenderer; // 포획된 비둘기 표정 아이콘 (Inspector에서 설정)
 
         public TrapType TrapId => trapId;
         public int CurrentFeedAmount => currentFeedAmount;
@@ -72,6 +75,8 @@ namespace PigeonGame.Gameplay
         {
             base.Start();
 
+            spriteRenderer = GetComponent<SpriteRenderer>();
+            
             LoadTrapData();
             if (trapData != null)
             {
@@ -83,9 +88,13 @@ namespace PigeonGame.Gameplay
                 {
                     initialFeedAmount = currentFeedAmount;
                 }
+                
+                // 설치되었을 때의 이미지 설정 (trapData.icon 사용)
+                if (trapData.icon != null && spriteRenderer != null)
+                {
+                    spriteRenderer.sprite = trapData.icon;
+                }
             }
-
-            spriteRenderer = GetComponent<SpriteRenderer>();
         }
 
         private void Update()
@@ -267,9 +276,72 @@ namespace PigeonGame.Gameplay
         /// </summary>
         private void ChangeToCapturedState()
         {
-            if (capturedTrapSprite != null && spriteRenderer != null)
+            // 덫 스프라이트 변경
+            if (trapData != null && trapData.capturedSprite != null && spriteRenderer != null)
             {
-                spriteRenderer.sprite = capturedTrapSprite;
+                spriteRenderer.sprite = trapData.capturedSprite;
+            }
+            
+            // 포획된 비둘기 이미지 오버레이 표시
+            ShowCapturedPigeonOverlay();
+        }
+        
+        /// <summary>
+        /// 포획된 비둘기 이미지 오버레이 표시 (opacity 0.7)
+        /// </summary>
+        private void ShowCapturedPigeonOverlay()
+        {
+            if (capturedPigeonStats == null)
+                return;
+            
+            var registry = GameDataRegistry.Instance;
+            if (registry == null)
+                return;
+            
+            // Species icon 설정
+            if (pigeonIconSpriteRenderer != null)
+            {
+                var species = registry.SpeciesSet?.GetSpeciesById(capturedPigeonStats.speciesId);
+                var defaultSpecies = registry.SpeciesSet?.GetSpeciesById(PigeonSpecies.SP01);
+                var iconToUse = species?.icon ?? defaultSpecies?.icon;
+                
+                if (iconToUse != null)
+                {
+                    pigeonIconSpriteRenderer.sprite = iconToUse;
+                    pigeonIconSpriteRenderer.enabled = true;
+                    
+                    // Opacity 0.7 설정
+                    Color color = pigeonIconSpriteRenderer.color;
+                    color.a = 0.7f;
+                    pigeonIconSpriteRenderer.color = color;
+                }
+                else
+                {
+                    pigeonIconSpriteRenderer.enabled = false;
+                }
+            }
+            
+            // Face icon 설정
+            if (pigeonFaceIconSpriteRenderer != null)
+            {
+                var face = registry.Faces?.GetFaceById(capturedPigeonStats.faceId);
+                var defaultFace = registry.Faces?.GetFaceById(FaceType.F00);
+                var faceIconToUse = face?.icon ?? defaultFace?.icon;
+                
+                if (faceIconToUse != null)
+                {
+                    pigeonFaceIconSpriteRenderer.sprite = faceIconToUse;
+                    pigeonFaceIconSpriteRenderer.enabled = true;
+                    
+                    // Opacity 0.7 설정
+                    Color color = pigeonFaceIconSpriteRenderer.color;
+                    color.a = 0.7f;
+                    pigeonFaceIconSpriteRenderer.color = color;
+                }
+                else
+                {
+                    pigeonFaceIconSpriteRenderer.enabled = false;
+                }
             }
         }
 

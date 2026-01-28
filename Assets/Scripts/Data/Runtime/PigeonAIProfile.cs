@@ -96,11 +96,11 @@ namespace PigeonGame.Data
                     bitePowerEqualsObesity = true,
                     obesityProfiles = new Dictionary<int, ObesityProfile>
                     {
-                        { 1, new ObesityProfile { eatIntervalMultiplier = 1.08f, eatChanceMultiplier = 0.85f, priceDiscount = 1.1f } },
-                        { 2, new ObesityProfile { eatIntervalMultiplier = 1.0f, eatChanceMultiplier = 0.9f, priceDiscount = 1.0f } },
-                        { 3, new ObesityProfile { eatIntervalMultiplier = 0.92f, eatChanceMultiplier = 0.95f, priceDiscount = 0.9f } },
-                        { 4, new ObesityProfile { eatIntervalMultiplier = 0.85f, eatChanceMultiplier = 1.0f, priceDiscount = 0.8f } },
-                        { 5, new ObesityProfile { eatIntervalMultiplier = 0.8f, eatChanceMultiplier = 1.05f, priceDiscount = 0.7f } }
+                        { 1, new ObesityProfile { eatIntervalMultiplier = 1.08f, eatChanceMultiplier = 0.85f, priceDiscount = 1.0f } },
+                        { 2, new ObesityProfile { eatIntervalMultiplier = 1.0f, eatChanceMultiplier = 0.9f, priceDiscount = 0.9f } },
+                        { 3, new ObesityProfile { eatIntervalMultiplier = 0.92f, eatChanceMultiplier = 0.95f, priceDiscount = 0.8f } },
+                        { 4, new ObesityProfile { eatIntervalMultiplier = 0.85f, eatChanceMultiplier = 1.0f, priceDiscount = 0.7f } },
+                        { 5, new ObesityProfile { eatIntervalMultiplier = 0.8f, eatChanceMultiplier = 1.05f, priceDiscount = 0.6f } }
                     }
                 };
 
@@ -108,10 +108,10 @@ namespace PigeonGame.Data
                 tiers = new Dictionary<int, RarityTierProfile>
                 {
                     { 1, new RarityTierProfile { playerAlertPerSec = 38f, crowdAlertPerNeighborPerSec = 6f } },
-                    { 2, new RarityTierProfile { playerAlertPerSec = 30f, crowdAlertPerNeighborPerSec = 7f } },
-                    { 3, new RarityTierProfile { playerAlertPerSec = 22f, crowdAlertPerNeighborPerSec = 11f } },
-                    { 4, new RarityTierProfile { playerAlertPerSec = 18f, crowdAlertPerNeighborPerSec = 14f } },
-                    { 5, new RarityTierProfile { playerAlertPerSec = 14f, crowdAlertPerNeighborPerSec = 16f } }
+                    { 2, new RarityTierProfile { playerAlertPerSec = 30f, crowdAlertPerNeighborPerSec = 10f } },
+                    { 3, new RarityTierProfile { playerAlertPerSec = 22f, crowdAlertPerNeighborPerSec = 15f } },
+                    { 4, new RarityTierProfile { playerAlertPerSec = 18f, crowdAlertPerNeighborPerSec = 22f } }, // 희귀 비둘기: 경쟁에 민감하게
+                    { 5, new RarityTierProfile { playerAlertPerSec = 14f, crowdAlertPerNeighborPerSec = 28f } }  // 최고 희귀: 매우 민감하게
                 };
 
                 // StressToEatModifier 초기화

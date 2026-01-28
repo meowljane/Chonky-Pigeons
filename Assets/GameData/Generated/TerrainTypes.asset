@@ -13,4 +13,14 @@ MonoBehaviour:
   m_Name: TerrainTypes
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Data.TerrainTypeSet
   version: 1
-  terrainTypes: 0000000001000000020000000300000004000000
+  terrains:
+  - terrainType: 0
+    koreanName: "\uBAA8\uB798"
+  - terrainType: 1
+    koreanName: "\uB3C4\uB85C"
+  - terrainType: 2
+    koreanName: "\uC2B5\uC9C0"
+  - terrainType: 3
+    koreanName: "\uB208\uBC2D"
+  - terrainType: 4
+    koreanName: "\uC794\uB514"

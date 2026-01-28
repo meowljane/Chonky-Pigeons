@@ -15,37 +15,47 @@ MonoBehaviour:
   version: 1
   traps:
   - trapType: 0
-    name: "\uBC14\uC0AD\uBE75\uB36B"
+    name: "\uC528\uC557"
+    icon: {fileID: 21300000, guid: d38944a14505d7243b44974febc04c27, type: 3}
+    capturedSprite: {fileID: 21300000, guid: a5ddbe9d83eb9ab4390502367729b5ce, type: 3}
     unlockCost: 0
     installCost: 0
     feedCostPerUnit: 1
     feedAmount: 20
-    pigeonSpawnCount: 3
+    pigeonSpawnCount: 1
   - trapType: 1
-    name: "\uD1A1\uD1A1\uC528\uC557\uB36B"
-    unlockCost: 15
-    installCost: 8
-    feedCostPerUnit: 1
-    feedAmount: 20
-    pigeonSpawnCount: 4
-  - trapType: 2
-    name: "\uB178\uB791\uC625\uC218\uC218\uB36B"
-    unlockCost: 25
+    name: "\uC625\uC218\uC218"
+    icon: {fileID: 21300000, guid: b56e1240241fd314180a3786521ad196, type: 3}
+    capturedSprite: {fileID: 21300000, guid: 96ed75c49aadcff49b7347f2516e62c1, type: 3}
+    unlockCost: 240
     installCost: 12
     feedCostPerUnit: 2
     feedAmount: 20
-    pigeonSpawnCount: 5
-  - trapType: 3
-    name: "\uD504\uB9AC\uBBF8\uC5C4\uC54C\uAC31\uC774\uB36B"
-    unlockCost: 50
-    installCost: 25
+    pigeonSpawnCount: 1
+  - trapType: 2
+    name: "\uBE75"
+    icon: {fileID: 21300000, guid: cf7c33aae7f25a249a8f5f8683e3e9f5, type: 3}
+    capturedSprite: {fileID: 21300000, guid: 263375419f5061a469ed7beb9ebbfef3, type: 3}
+    unlockCost: 420
+    installCost: 22
     feedCostPerUnit: 3
     feedAmount: 20
-    pigeonSpawnCount: 6
-  - trapType: 4
-    name: "\uBC18\uC9DD\uAC04\uC2DD\uB36B"
-    unlockCost: 100
-    installCost: 50
+    pigeonSpawnCount: 2
+  - trapType: 3
+    name: "\uACE0\uAE09\uBA39\uC774"
+    icon: {fileID: 21300000, guid: b3d693650c1da6341b8f040e73b07591, type: 3}
+    capturedSprite: {fileID: 21300000, guid: 3dc7d553ee5ab714382dd19c05db2422, type: 3}
+    unlockCost: 780
+    installCost: 40
     feedCostPerUnit: 5
     feedAmount: 20
-    pigeonSpawnCount: 8
+    pigeonSpawnCount: 2
+  - trapType: 4
+    name: "\uBC18\uC9DD\uBA39\uC774"
+    icon: {fileID: 21300000, guid: 2a5fdf69fe0c1c542aa636006d56b53c, type: 3}
+    capturedSprite: {fileID: 21300000, guid: 1110b74f31513be4187761f2f7b68351, type: 3}
+    unlockCost: 1400
+    installCost: 75
+    feedCostPerUnit: 8
+    feedAmount: 20
+    pigeonSpawnCount: 3

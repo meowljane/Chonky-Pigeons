@@ -146,12 +146,6 @@ namespace PigeonGame.UI
                 slotUI.Button.onClick.AddListener(() => OnTrapSelected(trapData.trapType));
             }
 
-            // 체크마크 초기화
-            if (slotUI.Checkmark != null)
-            {
-                slotUI.Checkmark.SetActive(false);
-            }
-
             // 선택 상태 업데이트
             UpdateTrapSlotSelection(slotObj, trapData.trapType);
         }
@@ -162,7 +156,6 @@ namespace PigeonGame.UI
             if (slotUI == null) return;
 
             bool isSelected = selectedTrapId == trapType;
-            if (slotUI.Checkmark != null) slotUI.Checkmark.SetActive(isSelected);
             if (isSelected) selectedTrapItem = slotObj;
         }
 

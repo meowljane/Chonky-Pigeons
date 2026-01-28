@@ -19,19 +19,19 @@ MonoBehaviour:
     obesityValues:
     - eatIntervalMultiplier: 1.08
       eatChanceMultiplier: 0.85
-      priceDiscount: 1.1
+      priceDiscount: 1
     - eatIntervalMultiplier: 1
       eatChanceMultiplier: 0.9
-      priceDiscount: 1
+      priceDiscount: 0.9
     - eatIntervalMultiplier: 0.92
       eatChanceMultiplier: 0.95
-      priceDiscount: 0.9
+      priceDiscount: 0.8
     - eatIntervalMultiplier: 0.85
       eatChanceMultiplier: 1
-      priceDiscount: 0.8
+      priceDiscount: 0.7
     - eatIntervalMultiplier: 0.8
       eatChanceMultiplier: 1.05
-      priceDiscount: 0.7
+      priceDiscount: 0.6
   stressToEatModifier:
     enabled: 1
     warnEatChanceMultiplier: 0.65
@@ -41,16 +41,11 @@ MonoBehaviour:
   tierValues:
   - playerAlertPerSec: 38
     crowdAlertPerNeighborPerSec: 6
-    basePrice: 8
   - playerAlertPerSec: 30
-    crowdAlertPerNeighborPerSec: 7
-    basePrice: 18
+    crowdAlertPerNeighborPerSec: 10
   - playerAlertPerSec: 22
-    crowdAlertPerNeighborPerSec: 11
-    basePrice: 40
+    crowdAlertPerNeighborPerSec: 15
   - playerAlertPerSec: 18
-    crowdAlertPerNeighborPerSec: 14
-    basePrice: 90
+    crowdAlertPerNeighborPerSec: 22
   - playerAlertPerSec: 14
-    crowdAlertPerNeighborPerSec: 16
-    basePrice: 180
+    crowdAlertPerNeighborPerSec: 28

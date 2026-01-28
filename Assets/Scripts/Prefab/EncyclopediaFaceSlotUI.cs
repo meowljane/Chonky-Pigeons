@@ -15,10 +15,12 @@ namespace PigeonGame.UI
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private TextMeshProUGUI statusText;
         [SerializeField] private GameObject lockOverlay;
+        [SerializeField] private Button button; // 클릭 가능하도록 버튼 추가
 
         public Image BackgroundImage => backgroundImage;
         public TextMeshProUGUI NameText => nameText;
         public TextMeshProUGUI StatusText => statusText;
         public GameObject LockOverlay => lockOverlay;
+        public Button Button => button;
     }
 }

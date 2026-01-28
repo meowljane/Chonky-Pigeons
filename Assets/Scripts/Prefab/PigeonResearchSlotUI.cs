@@ -12,12 +12,14 @@ namespace PigeonGame.UI
     {
         [Header("Slot Components")]
         [SerializeField] private TextMeshProUGUI nameText;
-        [SerializeField] private Image iconImage;
+        [SerializeField] private Image iconImage; // Species 아이콘 또는 기본 표정이 적용된 몸+표정 이미지
+        [SerializeField] private Image faceIconImage; // Face 아이콘 (몸+표정 합쳐진 이미지, 선택적)
         [SerializeField] private Button buyButton;
         [SerializeField] private TextMeshProUGUI buttonText;
 
         public TextMeshProUGUI NameText => nameText;
         public Image IconImage => iconImage;
+        public Image FaceIconImage => faceIconImage;
         public Button BuyButton => buyButton;
         public TextMeshProUGUI ButtonText => buttonText;
     }

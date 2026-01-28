@@ -127,6 +127,7 @@ namespace PigeonGame.UI
             if (slotUI == null) return;
 
             if (slotUI.IconImage != null) slotUI.IconImage.enabled = false;
+            if (slotUI.FaceIconImage != null) slotUI.FaceIconImage.enabled = false;
             if (slotUI.NameText != null) slotUI.NameText.text = "";
             if (slotUI.DetailButton != null) slotUI.DetailButton.gameObject.SetActive(false);
             if (slotUI.SellButton != null) slotUI.SellButton.gameObject.SetActive(false);

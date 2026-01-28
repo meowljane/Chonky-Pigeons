@@ -49,21 +49,21 @@ namespace PigeonGame.Data
                     new UpgradeDefinition
                     {
                         upgradeName = "인벤토리 확장",
-                        costs = new int[] { 50, 100, 200 },
+                        costs = new int[] { 200, 450, 900 },
                         values = new int[] { 15, 20, 25 },
                         upgradeType = UpgradeType.InventorySlots
                     },
                     new UpgradeDefinition
                     {
                         upgradeName = "비둘기 스폰 증가",
-                        costs = new int[] { 30, 80, 150 },
+                        costs = new int[] { 160, 380, 780 },
                         values = new int[] { 10, 15, 20 },
                         upgradeType = UpgradeType.PigeonsPerMap
                     },
                     new UpgradeDefinition
                     {
                         upgradeName = "덫 설치 개수 증가",
-                        costs = new int[] { 40, 120, 250 },
+                        costs = new int[] { 260, 620, 1300 },
                         values = new int[] { 5, 7, 10 },
                         upgradeType = UpgradeType.MaxTrapCount
                     }

@@ -44,8 +44,14 @@ TagManager:
   - name: Map
     uniqueID: 96213575
     locked: 0
-  - name: Object
+  - name: Trap
     uniqueID: 123752185
+    locked: 0
+  - name: Pigeon
+    uniqueID: 2514582109
+    locked: 0
+  - name: OverMap
+    uniqueID: 21840249
     locked: 0
   - name: UI
     uniqueID: 2929406535

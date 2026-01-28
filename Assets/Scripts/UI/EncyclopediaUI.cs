@@ -117,10 +117,31 @@ namespace PigeonGame.UI
                 slotUI.BackgroundImage.color = isUnlocked ? unlockedColor : lockedColor;
             }
 
-            // 아이콘 설정
-            if (slotUI.IconImage != null && species.icon != null)
+            // 기본값 설정
+            var registry = GameDataRegistry.Instance;
+            var defaultSpecies = (registry != null && registry.SpeciesSet != null)
+                ? registry.SpeciesSet.GetSpeciesById(PigeonSpecies.SP01)
+                : null;
+            var defaultFace = (registry != null && registry.Faces != null)
+                ? registry.Faces.GetFaceById(FaceType.F00)
+                : null;
+
+            // IconImage: Species icon 표시 (없으면 기본값 SP01 사용)
+            if (slotUI.IconImage != null)
             {
-                slotUI.IconImage.sprite = species.icon;
+                var iconToUse = species?.icon ?? defaultSpecies?.icon;
+                if (iconToUse != null)
+                {
+                    slotUI.IconImage.sprite = iconToUse;
+                    slotUI.IconImage.enabled = true;
+                }
+            }
+
+            // FaceIconImage: 기본 표정(F00) icon 표시 (무조건 표시)
+            if (slotUI.FaceIconImage != null && defaultFace?.icon != null)
+            {
+                slotUI.FaceIconImage.sprite = defaultFace.icon;
+                slotUI.FaceIconImage.enabled = true;
             }
 
             // 이름 설정

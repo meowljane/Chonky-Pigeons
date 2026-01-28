@@ -15,7 +15,8 @@ namespace PigeonGame.UI
         [Header("Detail Panel")]
         [SerializeField] private GameObject speciesDetailPanel;
         [SerializeField] private TextMeshProUGUI speciesNameText;
-        [SerializeField] private Image speciesIconImage;
+        [SerializeField] private Image speciesIconImage; // Species 아이콘 또는 기본 표정이 적용된 몸+표정 이미지
+        [SerializeField] private Image speciesFaceIconImage; // Face 아이콘 (몸+표정 합쳐진 이미지, 선택적)
         [SerializeField] private TextMeshProUGUI speciesWeightText;
         [SerializeField] private TextMeshProUGUI preferenceText;
         [SerializeField] private Transform faceGridContainer;
@@ -27,6 +28,7 @@ namespace PigeonGame.UI
         [SerializeField] private Color lockedColor = Color.gray;
 
         private List<GameObject> faceSlotObjects = new List<GameObject>();
+        private SpeciesDefinition currentSpecies; // 현재 표시 중인 종
 
         private void Start()
         {
@@ -46,14 +48,15 @@ namespace PigeonGame.UI
             if (species == null || speciesDetailPanel == null)
                 return;
 
+            currentSpecies = species;
             speciesDetailPanel.SetActive(true);
 
             // Species 정보 표시
             if (speciesNameText != null)
                 speciesNameText.text = species.name;
 
-            if (speciesIconImage != null && species.icon != null)
-                speciesIconImage.sprite = species.icon;
+            // 기본 표정(F00)으로 표시
+            UpdateSpeciesIcon(FaceType.F00);
 
             // Species 무게 정보
             var speciesData = EncyclopediaManager.Instance != null
@@ -166,6 +169,66 @@ namespace PigeonGame.UI
             if (slotUI.LockOverlay != null)
             {
                 slotUI.LockOverlay.SetActive(!isUnlocked);
+            }
+
+            // 버튼 클릭 이벤트 연결 (표정 변경)
+            if (slotUI.Button != null)
+            {
+                slotUI.Button.onClick.RemoveAllListeners();
+                FaceType faceType = face.faceType; // 클로저를 위한 로컬 변수
+                slotUI.Button.onClick.AddListener(() => OnFaceSlotClicked(faceType));
+            }
+        }
+
+        /// <summary>
+        /// 표정 슬롯 클릭 시 해당 표정으로 변경
+        /// </summary>
+        private void OnFaceSlotClicked(FaceType faceType)
+        {
+            if (currentSpecies == null)
+                return;
+
+            UpdateSpeciesIcon(faceType);
+        }
+
+        /// <summary>
+        /// 종 아이콘을 지정된 표정으로 업데이트
+        /// </summary>
+        private void UpdateSpeciesIcon(FaceType faceType)
+        {
+            if (currentSpecies == null)
+                return;
+
+            var registry = GameDataRegistry.Instance;
+            if (registry == null || registry.Faces == null)
+                return;
+
+            var face = registry.Faces.GetFaceById(faceType);
+            
+            // 기본값 설정
+            var defaultSpecies = registry.SpeciesSet.GetSpeciesById(PigeonSpecies.SP01);
+            var defaultFace = registry.Faces.GetFaceById(FaceType.F00);
+            
+            // speciesIconImage: Species icon 표시 (없으면 기본값 SP01 사용)
+            if (speciesIconImage != null)
+            {
+                var iconToUse = currentSpecies?.icon ?? defaultSpecies?.icon;
+                if (iconToUse != null)
+                {
+                    speciesIconImage.sprite = iconToUse;
+                    speciesIconImage.enabled = true;
+                }
+            }
+
+            // speciesFaceIconImage: 선택된 Face icon 표시 (없으면 기본값 F00 사용)
+            if (speciesFaceIconImage != null)
+            {
+                var faceIconToUse = face?.icon ?? defaultFace?.icon;
+                if (faceIconToUse != null)
+                {
+                    speciesFaceIconImage.sprite = faceIconToUse;
+                    speciesFaceIconImage.enabled = true;
+                }
             }
         }
 

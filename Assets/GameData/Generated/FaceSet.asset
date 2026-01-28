@@ -17,18 +17,30 @@ MonoBehaviour:
   - faceType: 0
     name: "\uAE30\uBCF8"
     priceMultiplier: 1
+    icon: {fileID: 1575089231, guid: 165ebfb51b0e05744b0fa20da58973b3, type: 3}
+    animatorController: {fileID: 9100000, guid: 2a7ed1a8b7fbbae4f9a51e61ec605cc4, type: 2}
   - faceType: 1
-    name: "\uCC21\uAE0B"
+    name: "\uCF69\uB208\uC774"
     priceMultiplier: 1.05
+    icon: {fileID: -8069638948773283033, guid: e5d05786fe47802478981d45ccdd39cc, type: 3}
+    animatorController: {fileID: 9100000, guid: 578fde0504cf1a6478fae74b4753cadd, type: 2}
   - faceType: 2
-    name: "\uC0C1\uCC98"
+    name: "\uCC21\uAE0B"
     priceMultiplier: 1.08
+    icon: {fileID: -5933639745727301136, guid: 326c42ee0af82d24bb914373c706952e, type: 3}
+    animatorController: {fileID: 9100000, guid: 99b137eb495d7bd418c518657b3c15ae, type: 2}
   - faceType: 3
-    name: "\uD558\uD2B8\uB208"
+    name: "\uBC88\uCA4D"
     priceMultiplier: 1.15
+    icon: {fileID: -5047024544452019451, guid: f350ef7e89c4a3d4f99d9f118df09bb2, type: 3}
+    animatorController: {fileID: 9100000, guid: a1e0436383e327b4a875810c7c70e766, type: 2}
   - faceType: 4
-    name: "\uC655\uB208"
+    name: "\uB208\uBB3C"
     priceMultiplier: 1.2
+    icon: {fileID: -7555240614779302808, guid: 93199eeda2101d94280aa0c5bba7c39c, type: 3}
+    animatorController: {fileID: 9100000, guid: a83724c2b3ed8b846ad7d012cc570318, type: 2}
   - faceType: 5
-    name: "\uB9C8\uC2A4\uD06C"
+    name: "\uD558\uD2B8"
     priceMultiplier: 1.25
+    icon: {fileID: -5282808189642947391, guid: 1afc29f92dbd2b3428774b65f355e700, type: 3}
+    animatorController: {fileID: 9100000, guid: 49b740f13180c75479a6fe6263ed974a, type: 2}

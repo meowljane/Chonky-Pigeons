@@ -10,10 +10,6 @@ namespace PigeonGame.Gameplay
         [Header("Camera Reference")]
         [SerializeField] private Camera targetCamera;
         
-        [Header("Camera Settings")]
-        [SerializeField] private Vector2 offset = Vector2.zero;
-        [SerializeField] private float baseOrthographicSize = 5f;
-        
         private Transform cameraTransform;
         
         private void Awake()
@@ -25,7 +21,6 @@ namespace PigeonGame.Gameplay
             }
             
             cameraTransform = targetCamera.transform;
-            SetupCameraSize();
         }
         
         private void Start()
@@ -33,24 +28,7 @@ namespace PigeonGame.Gameplay
             if (target != null)
             {
                 Vector3 targetPos = target.position;
-                cameraTransform.position = new Vector3(targetPos.x + offset.x, targetPos.y + offset.y, cameraTransform.position.z);
-            }
-        }
-        
-        private void SetupCameraSize()
-        {
-            if (targetCamera == null) return;
-            
-            float screenAspect = (float)Screen.width / (float)Screen.height;
-            float baseAspect = 16f / 9f;
-            
-            if (screenAspect > baseAspect)
-            {
-                targetCamera.orthographicSize = baseOrthographicSize;
-            }
-            else
-            {
-                targetCamera.orthographicSize = baseOrthographicSize * (baseAspect / screenAspect);
+                cameraTransform.position = new Vector3(targetPos.x, targetPos.y, cameraTransform.position.z);
             }
         }
         
@@ -59,7 +37,7 @@ namespace PigeonGame.Gameplay
             if (target == null || cameraTransform == null) return;
             
             Vector3 targetPos = target.position;
-            cameraTransform.position = new Vector3(targetPos.x + offset.x, targetPos.y + offset.y, cameraTransform.position.z);
+            cameraTransform.position = new Vector3(targetPos.x, targetPos.y, cameraTransform.position.z);
         }
     }
 }

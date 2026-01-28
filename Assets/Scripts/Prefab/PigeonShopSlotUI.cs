@@ -12,7 +12,8 @@ namespace PigeonGame.UI
     public class PigeonShopSlotUI : MonoBehaviour
     {
         [Header("Slot Components")]
-        [SerializeField] private Image iconImage;
+        [SerializeField] private Image iconImage; // Species 아이콘 또는 기본 표정이 적용된 몸+표정 이미지
+        [SerializeField] private Image faceIconImage; // Face 아이콘 (몸+표정 합쳐진 이미지, 선택적)
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private Button detailButton;
         [SerializeField] private Button sellButton;
@@ -24,6 +25,7 @@ namespace PigeonGame.UI
         private int itemIndex;
 
         public Image IconImage => iconImage;
+        public Image FaceIconImage => faceIconImage;
         public TextMeshProUGUI NameText => nameText;
         public Button DetailButton => detailButton;
         public Button SellButton => sellButton;
@@ -45,18 +47,37 @@ namespace PigeonGame.UI
             var species = (registry != null && registry.SpeciesSet != null) 
                 ? registry.SpeciesSet.GetSpeciesById(stats.speciesId) 
                 : null;
+            var face = (registry != null && registry.Faces != null)
+                ? registry.Faces.GetFaceById(stats.faceId)
+                : null;
 
-            // 아이콘 표시
+            // 기본값 설정
+            var defaultSpecies = (registry != null && registry.SpeciesSet != null)
+                ? registry.SpeciesSet.GetSpeciesById(PigeonSpecies.SP01)
+                : null;
+            var defaultFace = (registry != null && registry.Faces != null)
+                ? registry.Faces.GetFaceById(FaceType.F00)
+                : null;
+
+            // IconImage: Species icon 표시 (없으면 기본값 SP01 사용)
             if (iconImage != null)
             {
-                if (species != null && species.icon != null)
+                var iconToUse = species?.icon ?? defaultSpecies?.icon;
+                if (iconToUse != null)
                 {
-                    iconImage.sprite = species.icon;
+                    iconImage.sprite = iconToUse;
                     iconImage.enabled = true;
                 }
-                else
+            }
+
+            // FaceIconImage: Face icon 표시 (없으면 기본값 F00 사용)
+            if (faceIconImage != null)
+            {
+                var faceIconToUse = face?.icon ?? defaultFace?.icon;
+                if (faceIconToUse != null)
                 {
-                    iconImage.enabled = false;
+                    faceIconImage.sprite = faceIconToUse;
+                    faceIconImage.enabled = true;
                 }
             }
 

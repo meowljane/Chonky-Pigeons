@@ -72,7 +72,8 @@ namespace PigeonGame.UI
         [SerializeField] private GameObject pigeonsPerMapBlockPanel; // 비둘기 스폰 수 선택 패널 막는 패널
         [SerializeField] private PigeonsPerMapSelectPanelReferences pigeonsPerMapSelectPanelRefs;
 
-        [SerializeField] private int speciesWeightUnlockCost = 200;
+        [SerializeField] private int speciesWeightIncUnlockCost = 920; // 비둘기 확률 증가 해금 비용
+        [SerializeField] private int speciesWeightDecUnlockCost = 660; // 비둘기 확률 감소 해금 비용
 
         private bool isSpeciesWeightIncUnlocked = false;
         private bool isSpeciesWeightDecUnlocked = false;
@@ -294,6 +295,7 @@ namespace PigeonGame.UI
                 return;
 
             bool isUnlocked = isIncrease ? isSpeciesWeightIncUnlocked : isSpeciesWeightDecUnlocked;
+            int unlockCost = isIncrease ? speciesWeightIncUnlockCost : speciesWeightDecUnlockCost;
 
             // NameText 업데이트
             if (slotRefs.nameText != null)
@@ -307,7 +309,7 @@ namespace PigeonGame.UI
             {
                 bool canAfford = GameManager.Instance != null && 
                                 !isUnlocked && 
-                                GameManager.Instance.CurrentMoney >= speciesWeightUnlockCost;
+                                GameManager.Instance.CurrentMoney >= unlockCost;
                 
                 slotRefs.unlockButton.interactable = !isUnlocked && canAfford;
                 slotRefs.unlockButton.onClick.RemoveAllListeners();
@@ -318,9 +320,9 @@ namespace PigeonGame.UI
                     if (isUnlocked)
                         slotRefs.buttonText.text = "해금됨";
                     else if (canAfford)
-                        slotRefs.buttonText.text = $"해금\n{speciesWeightUnlockCost}G";
+                        slotRefs.buttonText.text = $"해금\n{unlockCost}G";
                     else
-                        slotRefs.buttonText.text = $"돈부족\n{speciesWeightUnlockCost}G";
+                        slotRefs.buttonText.text = $"돈부족\n{unlockCost}G";
                 }
             }
         }
@@ -509,7 +511,8 @@ namespace PigeonGame.UI
             if (GameManager.Instance == null)
                 return;
 
-            if (!GameManager.Instance.SpendMoney(speciesWeightUnlockCost))
+            int unlockCost = isIncrease ? speciesWeightIncUnlockCost : speciesWeightDecUnlockCost;
+            if (!GameManager.Instance.SpendMoney(unlockCost))
                 return;
 
             if (isIncrease)

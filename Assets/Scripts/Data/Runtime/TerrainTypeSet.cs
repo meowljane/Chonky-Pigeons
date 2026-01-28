@@ -8,10 +8,10 @@ namespace PigeonGame.Data
     public enum TerrainType
     {
         SAND,
-        GRASS,
-        WATER,
-        FLOWER,
-        WETLAND
+        ROAD,
+        WETLAND,
+        SNOWY,
+        GRASS
     }
 
     [System.Serializable]
@@ -39,11 +39,11 @@ namespace PigeonGame.Data
                 version = 1;
                 terrains = new TerrainDefinition[]
                 {
-                    new TerrainDefinition { terrainType = TerrainType.SAND, koreanName = "모래사장" },
-                    new TerrainDefinition { terrainType = TerrainType.GRASS, koreanName = "초원" },
-                    new TerrainDefinition { terrainType = TerrainType.WATER, koreanName = "호수" },
-                    new TerrainDefinition { terrainType = TerrainType.FLOWER, koreanName = "꽃밭" },
-                    new TerrainDefinition { terrainType = TerrainType.WETLAND, koreanName = "습지" }
+                    new TerrainDefinition { terrainType = TerrainType.SAND, koreanName = "모래" },
+                    new TerrainDefinition { terrainType = TerrainType.ROAD, koreanName = "도로" },
+                    new TerrainDefinition { terrainType = TerrainType.WETLAND, koreanName = "습지" },
+                    new TerrainDefinition { terrainType = TerrainType.SNOWY, koreanName = "눈밭" },
+                    new TerrainDefinition { terrainType = TerrainType.GRASS, koreanName = "잔디" }
                 };
             }
         }
