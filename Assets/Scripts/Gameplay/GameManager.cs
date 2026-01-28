@@ -21,6 +21,8 @@ namespace PigeonGame.Gameplay
         private HashSet<TrapType> unlockedTraps = new HashSet<TrapType>();
         private HashSet<PigeonSpecies> unlockedSpecies = new HashSet<PigeonSpecies>(); // 해금된 비둘기 종
         private HashSet<int> unlockedAreas = new HashSet<int>(); // 해금된 지역 (2, 3, 4, 5)
+        private HashSet<DoorType> unlockedDoors = new HashSet<DoorType>(); // 해금된 문
+        private HashSet<MapType> unlockedMaps = new HashSet<MapType>(); // 해금된 맵
         private List<PigeonInstanceStats> inventory = new List<PigeonInstanceStats>();
         private List<PigeonInstanceStats> exhibition = new List<PigeonInstanceStats>(); // 전시관
 
@@ -39,6 +41,8 @@ namespace PigeonGame.Gameplay
         public event System.Action<PigeonInstanceStats> OnPigeonAddedToExhibition;
         public event System.Action<PigeonInstanceStats> OnPigeonRemovedFromExhibition;
         public event System.Action<int> OnAreaUnlocked; // 지역 해금 이벤트
+        public event System.Action<DoorType> OnDoorUnlocked; // 문 해금 이벤트
+        public event System.Action<MapType> OnMapUnlocked; // 맵 해금 이벤트
 
         private void Awake()
         {
@@ -70,6 +74,10 @@ namespace PigeonGame.Gameplay
                 unlockedSpecies.Add(speciesType);
                 OnSpeciesUnlocked?.Invoke(speciesType);
             }
+
+            // 시작 맵 해금 (MAP1은 기본 해금)
+            unlockedMaps.Add(MapType.MAP1);
+            OnMapUnlocked?.Invoke(MapType.MAP1);
 
             OnMoneyChanged?.Invoke(currentMoney);
         }
@@ -330,6 +338,71 @@ namespace PigeonGame.Gameplay
             OnAreaUnlocked?.Invoke(areaNumber);
             ToastNotificationManager.ShowSuccess($"지역 {areaNumber} 해금 성공!");
             return true;
+        }
+
+        /// <summary>
+        /// 문이 해금되어 있는지 확인
+        /// </summary>
+        public bool IsDoorUnlocked(DoorType doorType)
+        {
+            return unlockedDoors.Contains(doorType);
+        }
+
+        /// <summary>
+        /// 문 구매/해금
+        /// </summary>
+        public bool UnlockDoor(DoorType doorType, int cost)
+        {
+            if (unlockedDoors.Contains(doorType))
+                return false;
+
+            if (!SpendMoney(cost))
+                return false;
+
+            unlockedDoors.Add(doorType);
+            OnDoorUnlocked?.Invoke(doorType);
+            
+            // DoorSet에서 문 데이터 가져오기
+            var registry = GameDataRegistry.Instance;
+            MapType mapToUnlock = MapType.MAP1;
+            string mapName = "맵";
+            
+            if (registry?.DoorSet != null)
+            {
+                var doorDef = registry.DoorSet.GetDoorById(doorType);
+                if (doorDef != null)
+                {
+                    mapToUnlock = doorDef.unlocksMap;
+                }
+            }
+            
+            // 해당 맵 해금
+            if (!unlockedMaps.Contains(mapToUnlock))
+            {
+                unlockedMaps.Add(mapToUnlock);
+                OnMapUnlocked?.Invoke(mapToUnlock);
+            }
+            
+            // 맵 이름 가져오기
+            if (registry?.MapTypes != null)
+            {
+                var mapDef = registry.MapTypes.GetMapById(mapToUnlock);
+                if (mapDef != null)
+                {
+                    mapName = mapDef.displayName;
+                }
+            }
+            
+            ToastNotificationManager.ShowSuccess($"{mapName} 해금 성공!");
+            return true;
+        }
+
+        /// <summary>
+        /// 맵이 해금되어 있는지 확인
+        /// </summary>
+        public bool IsMapUnlocked(MapType mapType)
+        {
+            return unlockedMaps.Contains(mapType);
         }
 
     }

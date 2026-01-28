@@ -26,7 +26,7 @@ namespace PigeonGame.UI
         [SerializeField] private PigeonDetailPanelUI detailPanelUI; // 상세 정보 패널 UI
 
         [Header("Exhibition Area")]
-        [SerializeField] private Collider2D exhibitionArea; // 전시 영역 (사용자가 설정)
+        // 전시 영역은 타일맵 기반으로 자동 감지됩니다 (ExhibitionArea 컴포넌트가 있는 타일맵)
 
         [Header("Pigeon Spawning")]
         [SerializeField] private GameObject pigeonPrefab; // 비둘기 프리팹
@@ -48,12 +48,6 @@ namespace PigeonGame.UI
             }
 
             UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
-
-            // 전시 영역이 없으면 자동으로 찾기 (같은 오브젝트의 Collider2D)
-            if (exhibitionArea == null)
-            {
-                exhibitionArea = GetComponent<Collider2D>();
-            }
 
             // GameManager 이벤트 구독
             if (GameManager.Instance != null)
@@ -337,11 +331,22 @@ namespace PigeonGame.UI
         /// </summary>
         private void SpawnExhibitionPigeon(PigeonInstanceStats stats)
         {
-            if (pigeonPrefab == null || exhibitionArea == null || stats == null)
+            if (pigeonPrefab == null || stats == null)
                 return;
 
-            // 전시 영역 내 랜덤 위치 생성
-            Vector3 spawnPos = GetRandomPositionInCollider(exhibitionArea);
+            // 타일맵 기반 전시 영역에서 랜덤 위치 생성
+            Vector3 spawnPos = Vector3.zero;
+            if (TilemapRangeManager.Instance != null)
+            {
+                spawnPos = TilemapRangeManager.Instance.GetRandomPositionInExhibitionArea();
+            }
+
+            if (spawnPos == Vector3.zero)
+            {
+                Debug.LogWarning("ExhibitionUI: 전시 영역 타일맵을 찾을 수 없습니다. ExhibitionArea 컴포넌트가 있는 타일맵을 확인하세요.");
+                return;
+            }
+
             spawnPos.z = 0f; // 2D 게임용
 
             GameObject pigeonObj = Instantiate(pigeonPrefab, spawnPos, Quaternion.identity);
@@ -356,42 +361,13 @@ namespace PigeonGame.UI
                 // 비둘기 초기화
                 controller.Initialize(stats);
                 
-                // 전시 비둘기로 설정
-                controller.SetAsExhibitionPigeon(exhibitionArea);
+                // 전시 비둘기로 설정 (타일맵 기반)
+                controller.SetAsExhibitionPigeon();
 
                 exhibitionPigeons.Add(controller);
             }
         }
 
-        /// <summary>
-        /// 콜라이더 내 랜덤 위치 생성
-        /// </summary>
-        private Vector3 GetRandomPositionInCollider(Collider2D collider)
-        {
-            if (collider == null)
-                return transform.position;
-
-            Bounds bounds = collider.bounds;
-            int attempts = 0;
-            Vector2 position;
-            
-            do
-            {
-                position = new Vector2(
-                    Random.Range(bounds.min.x, bounds.max.x),
-                    Random.Range(bounds.min.y, bounds.max.y)
-                );
-                attempts++;
-            } while (attempts < 20 && !collider.OverlapPoint(position));
-
-            // 20번 시도해도 실패하면 bounds 중심 사용
-            if (attempts >= 20)
-            {
-                position = bounds.center;
-            }
-
-            return position;
-        }
 
         /// <summary>
         /// 모든 전시 비둘기 제거

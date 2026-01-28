@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18590a76fa13e0e49930fca91d18d807, type: 3}
+  m_Name: MapTypes
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Data.MapTypeSet
+  version: 1
+  maps:
+  - mapType: 0
+    displayName: "\uB9F5 1"
+  - mapType: 1
+    displayName: "\uB9F5 2"
+  - mapType: 2
+    displayName: "\uB9F5 3"
+  - mapType: 3
+    displayName: "\uB9F5 4"
+  - mapType: 4
+    displayName: "\uB9F5 5"

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using PigeonGame.UI;
+using PigeonGame.Data;
 
 namespace PigeonGame.Gameplay
 {
@@ -25,7 +26,7 @@ namespace PigeonGame.Gameplay
         private UI.ExhibitionUI exhibitionUI;
         private UI.PigeonResearchUI pigeonResearchUI;
         private UpgradeShopUI upgradeShopUI;
-        private BridgeGatePurchaseUI bridgeGatePurchaseUI;
+        private DoorPurchaseUI doorPurchaseUI;
 
         private void Awake()
         {
@@ -55,7 +56,7 @@ namespace PigeonGame.Gameplay
             exhibitionUI = FindFirstObjectByType<UI.ExhibitionUI>();
             pigeonResearchUI = FindFirstObjectByType<UI.PigeonResearchUI>();
             upgradeShopUI = FindFirstObjectByType<UpgradeShopUI>();
-            bridgeGatePurchaseUI = FindFirstObjectByType<BridgeGatePurchaseUI>();
+            doorPurchaseUI = FindFirstObjectByType<DoorPurchaseUI>();
         }
 
         private void OnDestroy()
@@ -227,13 +228,19 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
-        /// 다리 게이트 구매 패널 열기 (BridgeGate에서 호출)
+        /// 문 구매 패널 열기 (Door에서 호출)
         /// </summary>
-        public void OpenBridgeGatePurchase(BridgeGate gate, int areaNumber, int cost, string areaName = null)
+        public void OpenDoorPurchase(Door door, DoorType doorType, int cost, MapType unlocksMap)
         {
-            if (bridgeGatePurchaseUI != null)
+            if (doorPurchaseUI == null)
             {
-                bridgeGatePurchaseUI.OpenPurchasePanel(gate, areaNumber, cost, areaName);
+                InitializeUIComponents();
+                doorPurchaseUI = FindFirstObjectByType<DoorPurchaseUI>();
+            }
+
+            if (doorPurchaseUI != null)
+            {
+                doorPurchaseUI.OpenPurchasePanel(door, doorType, cost, unlocksMap);
             }
         }
 

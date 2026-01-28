@@ -2,26 +2,27 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using PigeonGame.Gameplay;
+using PigeonGame.Data;
 
 namespace PigeonGame.UI
 {
     /// <summary>
-    /// 다리 게이트 구매 UI
+    /// 문 구매 UI
     /// </summary>
-    public class BridgeGatePurchaseUI : MonoBehaviour
+    public class DoorPurchaseUI : MonoBehaviour
     {
         [Header("Main Panel")]
         [SerializeField] private GameObject purchasePanel;
-        [SerializeField] private TextMeshProUGUI areaNameText;
+        [SerializeField] private TextMeshProUGUI doorNameText;
         [SerializeField] private TextMeshProUGUI costText;
         [SerializeField] private TextMeshProUGUI goldText;
         [SerializeField] private Button purchaseButton;
         [SerializeField] private Button closeButton;
 
-        private int currentAreaNumber;
+        private DoorType currentDoorType;
         private int currentCost;
-        private BridgeGate currentGate;
-        private string currentAreaName;
+        private Door currentDoor;
+        private MapType currentUnlocksMap;
 
         private void Start()
         {
@@ -37,7 +38,7 @@ namespace PigeonGame.UI
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
-                GameManager.Instance.OnAreaUnlocked += OnAreaUnlocked;
+                GameManager.Instance.OnDoorUnlocked += OnDoorUnlocked;
             }
 
             UpdateGoldText();
@@ -46,15 +47,15 @@ namespace PigeonGame.UI
         /// <summary>
         /// 구매 패널 열기
         /// </summary>
-        public void OpenPurchasePanel(BridgeGate gate, int areaNumber, int cost, string areaName = null)
+        public void OpenPurchasePanel(Door door, DoorType doorType, int cost, MapType unlocksMap)
         {
-            if (purchasePanel == null || gate == null)
+            if (purchasePanel == null || door == null)
                 return;
 
-            currentGate = gate;
-            currentAreaNumber = areaNumber;
+            currentDoor = door;
+            currentDoorType = doorType;
             currentCost = cost;
-            currentAreaName = areaName;
+            currentUnlocksMap = unlocksMap;
 
             purchasePanel.SetActive(true);
             UpdateDisplay();
@@ -66,14 +67,14 @@ namespace PigeonGame.UI
             UpdatePurchaseButton();
         }
 
-        private void OnAreaUnlocked(int areaNumber)
+        private void OnDoorUnlocked(DoorType doorType)
         {
-            if (areaNumber == currentAreaNumber)
+            if (doorType == currentDoorType)
             {
-                // 게이트 해제 (이벤트에서도 호출하여 확실히 처리)
-                if (currentGate != null && currentGate.gameObject != null && currentGate.gameObject.activeSelf)
+                // 문 해제 (이벤트에서도 호출하여 확실히 처리)
+                if (currentDoor != null && currentDoor.gameObject != null)
                 {
-                    currentGate.UnlockGate();
+                    currentDoor.UnlockDoor();
                 }
                 // 구매 완료 후 패널 닫기
                 ClosePanel();
@@ -82,17 +83,20 @@ namespace PigeonGame.UI
 
         private void UpdateDisplay()
         {
-            // 지역 이름 표시
-            if (areaNameText != null)
+            // 맵 이름 표시
+            if (doorNameText != null)
             {
-                if (!string.IsNullOrEmpty(currentAreaName))
+                string mapName = currentUnlocksMap.ToString();
+                var registry = GameDataRegistry.Instance;
+                if (registry?.MapTypes != null)
                 {
-                    areaNameText.text = currentAreaName;
+                    var mapDef = registry.MapTypes.GetMapById(currentUnlocksMap);
+                    if (mapDef != null)
+                    {
+                        mapName = mapDef.displayName;
+                    }
                 }
-                else
-                {
-                    areaNameText.text = $"지역 {currentAreaNumber}";
-                }
+                doorNameText.text = mapName;
             }
 
             // 비용 표시
@@ -115,7 +119,7 @@ namespace PigeonGame.UI
             if (purchaseButton == null)
                 return;
 
-            bool isUnlocked = GameManager.Instance != null && GameManager.Instance.IsAreaUnlocked(currentAreaNumber);
+            bool isUnlocked = GameManager.Instance != null && GameManager.Instance.IsDoorUnlocked(currentDoorType);
             bool canAfford = GameManager.Instance != null && GameManager.Instance.CurrentMoney >= currentCost;
 
             purchaseButton.interactable = !isUnlocked && canAfford;
@@ -144,11 +148,11 @@ namespace PigeonGame.UI
             if (GameManager.Instance == null)
                 return;
 
-            if (currentGate == null)
+            if (currentDoor == null)
                 return;
 
-            // 구매 처리 (성공하면 OnAreaUnlocked 이벤트가 발생하여 게이트가 해제됨)
-            GameManager.Instance.UnlockArea(currentAreaNumber, currentCost);
+            // 구매 처리 (성공하면 OnDoorUnlocked 이벤트가 발생하여 문이 삭제됨)
+            GameManager.Instance.UnlockDoor(currentDoorType, currentCost);
         }
 
         private void OnCloseButtonClicked()
@@ -162,7 +166,7 @@ namespace PigeonGame.UI
             {
                 purchasePanel.SetActive(false);
             }
-            currentGate = null;
+            currentDoor = null;
         }
 
         private void OnDestroy()
@@ -170,7 +174,7 @@ namespace PigeonGame.UI
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnMoneyChanged -= OnMoneyChanged;
-                GameManager.Instance.OnAreaUnlocked -= OnAreaUnlocked;
+                GameManager.Instance.OnDoorUnlocked -= OnDoorUnlocked;
             }
             UIHelper.SafeRemoveListener(purchaseButton);
             UIHelper.SafeRemoveListener(closeButton);

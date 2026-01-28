@@ -12,6 +12,7 @@ namespace PigeonGame.Data
         [SerializeField] private MapTypeSet mapTypes;
         [SerializeField] private TrapTypeSet traps;
         [SerializeField] private UpgradeDefinitionSet upgradeDefinitions;
+        [SerializeField] private DoorSet doorSet;
 
         public static GameDataRegistry Instance { get; private set; }
 
@@ -22,6 +23,7 @@ namespace PigeonGame.Data
         public MapTypeSet MapTypes => mapTypes;
         public TrapTypeSet Traps => traps;
         public UpgradeDefinitionSet UpgradeDefinitions => upgradeDefinitions;
+        public DoorSet DoorSet => doorSet;
 
         private void Awake()
         {

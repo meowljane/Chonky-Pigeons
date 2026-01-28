@@ -42,21 +42,6 @@ namespace PigeonGame.Gameplay
             if (IsTooCloseToObjects<FoodTrap>(pos2D, minDistance))
                 return true;
 
-            // 게이트 중심점 거리 확인 (해금된 게이트는 콜라이더가 비활성화되어 있으므로 자동으로 제외됨)
-            BridgeGate[] allGates = FindObjectsByType<BridgeGate>(FindObjectsSortMode.None);
-            if (allGates != null)
-            {
-                foreach (var gate in allGates)
-                {
-                    if (gate?.GateCollider?.enabled == true)
-                    {
-                        float distance = Vector2.Distance(pos2D, gate.transform.position);
-                        if (distance < minDistance)
-                            return true;
-                    }
-                }
-            }
-
             return false;
         }
 

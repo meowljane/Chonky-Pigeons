@@ -20,12 +20,10 @@ namespace PigeonGame.Gameplay
         private static int nextSortingOrder = 0; // 자동 생성용 정적 카운터
         private PigeonMovement movement;
         private bool isExhibitionPigeon = false; // 전시관 비둘기 여부
-        private Collider2D exhibitionArea = null; // 전시관 영역
         private MovementState lastMovementState; // 이전 이동 상태 추적
 
         public PigeonInstanceStats Stats => stats;
         public bool IsExhibitionPigeon => isExhibitionPigeon;
-        public Collider2D ExhibitionArea => exhibitionArea;
 
         private void Awake()
         {
@@ -222,12 +220,12 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
-        /// 전시관 비둘기로 설정
+        /// 전시관 비둘기로 설정 (타일맵 기반)
         /// </summary>
-        public void SetAsExhibitionPigeon(Collider2D area)
+        public void SetAsExhibitionPigeon(Collider2D area = null)
         {
             isExhibitionPigeon = true;
-            exhibitionArea = area;
+            // 타일맵 기반으로 변경되었으므로 area 파라미터는 무시됨
         }
     }
 }

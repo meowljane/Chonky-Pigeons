@@ -450,11 +450,11 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
-        /// 전시 영역 내에서만 이동
+        /// 전시 영역 내에서만 이동 (타일맵 기반)
         /// </summary>
         private void MoveTowardsExhibitionTarget(Vector2 target, float speed)
         {
-            if (controller == null || controller.ExhibitionArea == null || rb == null)
+            if (controller == null || !controller.IsExhibitionPigeon || rb == null)
                 return;
 
             Vector2 toTarget = target - (Vector2)transform.position;
@@ -477,7 +477,7 @@ namespace PigeonGame.Gameplay
                 Vector2 newVelocity = direction * speed;
                 Vector2 newPosition = (Vector2)transform.position + newVelocity * Time.fixedDeltaTime;
                 
-                // 전시 영역 경계 체크
+                // 전시 영역 경계 체크 (타일맵 기반)
                 newPosition = ClampToExhibitionBounds(newPosition);
                 
                 rb.MovePosition(newPosition);
@@ -485,45 +485,51 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
-        /// 전시 영역 경계로 제한
+        /// 전시 영역 경계로 제한 (타일맵 기반)
         /// </summary>
         private Vector2 ClampToExhibitionBounds(Vector2 position)
         {
-            if (controller == null || controller.ExhibitionArea == null)
+            if (controller == null || !controller.IsExhibitionPigeon)
                 return position;
             
-            Bounds bounds = controller.ExhibitionArea.bounds;
-            position.x = Mathf.Clamp(position.x, bounds.min.x, bounds.max.x);
-            position.y = Mathf.Clamp(position.y, bounds.min.y, bounds.max.y);
+            // 타일맵 기반으로 전시 영역 내에 있는지 확인
+            if (TilemapRangeManager.Instance != null)
+            {
+                if (!TilemapRangeManager.Instance.IsInExhibitionArea(position))
+                {
+                    // 전시 영역 밖이면 현재 위치 유지
+                    return transform.position;
+                }
+            }
+            
             return position;
         }
 
         /// <summary>
-        /// 전시관 영역 내에서만 wander 타겟 설정
+        /// 전시관 영역 내에서만 wander 타겟 설정 (타일맵 기반)
         /// </summary>
         private void SetNewExhibitionWanderTarget()
         {
-            if (controller == null || controller.ExhibitionArea == null)
+            if (controller == null || !controller.IsExhibitionPigeon)
             {
                 // 전시 영역이 없으면 일반 wander
                 SetNewWanderTarget();
                 return;
             }
 
-            // 전시 영역 내 랜덤 위치 생성
-            Bounds bounds = controller.ExhibitionArea.bounds;
-            int attempts = 0;
-            Vector2 target;
-            do
+            // 타일맵 기반 전시 영역에서 랜덤 위치 생성
+            if (TilemapRangeManager.Instance != null)
             {
-                target = new Vector2(
-                    Random.Range(bounds.min.x, bounds.max.x),
-                    Random.Range(bounds.min.y, bounds.max.y)
-                );
-                attempts++;
-            } while (attempts < 10 && !IsPointInCollider(target, controller.ExhibitionArea));
+                Vector3 randomPos = TilemapRangeManager.Instance.GetRandomPositionInExhibitionArea();
+                if (randomPos != Vector3.zero)
+                {
+                    wanderTarget = randomPos;
+                    return;
+                }
+            }
 
-            wanderTarget = target;
+            // 타일맵에서 위치를 찾지 못하면 현재 위치 유지
+            wanderTarget = transform.position;
         }
 
         /// <summary>
