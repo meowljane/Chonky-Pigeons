@@ -27,39 +27,42 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
-        /// 위치가 다른 건물이나 덫의 중심점이 2f 이내에 있는지, 또는 문 영역 내에 있는지 확인
+        /// 위치가 다른 InteractableBase 오브젝트(건물, 덫, 문 등)의 인식 범위 내에 있는지 확인
+        /// 가장 가볍고 최적화된 방식: InteractionRadius + lossyScale 직접 계산 + 제곱 거리 비교
+        /// Unity의 CircleCollider2D bounds 계산 방식과 동일하게 처리 (radius * max(scale.x, scale.y))
         /// </summary>
         private bool IsPositionTooCloseToOtherObjects(Vector3 position)
         {
-            Vector2 pos2D = new Vector2(position.x, position.y);
-            float minDistance = INTERACTION_RADIUS;
-
-            // 건물 중심점 거리 확인
-            if (IsTooCloseToObjects<WorldShop>(pos2D, minDistance))
-                return true;
-
-            // 덫 중심점 거리 확인
-            if (IsTooCloseToObjects<FoodTrap>(pos2D, minDistance))
-                return true;
-
-            return false;
-        }
-
-        private bool IsTooCloseToObjects<T>(Vector2 pos2D, float minDistance) where T : MonoBehaviour
-        {
-            T[] objects = FindObjectsByType<T>(FindObjectsSortMode.None);
-            if (objects == null)
+            // InteractableBase를 상속받는 모든 오브젝트 확인 (WorldShop, Door, FoodTrap 등)
+            InteractableBase[] interactables = FindObjectsByType<InteractableBase>(FindObjectsSortMode.None);
+            if (interactables == null)
                 return false;
 
-            foreach (var obj in objects)
+            Vector2 pos2D = new Vector2(position.x, position.y);
+
+            foreach (var interactable in interactables)
             {
-                if (obj != null)
-                {
-                    float distance = Vector2.Distance(pos2D, obj.transform.position);
-                    if (distance < minDistance)
-                        return true;
-                }
+                if (interactable == null)
+                    continue;
+
+                // Unity의 CircleCollider2D bounds 계산 방식과 동일:
+                // bounds.extents.x = radius * max(lossyScale.x, lossyScale.y)
+                // GetComponent나 bounds 계산 없이 직접 계산하여 최적화
+                float interactionRadius = interactable.InteractionRadius;
+                Vector3 lossyScale = interactable.transform.lossyScale;
+                float scaledRadius = interactionRadius * Mathf.Max(Mathf.Abs(lossyScale.x), Mathf.Abs(lossyScale.y));
+                
+                // 제곱 거리 비교 (sqrt 없이, 가장 가벼운 방식)
+                Vector2 interactablePos2D = new Vector2(interactable.transform.position.x, interactable.transform.position.y);
+                float dx = pos2D.x - interactablePos2D.x;
+                float dy = pos2D.y - interactablePos2D.y;
+                float sqrDistance = dx * dx + dy * dy;
+                float sqrRadius = scaledRadius * scaledRadius;
+                
+                if (sqrDistance < sqrRadius)
+                    return true;
             }
+
             return false;
         }
 

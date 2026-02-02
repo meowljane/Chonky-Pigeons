@@ -212,8 +212,10 @@ namespace PigeonGame.Gameplay
                 
                 if (sqrDistance <= sqrRadius)
                 {
-                    float distance = Mathf.Sqrt(sqrDistance);
-                    float distanceFactor = Mathf.Clamp01(1f - (distance / detectionRadius));
+                    // 제곱 거리로 distanceFactor 근사 계산 (sqrt 없이, 가장 가벼운 방식)
+                    // 원래: distanceFactor = 1 - (distance / detectionRadius)
+                    // 근사: distanceFactor ≈ 1 - (sqrDistance / sqrRadius) (제곱 비율 사용)
+                    float distanceFactor = Mathf.Clamp01(1f - (sqrDistance / sqrRadius));
                     ai.AddPlayerAlert(Time.deltaTime * distanceFactor);
                 }
             }

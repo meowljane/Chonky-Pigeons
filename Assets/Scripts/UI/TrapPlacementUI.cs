@@ -157,6 +157,9 @@ namespace PigeonGame.UI
 
             bool isSelected = selectedTrapId == trapType;
             if (isSelected) selectedTrapItem = slotObj;
+            
+            // 체크마크 표시 업데이트
+            slotUI.SetSelected(isSelected);
         }
 
         private void OnTrapSelected(TrapType trapType)

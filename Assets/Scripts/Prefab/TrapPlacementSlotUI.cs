@@ -15,33 +15,34 @@ namespace PigeonGame.UI
         [SerializeField] private Image iconImage;
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private GameObject checkmark;
+        [SerializeField] private GameObject lockOverlay;
         [SerializeField] private Button button;
-
-        [Header("Colors")]
-        [SerializeField] private Color unlockedColor = Color.white;
-        [SerializeField] private Color lockedColor = Color.gray;
 
         public Image BackgroundImage => backgroundImage;
         public Image IconImage => iconImage;
         public TextMeshProUGUI NameText => nameText;
         public GameObject Checkmark => checkmark;
+        public GameObject LockOverlay => lockOverlay;
         public Button Button => button;
 
         public void SetUnlocked(bool isUnlocked)
         {
-            if (backgroundImage != null)
+            if (lockOverlay != null)
             {
-                backgroundImage.color = isUnlocked ? unlockedColor : lockedColor;
-            }
-
-            if (nameText != null)
-            {
-                nameText.color = isUnlocked ? Color.white : Color.gray;
+                lockOverlay.SetActive(!isUnlocked);
             }
 
             if (button != null)
             {
                 button.interactable = isUnlocked;
+            }
+        }
+
+        public void SetSelected(bool isSelected)
+        {
+            if (checkmark != null)
+            {
+                checkmark.SetActive(isSelected);
             }
         }
     }

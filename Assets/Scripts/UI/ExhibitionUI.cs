@@ -34,7 +34,7 @@ namespace PigeonGame.UI
         private List<GameObject> inventorySlotInstances = new List<GameObject>();
         private List<GameObject> exhibitionSlotInstances = new List<GameObject>();
         private List<PigeonController> exhibitionPigeons = new List<PigeonController>(); // 전시된 비둘기들
-        private const int MAX_EXHIBITION_SLOTS = 50; // 전시관 최대 슬롯 수
+        private const int MAX_EXHIBITION_SLOTS = 20; // 전시관 최대 슬롯 수
 
         private PigeonInstanceStats currentDetailPigeonStats;
         private bool isDetailFromInventory = true; // 상세 정보가 인벤토리에서 온 것인지
