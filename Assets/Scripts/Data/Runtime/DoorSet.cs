@@ -2,9 +2,6 @@ using UnityEngine;
 
 namespace PigeonGame.Data
 {
-    /// <summary>
-    /// 문 타입 Enum
-    /// </summary>
     public enum DoorType
     {
         DOOR1,
@@ -17,8 +14,8 @@ namespace PigeonGame.Data
     public class DoorDefinition
     {
         public DoorType doorType;
-        public int unlockCost; // 해금 비용
-        public MapType unlocksMap; // 이 문이 해금하는 맵
+        public int unlockCost; 
+        public MapType unlocksMap; 
     }
 
     [CreateAssetMenu(fileName = "Doors", menuName = "PigeonGame/Door Set")]
@@ -47,9 +44,6 @@ namespace PigeonGame.Data
             }
         }
 
-        /// <summary>
-        /// 문 타입으로 정의 가져오기
-        /// </summary>
         public DoorDefinition GetDoorById(DoorType doorType)
         {
             foreach (var door in doors)

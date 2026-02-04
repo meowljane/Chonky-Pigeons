@@ -30,8 +30,7 @@ namespace PigeonGame.Data
             if (Instance == null)
             {
                 Instance = this;
-                
-                // 런타임에 Dictionary 초기화
+
                 InitializeData();
             }
             else

@@ -3,16 +3,10 @@ using PigeonGame.Save;
 
 namespace PigeonGame.Gameplay
 {
-    /// <summary>
-    /// JSON 기반 세이브/로드/삭제 관리
-    /// </summary>
     public static class SaveManager
     {
         private const string SaveKey = "GameSaveData";
 
-        /// <summary>
-        /// 현재 게임 상태를 저장
-        /// </summary>
         public static void SaveGame()
         {
             var save = new SaveData
@@ -40,9 +34,6 @@ namespace PigeonGame.Gameplay
             PlayerPrefs.Save();
         }
 
-        /// <summary>
-        /// 저장된 데이터를 불러오거나, 없으면 기본값으로 생성
-        /// </summary>
         public static SaveData LoadGame()
         {
             if (!PlayerPrefs.HasKey(SaveKey))
@@ -65,9 +56,6 @@ namespace PigeonGame.Gameplay
             return data;
         }
 
-        /// <summary>
-        /// 저장 데이터를 현재 싱글톤 매니저들에 반영
-        /// </summary>
         public static void ApplyLoadedGame(SaveData data)
         {
             if (data == null)
@@ -89,18 +77,12 @@ namespace PigeonGame.Gameplay
             }
         }
 
-        /// <summary>
-        /// 세이브가 있으면 로드 후 적용, 없으면 현재 상태를 기본 세이브로 간주
-        /// </summary>
         public static void LoadOrCreateAndApply()
         {
             var data = LoadGame();
             ApplyLoadedGame(data);
         }
 
-        /// <summary>
-        /// 저장 데이터 삭제 (새 게임 시작용)
-        /// </summary>
         public static void DeleteSave()
         {
             if (PlayerPrefs.HasKey(SaveKey))
@@ -117,7 +99,6 @@ namespace PigeonGame.Gameplay
                 version = 1
             };
 
-            // 현재 초기 상태를 그대로 기본 세이브로 사용
             if (GameManager.Instance != null)
             {
                 data.game = GameManager.Instance.CreateSaveData();

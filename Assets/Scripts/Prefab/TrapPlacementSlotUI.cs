@@ -4,10 +4,6 @@ using TMPro;
 
 namespace PigeonGame.UI
 {
-    /// <summary>
-    /// 덫 설치 슬롯 UI 컴포넌트
-    /// 프리팹 내부의 UI 요소들을 미리 참조하여 저장
-    /// </summary>
     public class TrapPlacementSlotUI : MonoBehaviour
     {
         [Header("Slot Components")]

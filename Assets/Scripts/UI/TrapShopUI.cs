@@ -7,9 +7,6 @@ using PigeonGame.Gameplay;
 
 namespace PigeonGame.UI
 {
-    /// <summary>
-    /// 덫 구매 UI
-    /// </summary>
     public class TrapShopUI : MonoBehaviour
     {
         [Header("Main Panel")]
@@ -30,7 +27,6 @@ namespace PigeonGame.UI
 
             UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
 
-            // GameManager 이벤트 구독
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnTrapUnlocked += OnTrapUnlocked;
@@ -41,9 +37,6 @@ namespace PigeonGame.UI
             UpdateShopDisplay();
         }
 
-        /// <summary>
-        /// 상점 패널 열기 (상호작용 시스템에서 호출)
-        /// </summary>
         public void OpenShopPanel()
         {
             if (shopPanel != null)
@@ -51,7 +44,6 @@ namespace PigeonGame.UI
                 shopPanel.SetActive(true);
                 UpdateGoldText();
                 UpdateShopDisplay();
-                // 스크롤을 맨 위로 초기화
                 ScrollRectHelper.ScrollToTop(shopPanel);
             }
         }
@@ -77,10 +69,8 @@ namespace PigeonGame.UI
             if (trapContainer == null || trapSlot == null)
                 return;
 
-            // 기존 아이템 제거
             ClearTrapItems();
 
-            // 모든 덫 표시
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.Traps == null)
                 return;
@@ -105,7 +95,6 @@ namespace PigeonGame.UI
             bool isUnlocked = GameManager.Instance != null && GameManager.Instance.IsTrapUnlocked(trapData.trapType);
             bool canAfford = GameManager.Instance != null && GameManager.Instance.CurrentMoney >= trapData.unlockCost;
 
-            // 아이콘 표시
             if (slotUI.IconImage != null)
             {
                 if (trapData.icon != null)
@@ -119,18 +108,16 @@ namespace PigeonGame.UI
                 }
             }
 
-            // 덫 이름 표시
             if (slotUI.NameText != null)
             {
                 slotUI.NameText.text = trapData.name;
             }
 
-            // 선호 비둘기 목록 표시
             if (slotUI.PreferenceText != null)
             {
                 var registry = GameDataRegistry.Instance;
                 List<string> favoriteSpeciesNames = new List<string>();
-                
+
                 if (registry != null && registry.SpeciesSet != null)
                 {
                     foreach (var species in registry.SpeciesSet.species)
@@ -152,14 +139,12 @@ namespace PigeonGame.UI
                 }
             }
 
-            // 구매 버튼
             if (slotUI.BuyButton != null)
             {
                 slotUI.BuyButton.interactable = !isUnlocked && canAfford;
                 slotUI.BuyButton.onClick.RemoveAllListeners();
                 slotUI.BuyButton.onClick.AddListener(() => OnBuyClicked(trapData.trapType));
 
-                // 버튼 텍스트
                 if (slotUI.ButtonText != null)
                 {
                     if (isUnlocked)

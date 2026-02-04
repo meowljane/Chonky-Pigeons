@@ -7,9 +7,6 @@ using PigeonGame.Gameplay;
 
 namespace PigeonGame.UI
 {
-    /// <summary>
-    /// 도감 UI
-    /// </summary>
     public class EncyclopediaUI : MonoBehaviour
     {
         [Header("Main Panel")]
@@ -45,7 +42,6 @@ namespace PigeonGame.UI
             UIHelper.SafeAddListener(encyclopediaButton, OpenEncyclopedia);
             UIHelper.SafeAddListener(closeButton, CloseEncyclopedia);
 
-
             UpdateSpeciesList();
         }
 
@@ -55,7 +51,6 @@ namespace PigeonGame.UI
             {
                 encyclopediaPanel.SetActive(true);
                 UpdateSpeciesList();
-                // 스크롤을 맨 위로 초기화
                 ScrollRectHelper.ScrollToTop(encyclopediaPanel);
             }
         }
@@ -79,10 +74,8 @@ namespace PigeonGame.UI
 
             ClearSpeciesSlots();
 
-            // Species 목록 가져오기
             var allSpecies = registry.SpeciesSet.species;
 
-            // Species 슬롯 생성
             foreach (var species in allSpecies)
             {
                 GameObject slotObj = Instantiate(speciesSlot, speciesGridContainer, false);
@@ -97,27 +90,23 @@ namespace PigeonGame.UI
             if (slotUI == null)
                 return;
 
-            // 도감 데이터 확인
             var encyclopediaData = EncyclopediaManager.Instance != null 
                 ? EncyclopediaManager.Instance.GetSpeciesData(species.speciesType) 
                 : null;
 
             bool isUnlocked = encyclopediaData != null && encyclopediaData.isUnlocked;
 
-            // 버튼 이벤트 연결
             if (slotUI.Button != null)
             {
                 slotUI.Button.onClick.RemoveAllListeners();
                 slotUI.Button.onClick.AddListener(() => ShowSpeciesDetail(species));
             }
 
-            // 배경 색상 설정
             if (slotUI.BackgroundImage != null)
             {
                 slotUI.BackgroundImage.color = isUnlocked ? unlockedColor : lockedColor;
             }
 
-            // 기본값 설정
             var registry = GameDataRegistry.Instance;
             var defaultSpecies = (registry != null && registry.SpeciesSet != null)
                 ? registry.SpeciesSet.GetSpeciesById(PigeonSpecies.SP01)
@@ -126,7 +115,6 @@ namespace PigeonGame.UI
                 ? registry.Faces.GetFaceById(FaceType.F00)
                 : null;
 
-            // IconImage: Species icon 표시 (없으면 기본값 SP01 사용)
             if (slotUI.IconImage != null)
             {
                 var iconToUse = species?.icon ?? defaultSpecies?.icon;
@@ -137,20 +125,17 @@ namespace PigeonGame.UI
                 }
             }
 
-            // FaceIconImage: 기본 표정(F00) icon 표시 (무조건 표시)
             if (slotUI.FaceIconImage != null && defaultFace?.icon != null)
             {
                 slotUI.FaceIconImage.sprite = defaultFace.icon;
                 slotUI.FaceIconImage.enabled = true;
             }
 
-            // 이름 설정
             if (slotUI.NameText != null)
             {
                 slotUI.NameText.text = species.name;
             }
 
-            // 잠금 오버레이 표시/숨김
             if (slotUI.LockOverlay != null)
             {
                 slotUI.LockOverlay.SetActive(!isUnlocked);

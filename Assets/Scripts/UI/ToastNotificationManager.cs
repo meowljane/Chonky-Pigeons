@@ -6,37 +6,27 @@ using System.Collections;
 
 namespace PigeonGame.UI
 {
-    /// <summary>
-    /// 토스트 알림 타입
-    /// </summary>
     public enum ToastType
     {
-        Warning,    // 경고 (노란색)
-        Success,    // 성공 (초록색)
-        GoldChange  // 골드 변경 (+nG, -nG)
+        Warning,    
+        Success,    
+        GoldChange  
     }
 
-    /// <summary>
-    /// 토스트 알림 위치
-    /// </summary>
     public enum ToastPosition
     {
-        BelowGold,  // 골드 표시 아래
-        Message     // 문구 표시 위치
+        BelowGold,  
+        Message     
     }
 
-    /// <summary>
-    /// 토스트 알림 시스템 매니저
-    /// 싱글톤으로 전역에서 사용 가능
-    /// </summary>
     public class ToastNotificationManager : MonoBehaviour
     {
         public static ToastNotificationManager Instance { get; private set; }
 
         [Header("Toast Settings")]
-        [SerializeField] private float defaultDuration = 2f; // 기본 표시 시간
-        [SerializeField] private float goldToastDuration = 1.5f; // 골드 토스트 표시 시간
-        [SerializeField] private int maxToasts = 3; // 최대 동시 표시 개수
+        [SerializeField] private float defaultDuration = 2f; 
+        [SerializeField] private float goldToastDuration = 1.5f; 
+        [SerializeField] private int maxToasts = 3; 
 
         [Header("Animation Settings")]
         [SerializeField] private float slideInDuration = 0.3f;
@@ -49,15 +39,15 @@ namespace PigeonGame.UI
         [SerializeField] private Color goldLossTextColor = new Color(0.9f, 0.3f, 0.2f, 1f);
 
         [Header("References")]
-        [SerializeField] private Canvas toastCanvas; // 토스트 Canvas (필수)
-        [SerializeField] private Transform belowGoldParent; // 골드 표시 아래 토스트 부모 Transform (필수)
-        [SerializeField] private Transform messageParent; // 문구 표시 위치 토스트 부모 Transform (필수)
-        [SerializeField] private GameObject toastPrefab; // 토스트 프리팹 (필수)
+        [SerializeField] private Canvas toastCanvas; 
+        [SerializeField] private Transform belowGoldParent; 
+        [SerializeField] private Transform messageParent; 
+        [SerializeField] private GameObject toastPrefab; 
 
         private Queue<ToastData> toastQueue = new Queue<ToastData>();
         private List<GameObject> activeToasts = new List<GameObject>();
         private bool isProcessingQueue = false;
-        private int lastMoney = 0; // 골드 변경 추적용
+        private int lastMoney = 0; 
 
         private struct ToastData
         {
@@ -72,14 +62,13 @@ namespace PigeonGame.UI
             if (Instance == null)
             {
                 Instance = this;
-                
-                // 필수 참조 확인
+
                 if (toastCanvas == null || belowGoldParent == null || messageParent == null || toastPrefab == null)
                 {
                     enabled = false;
                     return;
                 }
-                
+
                 SubscribeToMoneyChanges();
             }
             else
@@ -88,9 +77,6 @@ namespace PigeonGame.UI
             }
         }
 
-        /// <summary>
-        /// 골드 변경 이벤트 구독
-        /// </summary>
         private void SubscribeToMoneyChanges()
         {
             if (Gameplay.GameManager.Instance != null)
@@ -114,9 +100,6 @@ namespace PigeonGame.UI
             Gameplay.GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
         }
 
-        /// <summary>
-        /// 골드 변경 시 호출
-        /// </summary>
         private void OnMoneyChanged(int newMoney)
         {
             int change = newMoney - lastMoney;
@@ -136,9 +119,6 @@ namespace PigeonGame.UI
             }
         }
 
-        /// <summary>
-        /// 경고 토스트 표시
-        /// </summary>
         public static void ShowWarning(string message)
         {
             if (Instance == null)
@@ -148,9 +128,6 @@ namespace PigeonGame.UI
             Instance.ShowToast(message, ToastType.Warning, ToastPosition.Message, Instance.defaultDuration);
         }
 
-        /// <summary>
-        /// 성공 토스트 표시
-        /// </summary>
         public static void ShowSuccess(string message)
         {
             if (Instance == null)
@@ -160,18 +137,12 @@ namespace PigeonGame.UI
             Instance.ShowToast(message, ToastType.Success, ToastPosition.Message, Instance.defaultDuration);
         }
 
-        /// <summary>
-        /// 골드 변경 토스트 표시 (내부)
-        /// </summary>
         private void ShowGoldChange(int amount)
         {
             string message = amount > 0 ? $"+{amount}G" : $"{amount}G";
             ShowToast(message, ToastType.GoldChange, ToastPosition.BelowGold, goldToastDuration);
         }
 
-        /// <summary>
-        /// 토스트 표시 내부 메서드
-        /// </summary>
         private void ShowToast(string message, ToastType type, ToastPosition position, float duration)
         {
             if (string.IsNullOrEmpty(message)) return;
@@ -192,9 +163,6 @@ namespace PigeonGame.UI
             }
         }
 
-        /// <summary>
-        /// 토스트 큐 처리
-        /// </summary>
         private IEnumerator ProcessToastQueue()
         {
             isProcessingQueue = true;
@@ -224,9 +192,6 @@ namespace PigeonGame.UI
             isProcessingQueue = false;
         }
 
-        /// <summary>
-        /// 토스트 생성
-        /// </summary>
         private GameObject CreateToast(ToastData data)
         {
             if (toastPrefab == null)
@@ -234,14 +199,12 @@ namespace PigeonGame.UI
                 return null;
             }
 
-            // 위치에 따라 적절한 부모 선택
             Transform parent = GetParentForPosition(data.position);
             if (parent == null)
             {
                 return null;
             }
 
-            // 프리팹 인스턴스 생성 (worldPositionStays = false로 부모 기준으로 생성)
             GameObject toastObj = Instantiate(toastPrefab, parent, false);
 
             RectTransform rect = toastObj.GetComponent<RectTransform>();
@@ -251,22 +214,18 @@ namespace PigeonGame.UI
                 return null;
             }
 
-            // 위치 설정 (부모의 중앙에서 시작하도록)
             rect.anchorMin = new Vector2(0.5f, 0.5f);
             rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = Vector2.zero; // 부모 중앙에서 시작
+            rect.anchoredPosition = Vector2.zero; 
 
-            // 레이아웃 강제 업데이트 (크기 계산을 위해)
             Canvas.ForceUpdateCanvases();
 
-            // 텍스트 설정
             TextMeshProUGUI text = toastObj.GetComponentInChildren<TextMeshProUGUI>();
             if (text != null)
             {
                 text.text = data.message;
-                
-                // 타입에 따른 텍스트 색상 설정
+
                 Color textColor = GetTextColorForType(data.type);
                 if (data.type == ToastType.GoldChange)
                 {
@@ -276,19 +235,14 @@ namespace PigeonGame.UI
                 text.color = textColor;
             }
 
-            // 숨김 위치 계산 (부모 기준 상단 밖)
             float hiddenOffset = rect.rect.height * 0.5f + 20f;
             rect.anchoredPosition = new Vector2(0, hiddenOffset);
 
-            // 애니메이션 시작
             StartCoroutine(ShowToastAnimation(toastObj, data.duration));
 
             return toastObj;
         }
 
-        /// <summary>
-        /// 위치에 따른 부모 Transform 반환
-        /// </summary>
         private Transform GetParentForPosition(ToastPosition position)
         {
             return position switch
@@ -299,9 +253,6 @@ namespace PigeonGame.UI
             };
         }
 
-        /// <summary>
-        /// 토스트 표시 애니메이션
-        /// </summary>
         private IEnumerator ShowToastAnimation(GameObject toastObj, float duration)
         {
             if (toastObj == null) yield break;
@@ -312,9 +263,8 @@ namespace PigeonGame.UI
             TextMeshProUGUI text = toastObj.GetComponentInChildren<TextMeshProUGUI>();
 
             Vector2 hiddenPos = rect.anchoredPosition;
-            Vector2 targetPos = Vector2.zero; // 부모의 중앙 위치 (0, 0)
+            Vector2 targetPos = Vector2.zero; 
 
-            // 슬라이드 인
             float elapsed = 0f;
             while (elapsed < slideInDuration)
             {
@@ -332,10 +282,8 @@ namespace PigeonGame.UI
                 rect.anchoredPosition = targetPos;
             }
 
-            // 대기
             yield return new WaitForSeconds(duration);
 
-            // 슬라이드 아웃
             if (toastObj == null || rect == null) yield break;
 
             elapsed = 0f;
@@ -352,7 +300,6 @@ namespace PigeonGame.UI
 
                 rect.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
 
-                // 텍스트 페이드 아웃
                 if (text != null)
                 {
                     Color c = text.color;
@@ -363,7 +310,6 @@ namespace PigeonGame.UI
                 yield return null;
             }
 
-            // 제거
             if (toastObj != null)
             {
                 if (activeToasts.Contains(toastObj))
@@ -374,9 +320,6 @@ namespace PigeonGame.UI
             }
         }
 
-        /// <summary>
-        /// 토스트 제거 애니메이션
-        /// </summary>
         private IEnumerator DismissToast(GameObject toastObj)
         {
             if (toastObj == null) yield break;
@@ -401,7 +344,6 @@ namespace PigeonGame.UI
 
                 rect.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
 
-                // 텍스트 페이드 아웃
                 if (text != null)
                 {
                     Color c = text.color;
@@ -422,11 +364,6 @@ namespace PigeonGame.UI
             }
         }
 
-
-
-        /// <summary>
-        /// 모든 토스트 제거
-        /// </summary>
         public void ClearAll()
         {
             toastQueue.Clear();
@@ -440,9 +377,6 @@ namespace PigeonGame.UI
             activeToasts.Clear();
         }
 
-        /// <summary>
-        /// 타입에 따른 텍스트 색상 반환
-        /// </summary>
         private Color GetTextColorForType(ToastType type)
         {
             return type switch
@@ -454,9 +388,6 @@ namespace PigeonGame.UI
             };
         }
 
-        /// <summary>
-        /// 골드 메시지에서 숫자 파싱 (내부용)
-        /// </summary>
         private int ParseGoldAmountFromMessage(string message)
         {
             string numberStr = message.Replace("G", "").Replace("+", "");

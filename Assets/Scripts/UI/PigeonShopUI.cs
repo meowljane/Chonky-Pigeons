@@ -7,9 +7,6 @@ using PigeonGame.Gameplay;
 
 namespace PigeonGame.UI
 {
-    /// <summary>
-    /// 비둘기 상점 UI (판매용)
-    /// </summary>
     public class PigeonShopUI : MonoBehaviour
     {
         [Header("Main Panel")]
@@ -31,7 +28,6 @@ namespace PigeonGame.UI
 
             UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
 
-            // GameManager 이벤트 구독
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnPigeonAddedToInventory += OnPigeonAdded;
@@ -42,9 +38,6 @@ namespace PigeonGame.UI
             UpdateInventoryDisplay();
         }
 
-        /// <summary>
-        /// 상점 패널 열기 (상호작용 시스템에서 호출)
-        /// </summary>
         public void OpenShopPanel()
         {
             if (shopPanel != null)
@@ -52,7 +45,6 @@ namespace PigeonGame.UI
                 shopPanel.SetActive(true);
                 UpdateGoldText();
                 UpdateInventoryDisplay();
-                // 스크롤을 맨 위로 초기화
                 ScrollRectHelper.ScrollToTop(shopPanel);
             }
         }
@@ -86,18 +78,16 @@ namespace PigeonGame.UI
             int maxSlots = GameManager.Instance.MaxInventorySlots;
             int slotCount = Mathf.Min(inventory.Count, maxSlots);
 
-            // 인벤토리 아이템으로 슬롯 채우기
             for (int i = 0; i < slotCount; i++)
             {
-                int index = i; // 클로저를 위한 로컬 변수
+                int index = i; 
                 var pigeon = inventory[index];
-                
+
                 GameObject slotObj = Instantiate(shopSlot, itemContainer, false);
                 itemInstances.Add(slotObj);
                 SetupShopSlot(slotObj, pigeon, index);
             }
 
-            // 빈 슬롯 채우기
             for (int i = slotCount; i < maxSlots; i++)
             {
                 GameObject slotObj = Instantiate(shopSlot, itemContainer, false);
@@ -105,7 +95,6 @@ namespace PigeonGame.UI
                 SetupEmptySlot(slotObj);
             }
 
-            // 인벤토리 개수 업데이트
             if (inventoryCountText != null)
             {
                 inventoryCountText.text = $"인벤토리: {inventory.Count}";
@@ -134,11 +123,8 @@ namespace PigeonGame.UI
         }
 
         [Header("Detail Panel")]
-        [SerializeField] private PigeonDetailPanelUI detailPanelUI; // 상세 정보 패널 UI
+        [SerializeField] private PigeonDetailPanelUI detailPanelUI; 
 
-        /// <summary>
-        /// 비둘기 상세 정보 표시
-        /// </summary>
         private void ShowPigeonDetail(PigeonInstanceStats stats)
         {
             if (stats == null || detailPanelUI == null)
@@ -147,9 +133,6 @@ namespace PigeonGame.UI
             detailPanelUI.ShowDetail(stats);
         }
 
-        /// <summary>
-        /// 비둘기 판매 (상점에서 호출)
-        /// </summary>
         public void SellPigeon(int index)
         {
             if (GameManager.Instance != null)

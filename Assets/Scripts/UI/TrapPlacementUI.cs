@@ -7,10 +7,6 @@ using System.Collections.Generic;
 
 namespace PigeonGame.UI
 {
-    /// <summary>
-    /// 우측 하단 덫 설치 UI
-    /// 덫 설치 버튼과 덫 선택 그리드를 관리
-    /// </summary>
     public class TrapPlacementUI : MonoBehaviour
     {
         [Header("Buttons")]
@@ -21,39 +17,41 @@ namespace PigeonGame.UI
         [SerializeField] private Transform trapGridContainer;
         [SerializeField] private GameObject trapSlot;
         [SerializeField] private Button closeButton;
-        
+
         [Header("Info Display")]
         [SerializeField] private TextMeshProUGUI currentTerrainText;
         [SerializeField] private TextMeshProUGUI selectedTrapNameText;
         [SerializeField] private TextMeshProUGUI terrainPigeonsText;
         [SerializeField] private TextMeshProUGUI trapPigeonsText;
-        
+
         [Header("Bottom Controls")]
         [SerializeField] private TMPro.TMP_InputField feedAmountInput;
-        [SerializeField] private Button feedDecreaseButton; // 모이 수량 감소 버튼
-        [SerializeField] private Button feedIncreaseButton; // 모이 수량 증가 버튼
+        [SerializeField] private Button feedDecreaseButton; 
+        [SerializeField] private Button feedIncreaseButton; 
         [SerializeField] private TextMeshProUGUI totalPriceText;
         [SerializeField] private Button installButton;
 
-
-        private TrapPlacer trapPlacer;
-        private WorldPigeonManager pigeonManager;
+        [Header("References")]
+        [SerializeField] private TrapPlacer trapPlacer;
+        [SerializeField] private WorldPigeonManager pigeonManager;
         private List<GameObject> trapItemObjects = new List<GameObject>();
+        private Dictionary<GameObject, TrapPlacementSlotUI> slotUICache = new Dictionary<GameObject, TrapPlacementSlotUI>(); 
         private TrapType selectedTrapId;
-        private GameObject selectedTrapItem; // 현재 선택된 덫 아이템
+        private GameObject selectedTrapItem; 
+
+        private List<string> reusablePigeonNamesList = new List<string>();
 
         private void Start()
         {
-            // TrapPlacer 찾기
-            trapPlacer = FindFirstObjectByType<TrapPlacer>();
             if (trapPlacer == null)
             {
+                Debug.LogError("TrapPlacer가 할당되지 않았습니다!", this);
                 enabled = false;
                 return;
             }
 
-            // WorldPigeonManager 찾기
-            pigeonManager = FindFirstObjectByType<WorldPigeonManager>();
+            if (pigeonManager == null)
+                Debug.LogError("WorldPigeonManager가 할당되지 않았습니다!", this);
 
             UIHelper.SafeAddListener(trapPlacementButton, OnTrapPlacementButtonClicked);
             if (trapSelectionPanel != null) trapSelectionPanel.SetActive(false);
@@ -63,10 +61,8 @@ namespace PigeonGame.UI
             UIHelper.SafeAddListener(feedIncreaseButton, OnFeedIncreaseClicked);
             UIHelper.SafeAddListener(installButton, OnInstallButtonClicked);
 
-            // 덫 그리드 생성
             CreateTrapGrid();
-            
-            // 첫 번째 덫 자동 선택
+
             var registry = GameDataRegistry.Instance;
             if (registry != null && registry.Traps != null && registry.Traps.traps.Length > 0)
             {
@@ -77,8 +73,7 @@ namespace PigeonGame.UI
                     OnTrapSelected(firstTrap.trapType);
                 }
             }
-            
-            // GameManager 이벤트 구독
+
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
@@ -97,7 +92,6 @@ namespace PigeonGame.UI
 
             ClearTrapItems();
 
-            // 모든 덫 표시
             var allTraps = registry.Traps.traps;
             foreach (var trapData in allTraps)
             {
@@ -109,17 +103,19 @@ namespace PigeonGame.UI
 
         private void SetupTrapSlot(GameObject slotObj, TrapDefinition trapData)
         {
-            TrapPlacementSlotUI slotUI = slotObj.GetComponent<TrapPlacementSlotUI>();
-            if (slotUI == null)
-                return;
+            if (!slotUICache.TryGetValue(slotObj, out TrapPlacementSlotUI slotUI))
+            {
+                slotUI = slotObj.GetComponent<TrapPlacementSlotUI>();
+                if (slotUI == null)
+                    return;
+                slotUICache[slotObj] = slotUI;
+            }
 
             bool isUnlocked = GameManager.Instance != null && 
                              GameManager.Instance.IsTrapUnlocked(trapData.trapType);
 
-            // 해금 상태에 따른 색상 및 활성화 설정
             slotUI.SetUnlocked(isUnlocked);
 
-            // 아이콘 표시
             if (slotUI.IconImage != null)
             {
                 if (trapData.icon != null)
@@ -133,49 +129,55 @@ namespace PigeonGame.UI
                 }
             }
 
-            // 덫 이름 표시
             if (slotUI.NameText != null)
             {
                 slotUI.NameText.text = isUnlocked ? trapData.name : $"{trapData.name}\n(해금 필요)";
             }
 
-            // 버튼 클릭 이벤트
             if (slotUI.Button != null)
             {
                 slotUI.Button.onClick.RemoveAllListeners();
                 slotUI.Button.onClick.AddListener(() => OnTrapSelected(trapData.trapType));
             }
 
-            // 선택 상태 업데이트
             UpdateTrapSlotSelection(slotObj, trapData.trapType);
         }
 
         private void UpdateTrapSlotSelection(GameObject slotObj, TrapType trapType)
         {
-            TrapPlacementSlotUI slotUI = slotObj.GetComponent<TrapPlacementSlotUI>();
-            if (slotUI == null) return;
+            if (!slotUICache.TryGetValue(slotObj, out TrapPlacementSlotUI slotUI))
+            {
+                slotUI = slotObj.GetComponent<TrapPlacementSlotUI>();
+                if (slotUI == null) return;
+                slotUICache[slotObj] = slotUI;
+            }
 
             bool isSelected = selectedTrapId == trapType;
             if (isSelected) selectedTrapItem = slotObj;
-            
-            // 체크마크 표시 업데이트
+
             slotUI.SetSelected(isSelected);
         }
 
         private void OnTrapSelected(TrapType trapType)
         {
             selectedTrapId = trapType;
-            
+
             var registry = GameDataRegistry.Instance;
             if (registry?.Traps != null)
             {
                 foreach (var itemObj in trapItemObjects)
                 {
                     if (itemObj == null) continue;
-                    
-                    TrapPlacementSlotUI slotUI = itemObj.GetComponent<TrapPlacementSlotUI>();
+
+                    if (!slotUICache.TryGetValue(itemObj, out TrapPlacementSlotUI slotUI))
+                    {
+                        slotUI = itemObj.GetComponent<TrapPlacementSlotUI>();
+                        if (slotUI == null) continue;
+                        slotUICache[itemObj] = slotUI;
+                    }
+
                     if (slotUI?.NameText == null) continue;
-                    
+
                     string itemName = slotUI.NameText.text.Replace("\n(해금 필요)", "").Trim();
                     foreach (var trap in registry.Traps.traps)
                     {
@@ -202,14 +204,12 @@ namespace PigeonGame.UI
             if (trapData == null)
                 return;
 
-            // 현재 Terrain 정보
             TerrainType currentTerrain = TerrainType.SAND;
             if (PlayerController.Instance != null && MapManager.Instance != null)
             {
                 currentTerrain = MapManager.Instance.GetTerrainTypeAtPosition(PlayerController.Instance.Position);
             }
 
-            // Terrain 표시
             if (currentTerrainText != null)
             {
                 string terrainName = currentTerrain.ToString();
@@ -224,45 +224,41 @@ namespace PigeonGame.UI
                 currentTerrainText.text = $"현재 지형: {terrainName}";
             }
 
-            // 선택한 덫 이름 표시
             if (selectedTrapNameText != null)
             {
                 selectedTrapNameText.text = $"선택한 덫: {trapData.name}";
             }
 
-            // Terrain을 좋아하는 비둘기 표시
             if (terrainPigeonsText != null && registry.SpeciesSet != null)
             {
-                List<string> terrainPigeonNames = new List<string>();
+                reusablePigeonNamesList.Clear();
                 foreach (var species in registry.SpeciesSet.species)
                 {
                     if (species.favoriteTerrain == currentTerrain)
                     {
-                        terrainPigeonNames.Add(species.name);
+                        reusablePigeonNamesList.Add(species.name);
                     }
                 }
-                terrainPigeonsText.text = terrainPigeonNames.Count > 0 
-                    ? $"선호 비둘기: {string.Join(", ", terrainPigeonNames)}"
+                terrainPigeonsText.text = reusablePigeonNamesList.Count > 0 
+                    ? $"선호 비둘기: {string.Join(", ", reusablePigeonNamesList)}"
                     : "선호 비둘기: 없음";
             }
 
-            // 덫을 좋아하는 비둘기 표시
             if (trapPigeonsText != null && registry.SpeciesSet != null)
             {
-                List<string> trapPigeonNames = new List<string>();
+                reusablePigeonNamesList.Clear();
                 foreach (var species in registry.SpeciesSet.species)
                 {
                     if (species.favoriteTrapType == trapType)
                     {
-                        trapPigeonNames.Add(species.name);
+                        reusablePigeonNamesList.Add(species.name);
                     }
                 }
-                trapPigeonsText.text = trapPigeonNames.Count > 0
-                    ? $"선호 비둘기: {string.Join(", ", trapPigeonNames)}"
+                trapPigeonsText.text = reusablePigeonNamesList.Count > 0
+                    ? $"선호 비둘기: {string.Join(", ", reusablePigeonNamesList)}"
                     : "선호 비둘기: 없음";
             }
 
-            // 모이 수량 초기화
             if (feedAmountInput != null)
             {
                 feedAmountInput.text = trapData.feedAmount.ToString();
@@ -271,7 +267,6 @@ namespace PigeonGame.UI
 
         private void OnFeedAmountChanged(string value)
         {
-            // 최대값 1000 제한
             if (!string.IsNullOrEmpty(value) && int.TryParse(value, out int amount))
             {
                 if (amount > 1000)
@@ -296,7 +291,7 @@ namespace PigeonGame.UI
                 currentAmount = parsedAmount;
             }
 
-            currentAmount = Mathf.Max(1, currentAmount - 1); // 최소 1
+            currentAmount = Mathf.Max(1, currentAmount - 1); 
             feedAmountInput.text = currentAmount.ToString();
             UpdatePriceDisplay();
         }
@@ -312,7 +307,7 @@ namespace PigeonGame.UI
                 currentAmount = parsedAmount;
             }
 
-            currentAmount = Mathf.Min(1000, currentAmount + 1); // 최대 1000
+            currentAmount = Mathf.Min(1000, currentAmount + 1); 
             feedAmountInput.text = currentAmount.ToString();
             UpdatePriceDisplay();
         }
@@ -367,11 +362,9 @@ namespace PigeonGame.UI
                 bool isActive = trapSelectionPanel.activeSelf;
                 trapSelectionPanel.SetActive(!isActive);
 
-                // 패널이 열릴 때 덫 상태 업데이트
                 if (!isActive)
                 {
                     UpdateTrapItems();
-                    // 선택된 덫이 있으면 정보 업데이트
                     UpdateInfoDisplay(selectedTrapId);
                     UpdatePriceDisplay();
                 }
@@ -385,7 +378,6 @@ namespace PigeonGame.UI
                 trapSelectionPanel.SetActive(false);
             }
         }
-
 
         private void UpdateTrapItems()
         {
@@ -404,10 +396,16 @@ namespace PigeonGame.UI
             foreach (var itemObj in trapItemObjects)
             {
                 if (itemObj == null) continue;
-                
-                TrapPlacementSlotUI slotUI = itemObj.GetComponent<TrapPlacementSlotUI>();
+
+                if (!slotUICache.TryGetValue(itemObj, out TrapPlacementSlotUI slotUI))
+                {
+                    slotUI = itemObj.GetComponent<TrapPlacementSlotUI>();
+                    if (slotUI == null) continue;
+                    slotUICache[itemObj] = slotUI;
+                }
+
                 if (slotUI?.NameText == null) continue;
-                
+
                 string itemName = slotUI.NameText.text.Replace("\n(해금 필요)", "").Trim();
                 foreach (var trap in allTraps)
                 {
@@ -427,13 +425,13 @@ namespace PigeonGame.UI
 
         private void OnMoneyChanged(int money)
         {
-            // 가격 표시 업데이트
             UpdatePriceDisplay();
         }
 
         private void ClearTrapItems()
         {
             UIHelper.ClearSlotList(trapItemObjects);
+            slotUICache.Clear();
         }
 
         private void OnDestroy()

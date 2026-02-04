@@ -2,17 +2,14 @@ using UnityEngine;
 
 namespace PigeonGame.Data
 {
-    /// <summary>
-    /// 비둘기 얼굴 타입 Enum
-    /// </summary>
     public enum FaceType
     {
-        F00, // 기본
-        F01, // 찡긋
-        F02, // 상처
-        F03, // 하트눈
-        F04, // 왕눈
-        F05  // 마스크
+        F00, 
+        F01, 
+        F02, 
+        F03, 
+        F04, 
+        F05  
     }
 
     [System.Serializable]
@@ -21,9 +18,9 @@ namespace PigeonGame.Data
         public FaceType faceType;
         public string name;
         public float priceMultiplier;
-        public Sprite icon; // UI에서 사용할 아이콘 (face가 덮어씌워진 최종 이미지)
+        public Sprite icon; 
         [Tooltip("Face 애니메이션 컨트롤러 (Idle, Walking, Flying 애니메이션 포함, 비둘기 바디와 동일한 구조)")]
-        public RuntimeAnimatorController animatorController; // Face 애니메이션 컨트롤러
+        public RuntimeAnimatorController animatorController; 
     }
 
     [CreateAssetMenu(fileName = "FaceSet", menuName = "PigeonGame/Face Set")]

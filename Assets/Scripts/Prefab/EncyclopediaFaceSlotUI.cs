@@ -4,10 +4,6 @@ using TMPro;
 
 namespace PigeonGame.UI
 {
-    /// <summary>
-    /// 도감 얼굴 슬롯 UI 컴포넌트
-    /// 프리팹 내부의 UI 요소들을 미리 참조하여 저장
-    /// </summary>
     public class EncyclopediaFaceSlotUI : MonoBehaviour
     {
         [Header("Face Slot Components")]
@@ -15,7 +11,7 @@ namespace PigeonGame.UI
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private TextMeshProUGUI statusText;
         [SerializeField] private GameObject lockOverlay;
-        [SerializeField] private Button button; // 클릭 가능하도록 버튼 추가
+        [SerializeField] private Button button; 
 
         public Image BackgroundImage => backgroundImage;
         public TextMeshProUGUI NameText => nameText;

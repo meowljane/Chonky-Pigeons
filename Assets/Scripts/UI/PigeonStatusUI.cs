@@ -6,9 +6,6 @@ using PigeonGame.Data;
 
 namespace PigeonGame.UI
 {
-    /// <summary>
-    /// 비둘기 머리 위에 표시되는 UI (긴장도 바, 먹는 중 표시)
-    /// </summary>
     public class PigeonStatusUI : MonoBehaviour
     {
         [SerializeField] private Image alertBar;
@@ -40,7 +37,6 @@ namespace PigeonGame.UI
         {
             pigeonAI = GetComponent<PigeonAI>();
             pigeonController = GetComponent<PigeonController>();
-
 
             mainCamera = Camera.main;
             if (mainCamera == null)
@@ -177,8 +173,7 @@ namespace PigeonGame.UI
 
             PigeonState state = pigeonAI.CurrentState;
             float alert = pigeonAI.Alert;
-            
-            // alert 값을 0-100 범위로 정규화
+
             float fillAmount = Mathf.Clamp01(alert / 100.0f);
 
             alertBar.fillAmount = fillAmount;
@@ -202,7 +197,6 @@ namespace PigeonGame.UI
                 return;
             }
 
-            // 실제로 먹고 있는지 확인
             FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
             isEating = false;
 
@@ -211,7 +205,6 @@ namespace PigeonGame.UI
                 if (trap == null || trap.HasCapturedPigeon)
                     continue;
 
-                // 덫에서 실제로 먹고 있는지 확인
                 if (trap.IsPigeonEating(pigeonAI))
                 {
                     isEating = true;
@@ -226,5 +219,4 @@ namespace PigeonGame.UI
         }
     }
 }
-
 

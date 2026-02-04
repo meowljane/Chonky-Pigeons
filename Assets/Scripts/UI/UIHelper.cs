@@ -7,14 +7,8 @@ using PigeonGame.Gameplay;
 
 namespace PigeonGame.UI
 {
-    /// <summary>
-    /// UI 공통 유틸리티 클래스
-    /// </summary>
     public static class UIHelper
     {
-        /// <summary>
-        /// 빈 슬롯 설정
-        /// </summary>
         public static void SetupEmptySlot(GameObject slotObj)
         {
             InventorySlotUI slotUI = slotObj.GetComponent<InventorySlotUI>();
@@ -26,9 +20,6 @@ namespace PigeonGame.UI
             if (slotUI.Button != null) slotUI.Button.interactable = false;
         }
 
-        /// <summary>
-        /// 비둘기 슬롯 UI 설정
-        /// </summary>
         public static void SetupPigeonSlot(GameObject slotObj, PigeonInstanceStats stats, int index, System.Action<int> onClick)
         {
             InventorySlotUI slotUI = slotObj.GetComponent<InventorySlotUI>();
@@ -38,7 +29,6 @@ namespace PigeonGame.UI
             var species = (registry?.SpeciesSet != null) ? registry.SpeciesSet.GetSpeciesById(stats.speciesId) : null;
             var face = (registry?.Faces != null) ? registry.Faces.GetFaceById(stats.faceId) : null;
 
-            // IconImage: Species icon 표시 (없으면 기본값 SP01 사용)
             if (slotUI.IconImage != null)
             {
                 var defaultSpecies = (registry?.SpeciesSet != null) ? registry.SpeciesSet.GetSpeciesById(PigeonSpecies.SP01) : null;
@@ -50,7 +40,6 @@ namespace PigeonGame.UI
                 }
             }
 
-            // FaceIconImage: Face icon 표시 (없으면 기본값 F00 사용)
             if (slotUI.FaceIconImage != null)
             {
                 var defaultFace = (registry?.Faces != null) ? registry.Faces.GetFaceById(FaceType.F00) : null;
@@ -74,9 +63,6 @@ namespace PigeonGame.UI
             }
         }
 
-        /// <summary>
-        /// 골드 텍스트 업데이트
-        /// </summary>
         public static void UpdateGoldText(TextMeshProUGUI goldText)
         {
             if (goldText != null && GameManager.Instance != null)
@@ -85,9 +71,6 @@ namespace PigeonGame.UI
             }
         }
 
-        /// <summary>
-        /// 슬롯 리스트 정리
-        /// </summary>
         public static void ClearSlotList(List<GameObject> list)
         {
             foreach (var item in list)
@@ -97,9 +80,6 @@ namespace PigeonGame.UI
             list.Clear();
         }
 
-        /// <summary>
-        /// 버튼 이벤트 안전하게 연결
-        /// </summary>
         public static void SafeAddListener(Button button, UnityEngine.Events.UnityAction action)
         {
             if (button != null)
@@ -109,23 +89,14 @@ namespace PigeonGame.UI
             }
         }
 
-        /// <summary>
-        /// 버튼 이벤트 안전하게 해제
-        /// </summary>
         public static void SafeRemoveListener(Button button)
         {
             if (button != null) button.onClick.RemoveAllListeners();
         }
     }
 
-    /// <summary>
-    /// ScrollRect 헬퍼 유틸리티
-    /// </summary>
     public static class ScrollRectHelper
     {
-        /// <summary>
-        /// ScrollRect를 맨 위로 스크롤 (모든 ScrollRect에 적용)
-        /// </summary>
         public static void ScrollToTop(GameObject gameObject)
         {
             if (gameObject != null)

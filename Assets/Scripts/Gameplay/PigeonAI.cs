@@ -40,10 +40,8 @@ namespace PigeonGame.Gameplay
             if (stats == null)
                 return;
 
-            // Flee 상태일 때는 alert 변경 안 함 (증가/감소 모두)
             if (currentState != PigeonState.Flee)
             {
-                // Alert 감소 (모든 tier 통일: 10)
                 const float alertDecayPerSec = 10f;
                 alert = Mathf.Max(0, alert - alertDecayPerSec * Time.deltaTime);
             }
@@ -69,15 +67,11 @@ namespace PigeonGame.Gameplay
             return currentState != PigeonState.Flee && movement != null;
         }
 
-        /// <summary>
-        /// 비둘기를 강제로 Flee 상태로 만듦 (WorldPigeonManager에서 사용)
-        /// </summary>
         public void ForceFlee()
         {
             PigeonState previousState = currentState;
             currentState = PigeonState.Flee;
-            
-            // Flee 상태가 되면 시간 기록
+
             if (previousState != PigeonState.Flee)
             {
                 fleeStateStartTime = Time.time;
@@ -89,13 +83,11 @@ namespace PigeonGame.Gameplay
             if (movement == null)
                 return;
 
-            // 이미 Flee 상태면 상태 변경 건너뛰기 (ForceFlee로 설정된 경우 유지)
             if (currentState == PigeonState.Flee)
                 return;
 
             PigeonState previousState = currentState;
 
-            // Alert 값에 따라 상태 결정
             if (alert >= movement.FleeThreshold)
             {
                 currentState = PigeonState.Flee;
@@ -113,7 +105,6 @@ namespace PigeonGame.Gameplay
                 currentState = PigeonState.Normal;
             }
 
-            // Flee 상태가 되면 시간 기록
             if (currentState == PigeonState.Flee && previousState != PigeonState.Flee)
             {
                 fleeStateStartTime = Time.time;

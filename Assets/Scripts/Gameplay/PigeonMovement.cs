@@ -3,14 +3,11 @@ using System.Collections.Generic;
 
 namespace PigeonGame.Gameplay
 {
-    /// <summary>
-    /// 비둘기의 이동 상태
-    /// </summary>
     public enum MovementState
     {
-        Idle,      // 멈춤
-        Walking,   // 걷기
-        Flying     // 날기 (Flee 상태일 때)
+        Idle,      
+        Walking,   
+        Flying     
     }
 
     [RequireComponent(typeof(Rigidbody2D))]
@@ -22,75 +19,65 @@ namespace PigeonGame.Gameplay
         [SerializeField] private float wanderRadius = 2f;
         [SerializeField] private float wanderInterval = 2f;
         [SerializeField] private float eatingRadius = 0.1f;
-        [SerializeField] private float detectionRadius = 2f; // 모든 비둘기 공통 감지 반경
+        [SerializeField] private float detectionRadius = 2f; 
         [SerializeField] private float alertWeight = 2.0f;
         [SerializeField] private float warnThreshold = 45f;
         [SerializeField] private float backoffThreshold = 70f;
         [SerializeField] private float fleeThreshold = 100f;
-        
+
         public float DetectionRadius => detectionRadius;
         public float WarnThreshold => warnThreshold;
         public float BackoffThreshold => backoffThreshold;
         public float FleeThreshold => fleeThreshold;
         public float AlertWeight => alertWeight;
-        
-        /// <summary>
-        /// 현재 이동 상태를 반환합니다.
-        /// </summary>
+
         public MovementState CurrentMovementState
         {
             get
             {
                 if (rb == null)
                     return MovementState.Idle;
-                
-                // Flee 상태면 Flying으로 처리
+
                 if (ai != null && ai.CurrentState == PigeonState.Flee)
                 {
                     return MovementState.Flying;
                 }
-                
-                // 현재 목적지까지의 거리 체크
+
                 Vector2? currentTarget = GetCurrentTarget();
                 if (currentTarget == null)
                 {
-                    return MovementState.Idle; // 목적지가 없으면 Idle
+                    return MovementState.Idle; 
                 }
-                
+
                 float sqrDistance = ((Vector2)transform.position - currentTarget.Value).sqrMagnitude;
-                const float arrivalThreshold = 0.01f; // 도착 판정 거리 (MoveTowardsTarget과 동일)
-                
+                const float arrivalThreshold = 0.01f; 
+
                 if (sqrDistance < arrivalThreshold)
                 {
-                    return MovementState.Idle; // 목적지에 도착했으면 Idle
+                    return MovementState.Idle; 
                 }
                 else
                 {
-                    return MovementState.Walking; // 목적지로 가는 중이면 Walking
+                    return MovementState.Walking; 
                 }
             }
         }
-        
-        /// <summary>
-        /// 현재 활성 목적지 반환 (없으면 null)
-        /// </summary>
+
         private Vector2? GetCurrentTarget()
         {
-            // BackOff 중이면 backoffTarget
             if (backoffTargetSet)
             {
                 return backoffTarget;
             }
-            
-            // Normal 상태면 targetFoodTrap 또는 wanderTarget
+
             if (targetFoodTrap != null && !targetFoodTrap.HasCapturedPigeon)
             {
                 return targetFoodTrap.transform.position;
             }
-            
+
             return wanderTarget;
         }
-        
+
         private Rigidbody2D rb;
         private PigeonAI ai;
         private PigeonController controller;
@@ -99,16 +86,13 @@ namespace PigeonGame.Gameplay
         private FoodTrap targetFoodTrap;
         private Vector2 backoffTarget;
         private bool backoffTargetSet = false;
-        private Vector2 backoffStartPosition; // BackOff 시작 위치
+        private Vector2 backoffStartPosition; 
         private Camera mainCamera;
         private bool backoffCausedByPlayer = false;
-        private float backoffEndTime = 0f; // BackOff 종료 시간
-        private const float BACKOFF_COOLDOWN = 2f; // BackOff 종료 후 먹이 탐색 금지 시간 (초)
-        private Vector2 lastMovementDirection = Vector2.right; // 마지막 이동 방향 (기본값: 오른쪽)
-        
-        /// <summary>
-        /// 현재 이동 방향 (정규화된 벡터)
-        /// </summary>
+        private float backoffEndTime = 0f; 
+        private const float BACKOFF_COOLDOWN = 2f; 
+        private Vector2 lastMovementDirection = Vector2.right; 
+
         public Vector2 MovementDirection => lastMovementDirection;
 
         private void Awake()
@@ -135,47 +119,39 @@ namespace PigeonGame.Gameplay
             if (ai == null || controller == null || controller.Stats == null)
                 return;
 
-            // 전시관 비둘기는 wander만 수행
             if (controller.IsExhibitionPigeon)
             {
                 HandleExhibitionWander();
                 return;
             }
 
-            // Flee 상태는 최우선 처리
             if (ai.CurrentState == PigeonState.Flee)
             {
                 HandleFlee();
                 return;
             }
 
-            // Alert 시스템 업데이트 (플레이어 감지 및 alert 증가) - 항상 호출
             UpdateAlertSystem();
 
-            // 상태에 따른 행동 처리
             PigeonState state = ai.CurrentState;
 
-            // BackOff 목표가 설정되어 있으면 목표에 도달할 때까지 BackOff 유지
             if (backoffTargetSet)
             {
                 float sqrDistanceToTarget = ((Vector2)transform.position - backoffTarget).sqrMagnitude;
-                if (sqrDistanceToTarget >= 0.04f) // 0.2f * 0.2f
+                if (sqrDistanceToTarget >= 0.04f) 
                 {
-                    // 목표에 아직 도달하지 않았으면 BackOff 계속
                     HandleBackOff();
                     return;
                 }
                 else
                 {
-                    // 목표에 도달했으면 BackOff 목표 초기화
                     backoffTargetSet = false;
-                    backoffCausedByPlayer = false; // BackOff 종료 시 초기화
-                    targetFoodTrap = null; // BackOff 종료 시 먹이 타겟 초기화
-                    backoffEndTime = Time.time; // BackOff 종료 시간 기록
+                    backoffCausedByPlayer = false; 
+                    targetFoodTrap = null; 
+                    backoffEndTime = Time.time; 
                 }
             }
 
-            // 플레이어가 가까이 있으면 무조건 BackOff
             if (IsPlayerNearby())
             {
                 backoffCausedByPlayer = true;
@@ -183,7 +159,6 @@ namespace PigeonGame.Gameplay
                 return;
             }
 
-            // BackOff 상태 처리
             if (state == PigeonState.BackOff)
             {
                 HandleBackOff();
@@ -199,22 +174,17 @@ namespace PigeonGame.Gameplay
             if (controller == null || controller.Stats == null || ai == null)
                 return;
 
-            // Flee 상태일 때는 alert 업데이트 안 함
             if (ai.CurrentState == PigeonState.Flee)
                 return;
 
-            // 플레이어 감지 및 Alert 증가
             if (PlayerController.Instance != null)
             {
                 Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
                 float sqrDistance = toPlayer.sqrMagnitude;
                 float sqrRadius = detectionRadius * detectionRadius;
-                
+
                 if (sqrDistance <= sqrRadius)
                 {
-                    // 제곱 거리로 distanceFactor 근사 계산 (sqrt 없이, 가장 가벼운 방식)
-                    // 원래: distanceFactor = 1 - (distance / detectionRadius)
-                    // 근사: distanceFactor ≈ 1 - (sqrDistance / sqrRadius) (제곱 비율 사용)
                     float distanceFactor = Mathf.Clamp01(1f - (sqrDistance / sqrRadius));
                     ai.AddPlayerAlert(Time.deltaTime * distanceFactor);
                 }
@@ -233,14 +203,13 @@ namespace PigeonGame.Gameplay
 
         private void HandleNormalMovement()
         {
-            // BackOff 종료 후 일정 시간 동안은 먹이 탐색 금지
             if (Time.time - backoffEndTime >= BACKOFF_COOLDOWN)
             {
                 FindNearestFoodTrap();
             }
             else
             {
-                targetFoodTrap = null; // 쿨다운 중에는 먹이 타겟 초기화
+                targetFoodTrap = null; 
             }
 
             wanderTimer += Time.deltaTime;
@@ -255,7 +224,7 @@ namespace PigeonGame.Gameplay
             Vector2 targetPos = targetFoodTrap != null && !targetFoodTrap.HasCapturedPigeon
                 ? (Vector2)targetFoodTrap.transform.position
                 : wanderTarget;
-            
+
             MoveTowardsTarget(targetPos, wanderSpeed);
         }
 
@@ -264,28 +233,22 @@ namespace PigeonGame.Gameplay
             if (controller == null || controller.Stats == null)
                 return;
 
-            // 먹이 경쟁으로 인한 BackOff는 2배 멀어짐
             float backoffDistance = backoffCausedByPlayer ? detectionRadius : detectionRadius * 2f;
 
-            // BackOff 시작 위치 기록 (처음 BackOff 상태가 되었을 때)
             if (!backoffTargetSet)
             {
                 backoffStartPosition = transform.position;
                 Vector2 backoffDirection = CalculateBackoffDirection();
                 backoffTarget = backoffStartPosition + backoffDirection * backoffDistance;
-                // 타일맵 기반 맵 경계 내로 제한
                 backoffTarget = ClampToMapBounds(backoffTarget);
                 backoffTargetSet = true;
             }
 
-            // 목표에 도달했는지 확인 (더 큰 거리로 판단)
             float sqrDistanceToTarget = ((Vector2)transform.position - backoffTarget).sqrMagnitude;
-            if (sqrDistanceToTarget < 0.04f) // 0.2f * 0.2f
+            if (sqrDistanceToTarget < 0.04f) 
             {
-                // 목표에 도달했으면 현재 위치에서 더 멀리 떨어진 새로운 목표 설정
                 Vector2 backoffDirection = CalculateBackoffDirection();
                 backoffTarget = (Vector2)transform.position + backoffDirection * backoffDistance;
-                // 타일맵 기반 맵 경계 내로 제한
                 backoffTarget = ClampToMapBounds(backoffTarget);
             }
 
@@ -297,13 +260,12 @@ namespace PigeonGame.Gameplay
             if (backoffCausedByPlayer && PlayerController.Instance != null)
             {
                 Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
-                if (toPlayer.sqrMagnitude > 0.01f) // sqrMagnitude 사용으로 성능 개선
+                if (toPlayer.sqrMagnitude > 0.01f) 
                 {
                     return -toPlayer.normalized;
                 }
             }
 
-            // 먹이 경쟁으로 인한 BackOff는 랜덤 방향으로 멀어짐
             return Random.insideUnitCircle.normalized;
         }
 
@@ -312,15 +274,13 @@ namespace PigeonGame.Gameplay
             if (mainCamera == null)
                 mainCamera = Camera.main;
 
-            // Flee 상태일 때는 맵 경계를 무시하고 자유롭게 이동
             Vector2 fleeDirection = CalculateFleeDirection();
-            
-            // 이동 방향 추적 (스프라이트 반전용)
+
             if (fleeDirection.sqrMagnitude > 0.01f)
             {
                 lastMovementDirection = fleeDirection;
             }
-            
+
             rb.linearVelocity = fleeDirection * fleeSpeed;
         }
 
@@ -347,53 +307,45 @@ namespace PigeonGame.Gameplay
         {
             Vector2 toTarget = target - (Vector2)transform.position;
             float sqrDistance = toTarget.sqrMagnitude;
-            
-            if (sqrDistance < 0.01f) // sqrMagnitude 사용으로 성능 개선
+
+            if (sqrDistance < 0.01f) 
             {
                 rb.linearVelocity = Vector2.zero;
             }
             else
             {
                 Vector2 direction = toTarget.normalized;
-                
-                // 이동 방향 추적 (스프라이트 반전용)
+
                 if (direction.sqrMagnitude > 0.01f)
                 {
                     lastMovementDirection = direction;
                 }
-                
+
                 Vector2 newVelocity = direction * speed;
                 Vector2 newPosition = (Vector2)transform.position + newVelocity * Time.fixedDeltaTime;
-                
-                // 타일맵 기반 맵 경계 체크
+
                 newPosition = ClampToMapBounds(newPosition);
-                
-                // 위치 직접 설정 (경계를 벗어나지 않도록)
+
                 rb.MovePosition(newPosition);
             }
         }
-        
-        /// <summary>
-        /// 맵 경계 내로 위치 제한 (타일맵 기반)
-        /// </summary>
+
         private Vector2 ClampToMapBounds(Vector2 position)
         {
-            // 타일맵 기반 체크
             if (TilemapRangeManager.Instance != null)
             {
-                // 맵 범위 내에 있으면 그대로 반환
                 if (TilemapRangeManager.Instance.IsInMapRange(position))
                 {
                     return position;
                 }
-                
-                // 맵 범위를 벗어났으면 현재 위치 유지
+
                 return transform.position;
             }
-            
-            // TilemapRangeManager가 없으면 현재 위치 유지
+
             return transform.position;
         }
+
+        private Dictionary<Collider2D, FoodTrap> trapComponentCache = new Dictionary<Collider2D, FoodTrap>();
 
         private void FindNearestFoodTrap()
         {
@@ -407,7 +359,13 @@ namespace PigeonGame.Gameplay
                 if (col == null)
                     continue;
 
-                FoodTrap trap = col.GetComponent<FoodTrap>();
+                if (!trapComponentCache.TryGetValue(col, out FoodTrap trap))
+                {
+                    trap = col.GetComponent<FoodTrap>();
+                    if (trap != null)
+                        trapComponentCache[col] = trap;
+                }
+
                 if (trap != null && !trap.HasCapturedPigeon)
                 {
                     float sqrDistance = ((Vector2)col.transform.position - myPosition).sqrMagnitude;
@@ -433,9 +391,6 @@ namespace PigeonGame.Gameplay
             wanderTarget = (Vector2)transform.position + randomOffset;
         }
 
-        /// <summary>
-        /// 전시관 비둘기 전용 wander (플레이어 감지, 먹이 탐색 없음)
-        /// </summary>
         private void HandleExhibitionWander()
         {
             if (rb == null || controller == null)
@@ -451,9 +406,6 @@ namespace PigeonGame.Gameplay
             MoveTowardsExhibitionTarget(wanderTarget, wanderSpeed);
         }
 
-        /// <summary>
-        /// 전시 영역 내에서만 이동 (타일맵 기반)
-        /// </summary>
         private void MoveTowardsExhibitionTarget(Vector2 target, float speed)
         {
             if (controller == null || !controller.IsExhibitionPigeon || rb == null)
@@ -461,7 +413,7 @@ namespace PigeonGame.Gameplay
 
             Vector2 toTarget = target - (Vector2)transform.position;
             float sqrDistance = toTarget.sqrMagnitude;
-            
+
             if (sqrDistance < 0.01f)
             {
                 rb.linearVelocity = Vector2.zero;
@@ -469,57 +421,45 @@ namespace PigeonGame.Gameplay
             else
             {
                 Vector2 direction = toTarget.normalized;
-                
-                // 이동 방향 추적 (스프라이트 반전용)
+
                 if (direction.sqrMagnitude > 0.01f)
                 {
                     lastMovementDirection = direction;
                 }
-                
+
                 Vector2 newVelocity = direction * speed;
                 Vector2 newPosition = (Vector2)transform.position + newVelocity * Time.fixedDeltaTime;
-                
-                // 전시 영역 경계 체크 (타일맵 기반)
+
                 newPosition = ClampToExhibitionBounds(newPosition);
-                
+
                 rb.MovePosition(newPosition);
             }
         }
 
-        /// <summary>
-        /// 전시 영역 경계로 제한 (타일맵 기반)
-        /// </summary>
         private Vector2 ClampToExhibitionBounds(Vector2 position)
         {
             if (controller == null || !controller.IsExhibitionPigeon)
                 return position;
-            
-            // 타일맵 기반으로 전시 영역 내에 있는지 확인
+
             if (TilemapRangeManager.Instance != null)
             {
                 if (!TilemapRangeManager.Instance.IsInExhibitionArea(position))
                 {
-                    // 전시 영역 밖이면 현재 위치 유지
                     return transform.position;
                 }
             }
-            
+
             return position;
         }
 
-        /// <summary>
-        /// 전시관 영역 내에서만 wander 타겟 설정 (타일맵 기반)
-        /// </summary>
         private void SetNewExhibitionWanderTarget()
         {
             if (controller == null || !controller.IsExhibitionPigeon)
             {
-                // 전시 영역이 없으면 일반 wander
                 SetNewWanderTarget();
                 return;
             }
 
-            // 타일맵 기반 전시 영역에서 랜덤 위치 생성
             if (TilemapRangeManager.Instance != null)
             {
                 Vector3 randomPos = TilemapRangeManager.Instance.GetRandomPositionInExhibitionArea();
@@ -530,13 +470,9 @@ namespace PigeonGame.Gameplay
                 }
             }
 
-            // 타일맵에서 위치를 찾지 못하면 현재 위치 유지
             wanderTarget = transform.position;
         }
 
-        /// <summary>
-        /// 점이 콜라이더 안에 있는지 확인
-        /// </summary>
         private bool IsPointInCollider(Vector2 point, Collider2D collider)
         {
             if (collider == null)

@@ -1204,6 +1204,8 @@ MonoBehaviour:
   feedIncreaseButton: {fileID: 851350928}
   totalPriceText: {fileID: 726151858}
   installButton: {fileID: 1757971376}
+  trapPlacer: {fileID: 384587256}
+  pigeonManager: {fileID: 45691160}
 --- !u!114 &27673303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1276,6 +1278,7 @@ MonoBehaviour:
   detailRarityText: {fileID: 242376394}
   detailCloseButton: {fileID: 157199279}
   moveButton: {fileID: 1526025610}
+  moveButtonTextComponent: {fileID: 1566359977}
 --- !u!114 &27673307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1374,6 +1377,7 @@ MonoBehaviour:
   goldText: {fileID: 155730863}
   purchaseButton: {fileID: 1688587340}
   closeButton: {fileID: 1548170874}
+  purchaseButtonText: {fileID: 24273163}
 --- !u!114 &27673312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3510,6 +3514,7 @@ MonoBehaviour:
   pigeonCountText: {fileID: 465824176}
   speciesProbabilityText: {fileID: 1553719917}
   updateInterval: 0.5
+  pigeonManager: {fileID: 45691160}
 --- !u!114 &143541413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7582,6 +7587,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.InteractionSystem
   highlightColor: {r: 1, g: 0, b: 0, a: 0.78431374}
+  inventoryUI: {fileID: 27673297}
+  pigeonShopUI: {fileID: 27673300}
+  trapShopUI: {fileID: 27673296}
+  exhibitionUI: {fileID: 27673304}
+  pigeonResearchUI: {fileID: 27673303}
+  upgradeShopUI: {fileID: 27673309}
+  doorPurchaseUI: {fileID: 27673311}
 --- !u!114 &384587259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7648,7 +7660,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.GameManager
-  startingMoney: 0
+  startingMoney: 10000
   startingUnlockedTraps: 00000000
   startingUnlockedSpecies: 0000000001000000
 --- !u!114 &384587263
@@ -14247,11 +14259,11 @@ Transform:
   - {fileID: 1118522600}
   - {fileID: 731898283}
   - {fileID: 700177127}
+  - {fileID: 925106775}
   - {fileID: 1252839054}
   - {fileID: 2073263857}
   - {fileID: 769911193}
   - {fileID: 1408082020}
-  - {fileID: 925106775}
   - {fileID: 1428394648}
   m_Father: {fileID: 102367357}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

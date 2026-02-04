@@ -6,9 +6,6 @@ using PigeonGame.Data;
 
 namespace PigeonGame.UI
 {
-    /// <summary>
-    /// 문 구매 UI
-    /// </summary>
     public class DoorPurchaseUI : MonoBehaviour
     {
         [Header("Main Panel")]
@@ -18,6 +15,7 @@ namespace PigeonGame.UI
         [SerializeField] private TextMeshProUGUI goldText;
         [SerializeField] private Button purchaseButton;
         [SerializeField] private Button closeButton;
+        [SerializeField] private TextMeshProUGUI purchaseButtonText; 
 
         private DoorType currentDoorType;
         private int currentCost;
@@ -34,7 +32,6 @@ namespace PigeonGame.UI
             UIHelper.SafeAddListener(purchaseButton, OnPurchaseButtonClicked);
             UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
 
-            // GameManager 이벤트 구독
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
@@ -44,9 +41,6 @@ namespace PigeonGame.UI
             UpdateGoldText();
         }
 
-        /// <summary>
-        /// 구매 패널 열기
-        /// </summary>
         public void OpenPurchasePanel(Door door, DoorType doorType, int cost, MapType unlocksMap)
         {
             if (purchasePanel == null || door == null)
@@ -71,19 +65,16 @@ namespace PigeonGame.UI
         {
             if (doorType == currentDoorType)
             {
-                // 문 해제 (이벤트에서도 호출하여 확실히 처리)
                 if (currentDoor != null && currentDoor.gameObject != null)
                 {
                     currentDoor.UnlockDoor();
                 }
-                // 구매 완료 후 패널 닫기
                 ClosePanel();
             }
         }
 
         private void UpdateDisplay()
         {
-            // 맵 이름 표시
             if (doorNameText != null)
             {
                 string mapName = currentUnlocksMap.ToString();
@@ -99,7 +90,6 @@ namespace PigeonGame.UI
                 doorNameText.text = mapName;
             }
 
-            // 비용 표시
             if (costText != null)
             {
                 costText.text = $"해금 비용: {currentCost}G";
@@ -124,22 +114,24 @@ namespace PigeonGame.UI
 
             purchaseButton.interactable = !isUnlocked && canAfford;
 
-            // 버튼 텍스트 업데이트
-            TextMeshProUGUI buttonText = purchaseButton.GetComponentInChildren<TextMeshProUGUI>();
-            if (buttonText != null)
+            if (purchaseButtonText != null)
             {
                 if (isUnlocked)
                 {
-                    buttonText.text = "이미 해금됨";
+                    purchaseButtonText.text = "이미 해금됨";
                 }
                 else if (canAfford)
                 {
-                    buttonText.text = "해금";
+                    purchaseButtonText.text = "해금";
                 }
                 else
                 {
-                    buttonText.text = "돈부족";
+                    purchaseButtonText.text = "돈부족";
                 }
+            }
+            else
+            {
+                Debug.LogWarning("PurchaseButtonText가 할당되지 않았습니다. 버튼 텍스트가 업데이트되지 않습니다.", this);
             }
         }
 
@@ -151,7 +143,6 @@ namespace PigeonGame.UI
             if (currentDoor == null)
                 return;
 
-            // 구매 처리 (성공하면 OnDoorUnlocked 이벤트가 발생하여 문이 삭제됨)
             GameManager.Instance.UnlockDoor(currentDoorType, currentCost);
         }
 

@@ -7,9 +7,6 @@ using PigeonGame.Gameplay;
 
 namespace PigeonGame.UI
 {
-    /// <summary>
-    /// 업그레이드 상점 UI - 모든 슬롯을 참조로 받아서 업데이트만 함
-    /// </summary>
     public class UpgradeShopUI : MonoBehaviour
     {
         [System.Serializable]
@@ -60,26 +57,25 @@ namespace PigeonGame.UI
         [SerializeField] private SpeciesWeightUnlockSlotReferences speciesWeightDecUnlockSlot;
 
         [Header("Species Weight Slots")]
-        [SerializeField] private GameObject increaseSlot; // 증가 슬롯 (항상 활성화)
-        [SerializeField] private GameObject increaseSlotBlockPanel; // 증가 슬롯 막는 패널
+        [SerializeField] private GameObject increaseSlot; 
+        [SerializeField] private GameObject increaseSlotBlockPanel; 
         [SerializeField] private SpeciesWeightSlotReferences increaseSlotRefs;
-        [SerializeField] private GameObject decreaseSlot; // 감소 슬롯 (항상 활성화)
-        [SerializeField] private GameObject decreaseSlotBlockPanel; // 감소 슬롯 막는 패널
+        [SerializeField] private GameObject decreaseSlot; 
+        [SerializeField] private GameObject decreaseSlotBlockPanel; 
         [SerializeField] private SpeciesWeightSlotReferences decreaseSlotRefs;
 
         [Header("Pigeons Per Map Select Panel")]
-        [SerializeField] private GameObject pigeonsPerMapSelectPanel; // 항상 활성화
-        [SerializeField] private GameObject pigeonsPerMapBlockPanel; // 비둘기 스폰 수 선택 패널 막는 패널
+        [SerializeField] private GameObject pigeonsPerMapSelectPanel; 
+        [SerializeField] private GameObject pigeonsPerMapBlockPanel; 
         [SerializeField] private PigeonsPerMapSelectPanelReferences pigeonsPerMapSelectPanelRefs;
 
-        [SerializeField] private int speciesWeightIncUnlockCost = 920; // 비둘기 확률 증가 해금 비용
-        [SerializeField] private int speciesWeightDecUnlockCost = 660; // 비둘기 확률 감소 해금 비용
+        [SerializeField] private int speciesWeightIncUnlockCost = 920; 
+        [SerializeField] private int speciesWeightDecUnlockCost = 660; 
 
         private bool isSpeciesWeightIncUnlocked = false;
         private bool isSpeciesWeightDecUnlocked = false;
         private List<PigeonSpecies> availableSpecies = new List<PigeonSpecies>();
 
-        // 업그레이드 정의 (GameDataRegistry에서 가져옴)
         private Dictionary<UpgradeType, UpgradeDefinition> upgradeDefinitions = new Dictionary<UpgradeType, UpgradeDefinition>();
 
         private void Start()
@@ -91,13 +87,11 @@ namespace PigeonGame.UI
 
             UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
 
-            // GameManager 이벤트 구독
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
             }
 
-            // UpgradeData 이벤트 구독
             if (UpgradeData.Instance != null)
             {
                 UpgradeData.Instance.OnUpgradeChanged += OnUpgradeChanged;
@@ -157,32 +151,29 @@ namespace PigeonGame.UI
 
         private void UpdateShopDisplay()
         {
-            // 각 업그레이드 슬롯 업데이트
             if (inventorySlot != null)
                 UpdateUpgradeSlot(inventorySlot, upgradeDefinitions[UpgradeType.InventorySlots]);
-            
+
             if (pigeonsPerMapSlot != null)
             {
                 UpdateUpgradeSlot(pigeonsPerMapSlot, upgradeDefinitions[UpgradeType.PigeonsPerMap]);
                 UpdatePigeonsPerMapSlot();
             }
-            
+
             if (maxTrapCountSlot != null)
                 UpdateUpgradeSlot(maxTrapCountSlot, upgradeDefinitions[UpgradeType.MaxTrapCount]);
 
-            // 비둘기 확률 조정 해금 슬롯 업데이트
             if (speciesWeightIncUnlockSlot != null)
                 UpdateSpeciesWeightUnlockSlot(speciesWeightIncUnlockSlot, true);
-            
+
             if (speciesWeightDecUnlockSlot != null)
                 UpdateSpeciesWeightUnlockSlot(speciesWeightDecUnlockSlot, false);
 
-            // 증가/감소 슬롯 막는 패널 제어 및 업데이트
             if (increaseSlotBlockPanel != null)
             {
                 increaseSlotBlockPanel.SetActive(!isSpeciesWeightIncUnlocked);
             }
-            
+
             if (increaseSlot != null && increaseSlotRefs != null && isSpeciesWeightIncUnlocked)
             {
                 UpdateSpeciesWeightSlot(increaseSlotRefs, true);
@@ -192,7 +183,7 @@ namespace PigeonGame.UI
             {
                 decreaseSlotBlockPanel.SetActive(!isSpeciesWeightDecUnlocked);
             }
-            
+
             if (decreaseSlot != null && decreaseSlotRefs != null && isSpeciesWeightDecUnlocked)
             {
                 UpdateSpeciesWeightSlot(decreaseSlotRefs, false);
@@ -208,22 +199,20 @@ namespace PigeonGame.UI
             int maxLevel = upgradeDef.values.Length;
             bool isMaxLevel = currentLevel >= maxLevel;
 
-            // NameText 업데이트: "이름(현재단계/전체단계)"
             if (slotRefs.nameText != null)
             {
                 slotRefs.nameText.text = $"{upgradeDef.upgradeName}({currentLevel}/{maxLevel})";
             }
 
-            // 업그레이드 버튼 업데이트
             if (slotRefs.upgradeButton != null)
             {
                 bool canAfford = GameManager.Instance != null && 
                                 !isMaxLevel && 
                                 GameManager.Instance.CurrentMoney >= upgradeDef.costs[currentLevel];
-                
+
                 slotRefs.upgradeButton.interactable = !isMaxLevel && canAfford;
                 slotRefs.upgradeButton.onClick.RemoveAllListeners();
-                
+
                 if (!isMaxLevel)
                 {
                     slotRefs.upgradeButton.onClick.AddListener(() => OnUpgradeClicked(upgradeDef));
@@ -256,7 +245,6 @@ namespace PigeonGame.UI
             int unlockedLevel = UpgradeData.Instance.PigeonsPerMapUnlockedLevel;
             int selectedValue = UpgradeData.Instance.PigeonsPerMapSelectedValue;
 
-            // 막는 패널 제어
             if (pigeonsPerMapBlockPanel != null)
             {
                 pigeonsPerMapBlockPanel.SetActive(unlockedLevel == 0);
@@ -264,15 +252,13 @@ namespace PigeonGame.UI
 
             if (unlockedLevel > 0)
             {
-                // 값 업데이트
                 if (pigeonsPerMapSelectPanelRefs.valueText != null)
                 {
                     pigeonsPerMapSelectPanelRefs.valueText.text = selectedValue.ToString();
                 }
 
-                // 버튼 활성화/비활성화 및 이벤트 연결
                 int maxValue = upgradeDefinitions[UpgradeType.PigeonsPerMap].values[unlockedLevel - 1];
-                
+
                 if (pigeonsPerMapSelectPanelRefs.leftButton != null)
                 {
                     pigeonsPerMapSelectPanelRefs.leftButton.interactable = selectedValue > 5;
@@ -297,20 +283,18 @@ namespace PigeonGame.UI
             bool isUnlocked = isIncrease ? isSpeciesWeightIncUnlocked : isSpeciesWeightDecUnlocked;
             int unlockCost = isIncrease ? speciesWeightIncUnlockCost : speciesWeightDecUnlockCost;
 
-            // NameText 업데이트
             if (slotRefs.nameText != null)
             {
                 string slotName = isIncrease ? "비둘기 확률 증가" : "비둘기 확률 감소";
                 slotRefs.nameText.text = isUnlocked ? $"{slotName}(해금됨)" : $"{slotName}(미해금)";
             }
 
-            // 업그레이드 버튼 업데이트
             if (slotRefs.unlockButton != null)
             {
                 bool canAfford = GameManager.Instance != null && 
                                 !isUnlocked && 
                                 GameManager.Instance.CurrentMoney >= unlockCost;
-                
+
                 slotRefs.unlockButton.interactable = !isUnlocked && canAfford;
                 slotRefs.unlockButton.onClick.RemoveAllListeners();
                 slotRefs.unlockButton.onClick.AddListener(() => OnSpeciesWeightUnlockClicked(isIncrease));
@@ -489,7 +473,7 @@ namespace PigeonGame.UI
 
             int selectedValue = UpgradeData.Instance.PigeonsPerMapSelectedValue;
             int unlockedLevel = UpgradeData.Instance.PigeonsPerMapUnlockedLevel;
-            
+
             if (unlockedLevel > 0 && upgradeDefinitions.ContainsKey(UpgradeType.PigeonsPerMap))
             {
                 int maxValue = upgradeDefinitions[UpgradeType.PigeonsPerMap].values[unlockedLevel - 1];
@@ -504,7 +488,7 @@ namespace PigeonGame.UI
         private void OnSpeciesWeightUnlockClicked(bool isIncrease)
         {
             bool isUnlocked = isIncrease ? isSpeciesWeightIncUnlocked : isSpeciesWeightDecUnlocked;
-            
+
             if (isUnlocked)
                 return;
 
@@ -531,8 +515,7 @@ namespace PigeonGame.UI
             PigeonSpecies? currentSpecies = UpgradeData.Instance != null
                 ? (isIncrease ? UpgradeData.Instance.SelectedIncreaseSpecies : UpgradeData.Instance.SelectedDecreaseSpecies)
                 : null;
-            
-            // 이전 종에서 선택 해제
+
             if (currentSpecies.HasValue && UpgradeData.Instance != null)
             {
                 if (isIncrease)
@@ -576,7 +559,6 @@ namespace PigeonGame.UI
                 }
             }
 
-            // 새 종 선택
             if (UpgradeData.Instance != null)
             {
                 if (isIncrease)

@@ -16,7 +16,7 @@ namespace PigeonGame.Data
     {
         public bool bitePowerEqualsObesity;
         public Dictionary<int, ObesityProfile> obesityProfiles;
-        
+
         [SerializeField] private List<int> obesityKeys;
         [SerializeField] private List<ObesityProfile> obesityValues;
 
@@ -61,11 +61,8 @@ namespace PigeonGame.Data
     [System.Serializable]
     public class RarityTierProfile
     {
-        // eatInterval, eatChance, alertDecayPerSec는 비만도 기반으로 계산하거나 통일된 값 사용 (base 값은 Tier 1 값으로 통일)
         public float playerAlertPerSec;
         public float crowdAlertPerNeighborPerSec;
-        // detectionRadius, warnThreshold, backoffThreshold, fleeThreshold, alertWeight, backoffDistance, alertDecayPerSec는 PigeonMovement에서 관리 (모든 tier 통일)
-        // 가격은 종별로 SpeciesDefinition.basePrice에서 관리
     }
 
     [CreateAssetMenu(fileName = "AIProfiles", menuName = "PigeonGame/AI Profiles")]
@@ -90,7 +87,6 @@ namespace PigeonGame.Data
             {
                 version = 1;
 
-                // ObesityRule 초기화
                 obesityRule = new ObesityRule
                 {
                     bitePowerEqualsObesity = true,
@@ -104,17 +100,15 @@ namespace PigeonGame.Data
                     }
                 };
 
-                // Tiers 초기화
                 tiers = new Dictionary<int, RarityTierProfile>
                 {
                     { 1, new RarityTierProfile { playerAlertPerSec = 38f, crowdAlertPerNeighborPerSec = 6f } },
                     { 2, new RarityTierProfile { playerAlertPerSec = 30f, crowdAlertPerNeighborPerSec = 10f } },
                     { 3, new RarityTierProfile { playerAlertPerSec = 22f, crowdAlertPerNeighborPerSec = 15f } },
-                    { 4, new RarityTierProfile { playerAlertPerSec = 18f, crowdAlertPerNeighborPerSec = 22f } }, // 희귀 비둘기: 경쟁에 민감하게
-                    { 5, new RarityTierProfile { playerAlertPerSec = 14f, crowdAlertPerNeighborPerSec = 28f } }  // 최고 희귀: 매우 민감하게
+                    { 4, new RarityTierProfile { playerAlertPerSec = 18f, crowdAlertPerNeighborPerSec = 22f } }, 
+                    { 5, new RarityTierProfile { playerAlertPerSec = 14f, crowdAlertPerNeighborPerSec = 28f } }  
                 };
 
-                // StressToEatModifier 초기화
                 stressToEatModifier = new StressToEatModifier
                 {
                     enabled = true,
@@ -139,7 +133,6 @@ namespace PigeonGame.Data
                 }
             }
 
-            // ObesityRule도 초기화
             if (obesityRule != null)
             {
                 obesityRule.OnAfterDeserialize();
@@ -160,7 +153,6 @@ namespace PigeonGame.Data
                 }
             }
 
-            // ObesityRule도 직렬화
             if (obesityRule != null)
             {
                 obesityRule.OnBeforeSerialize();
@@ -168,5 +160,4 @@ namespace PigeonGame.Data
         }
     }
 }
-
 

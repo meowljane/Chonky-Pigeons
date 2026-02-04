@@ -2,9 +2,6 @@ using UnityEngine;
 
 namespace PigeonGame.Data
 {
-    /// <summary>
-    /// 지형 타입 Enum
-    /// </summary>
     public enum TerrainType
     {
         SAND,
@@ -48,9 +45,6 @@ namespace PigeonGame.Data
             }
         }
 
-        /// <summary>
-        /// 지형 타입으로 정의 가져오기
-        /// </summary>
         public TerrainDefinition GetTerrainById(TerrainType terrainType)
         {
             foreach (var terrain in terrains)

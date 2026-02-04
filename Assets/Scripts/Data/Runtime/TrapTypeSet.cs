@@ -2,9 +2,6 @@ using UnityEngine;
 
 namespace PigeonGame.Data
 {
-    /// <summary>
-    /// 덫 타입 Enum
-    /// </summary>
     public enum TrapType
     {
         SEED,
@@ -19,13 +16,13 @@ namespace PigeonGame.Data
     {
         public TrapType trapType;
         public string name;
-        public Sprite icon; // 설치되었을 때의 이미지 (UI 아이콘으로도 사용)
-        public Sprite capturedSprite; // 포획되었을 때의 이미지
-        public int unlockCost; // 해금에 필요한 골드
-        public int installCost; // 해금 후 덫을 실제로 설치할 때마다 드는 골드
-        public int feedCostPerUnit; // 설치 시 넣을 모이 마다 추가되는 골드 (기본 양은 20)
-        public int feedAmount; // 기본 모이 양
-        public int pigeonSpawnCount; // 덫 설치 시 추가로 스폰되는 비둘기 수
+        public Sprite icon; 
+        public Sprite capturedSprite; 
+        public int unlockCost; 
+        public int installCost; 
+        public int feedCostPerUnit; 
+        public int feedAmount; 
+        public int pigeonSpawnCount; 
     }
 
     [CreateAssetMenu(fileName = "Traps", menuName = "PigeonGame/Traps")]

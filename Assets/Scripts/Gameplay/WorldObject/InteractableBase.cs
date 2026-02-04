@@ -2,26 +2,13 @@ using UnityEngine;
 
 namespace PigeonGame.Gameplay
 {
-    /// <summary>
-    /// 상호작용 가능한 오브젝트 인터페이스
-    /// </summary>
     public interface IInteractable
     {
-        /// <summary>
-        /// 상호작용 가능한지 확인
-        /// </summary>
         bool CanInteract();
 
-        /// <summary>
-        /// 상호작용 실행
-        /// </summary>
         void OnInteract();
     }
 
-    /// <summary>
-    /// 상호작용 가능한 오브젝트의 베이스 클래스
-    /// 공통 상호작용 로직을 제공
-    /// </summary>
     public abstract class InteractableBase : MonoBehaviour, IInteractable
     {
         [Header("Interaction")]
@@ -38,9 +25,6 @@ namespace PigeonGame.Gameplay
             SetupInteractionTrigger();
         }
 
-        /// <summary>
-        /// 상호작용 트리거 설정
-        /// </summary>
         protected void SetupInteractionTrigger()
         {
             interactionTrigger = GetComponent<Collider2D>();

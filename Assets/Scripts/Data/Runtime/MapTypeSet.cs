@@ -2,9 +2,6 @@ using UnityEngine;
 
 namespace PigeonGame.Data
 {
-    /// <summary>
-    /// 맵 타입 Enum
-    /// </summary>
     public enum MapType
     {
         MAP1,
@@ -18,7 +15,7 @@ namespace PigeonGame.Data
     public class MapDefinition
     {
         public MapType mapType;
-        public string displayName; // 표시용 이름 (예: "맵 1", "도시")
+        public string displayName; 
     }
 
     [CreateAssetMenu(fileName = "MapTypes", menuName = "PigeonGame/Map Types")]
@@ -48,9 +45,6 @@ namespace PigeonGame.Data
             }
         }
 
-        /// <summary>
-        /// 맵 타입으로 정의 가져오기
-        /// </summary>
         public MapDefinition GetMapById(MapType mapType)
         {
             foreach (var map in maps)
