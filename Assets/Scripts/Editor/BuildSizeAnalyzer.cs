@@ -12,7 +12,6 @@ public class BuildSizeAnalyzer : EditorWindow
     private Dictionary<string, long> assetSizes = new Dictionary<string, long>();
     private Vector2 scrollPosition;
     private long totalResourcesSize = 0;
-    private string sizeUnit = "MB";
 
     [MenuItem("Tools/Build Size Analyzer")]
     public static void ShowWindow()

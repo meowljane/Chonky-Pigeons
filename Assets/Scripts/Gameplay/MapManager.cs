@@ -76,16 +76,5 @@ namespace PigeonGame.Gameplay
             return $"Area {areaNumber}";
         }
 
-        /// <summary>
-        /// 지역 해금 여부 확인 (GameManager 래핑)
-        /// </summary>
-        public bool IsAreaUnlocked(int areaNumber)
-        {
-            if (GameManager.Instance != null)
-            {
-                return GameManager.Instance.IsAreaUnlocked(areaNumber);
-            }
-            return false;
-        }
     }
 }

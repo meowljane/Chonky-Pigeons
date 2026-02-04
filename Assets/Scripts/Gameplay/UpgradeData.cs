@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using PigeonGame.Data;
+using PigeonGame.Save;
 
 namespace PigeonGame.Gameplay
 {
@@ -203,6 +204,54 @@ namespace PigeonGame.Gameplay
             {
                 Destroy(gameObject);
             }
+        }
+
+        /// <summary>
+        /// 현재 업그레이드 상태를 세이브 데이터로 변환
+        /// </summary>
+        public UpgradeSaveData CreateSaveData()
+        {
+            var data = new UpgradeSaveData
+            {
+                inventorySlotBonus = inventorySlotBonus,
+                maxTrapCount = maxTrapCount,
+                pigeonsPerMapUnlockedLevel = pigeonsPerMapUnlockedLevel,
+                pigeonsPerMapSelectedValue = pigeonsPerMapSelectedValue,
+                hasIncreaseSpecies = selectedIncreaseSpecies.HasValue,
+                hasDecreaseSpecies = selectedDecreaseSpecies.HasValue
+            };
+
+            if (selectedIncreaseSpecies.HasValue)
+            {
+                data.increaseSpecies = selectedIncreaseSpecies.Value;
+            }
+
+            if (selectedDecreaseSpecies.HasValue)
+            {
+                data.decreaseSpecies = selectedDecreaseSpecies.Value;
+            }
+
+            return data;
+        }
+
+        /// <summary>
+        /// 세이브 데이터를 업그레이드 상태에 적용
+        /// </summary>
+        public void ApplySaveData(UpgradeSaveData data)
+        {
+            if (data == null)
+                return;
+
+            inventorySlotBonus = data.inventorySlotBonus;
+            maxTrapCount = data.maxTrapCount;
+            pigeonsPerMapUnlockedLevel = data.pigeonsPerMapUnlockedLevel;
+            pigeonsPerMapSelectedValue = data.pigeonsPerMapSelectedValue;
+
+            selectedIncreaseSpecies = data.hasIncreaseSpecies ? (PigeonSpecies?)data.increaseSpecies : null;
+            selectedDecreaseSpecies = data.hasDecreaseSpecies ? (PigeonSpecies?)data.decreaseSpecies : null;
+
+            UpdateInspectorValues();
+            OnUpgradeChanged?.Invoke();
         }
     }
 }
