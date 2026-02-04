@@ -76,6 +76,39 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
+        /// 게임 상태 초기화 (데이터 리셋용)
+        /// </summary>
+        public void Reset()
+        {
+            currentMoney = startingMoney;
+            
+            // 해금 상태 초기화
+            unlockedTraps.Clear();
+            unlockedSpecies.Clear();
+            unlockedDoors.Clear();
+            
+            // 시작 덫 해금
+            foreach (var trapType in startingUnlockedTraps)
+            {
+                unlockedTraps.Add(trapType);
+                OnTrapUnlocked?.Invoke(trapType);
+            }
+
+            // 시작 비둘기 종 해금
+            foreach (var speciesType in startingUnlockedSpecies)
+            {
+                unlockedSpecies.Add(speciesType);
+                OnSpeciesUnlocked?.Invoke(speciesType);
+            }
+
+            // 인벤토리 및 전시관 초기화
+            inventory.Clear();
+            exhibition.Clear();
+
+            OnMoneyChanged?.Invoke(currentMoney);
+        }
+
+        /// <summary>
         /// 돈 추가
         /// </summary>
         public void AddMoney(int amount)

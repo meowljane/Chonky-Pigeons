@@ -18,12 +18,28 @@ namespace PigeonGame.Gameplay
         }
 
         /// <summary>
-        /// 현재 설치된 덫 개수 확인
+        /// 현재 맵에 설치된 덫 개수 확인
         /// </summary>
-        private int GetCurrentTrapCount()
+        private int GetCurrentTrapCount(string mapName)
         {
+            if (string.IsNullOrEmpty(mapName) || TilemapRangeManager.Instance == null)
+                return 0;
+
             FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
-            return allTraps?.Length ?? 0;
+            if (allTraps == null)
+                return 0;
+
+            int count = 0;
+            foreach (var trap in allTraps)
+            {
+                if (trap != null)
+                {
+                    string trapMapName = TilemapRangeManager.Instance.GetMapNameAtPosition(trap.transform.position);
+                    if (trapMapName == mapName)
+                        count++;
+                }
+            }
+            return count;
         }
 
         /// <summary>
@@ -74,18 +90,6 @@ namespace PigeonGame.Gameplay
             if (PlayerController.Instance == null)
                 return false;
 
-            // 동시 덫 설치 개수 제한 확인
-            int maxTrapCount = UpgradeData.Instance?.MaxTrapCount ?? 0;
-            if (maxTrapCount > 0)
-            {
-                int currentTrapCount = GetCurrentTrapCount();
-                if (currentTrapCount >= maxTrapCount)
-                {
-                    ToastNotificationManager.ShowWarning($"덫 개수 제한에 도달했습니다! (최대 {maxTrapCount}개)");
-                    return false;
-                }
-            }
-
             Vector3 playerPos = PlayerController.Instance.Position;
 
             // 타일맵 기반 맵 범위 확인
@@ -93,6 +97,26 @@ namespace PigeonGame.Gameplay
             {
                 ToastNotificationManager.ShowWarning("맵 범위를 벗어났습니다!");
                 return false;
+            }
+
+            // 현재 맵 이름 가져오기
+            string currentMapName = TilemapRangeManager.Instance.GetMapNameAtPosition(playerPos);
+            if (string.IsNullOrEmpty(currentMapName) || currentMapName == "Unknown")
+            {
+                ToastNotificationManager.ShowWarning("맵 정보를 확인할 수 없습니다!");
+                return false;
+            }
+
+            // 동시 덫 설치 개수 제한 확인 (현재 맵 기준)
+            int maxTrapCount = UpgradeData.Instance?.MaxTrapCount ?? 0;
+            if (maxTrapCount > 0)
+            {
+                int currentTrapCount = GetCurrentTrapCount(currentMapName);
+                if (currentTrapCount >= maxTrapCount)
+                {
+                    ToastNotificationManager.ShowWarning($"덫 개수 제한에 도달했습니다! (최대 {maxTrapCount}개)");
+                    return false;
+                }
             }
 
             // 다른 건물이나 덫의 interactionRadius 내에 있는지, 또는 문 영역 내에 있는지 확인
@@ -156,10 +180,9 @@ namespace PigeonGame.Gameplay
             // 덫 설치 시 비둘기 추가 스폰 (해당 맵 내 랜덤 위치)
             if (trapData != null && trapData.pigeonSpawnCount > 0 && pigeonManager != null)
             {
-                string mapName = TilemapRangeManager.Instance?.GetMapNameAtPosition(playerPos);
-                if (!string.IsNullOrEmpty(mapName) && mapName != "Unknown")
+                if (!string.IsNullOrEmpty(currentMapName) && currentMapName != "Unknown")
                 {
-                    pigeonManager.SpawnPigeonAtPosition(playerPos, mapName, trapData.pigeonSpawnCount);
+                    pigeonManager.SpawnPigeonAtPosition(playerPos, currentMapName, trapData.pigeonSpawnCount);
                 }
             }
 
