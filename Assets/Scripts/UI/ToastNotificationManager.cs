@@ -76,7 +76,6 @@ namespace PigeonGame.UI
                 // 필수 참조 확인
                 if (toastCanvas == null || belowGoldParent == null || messageParent == null || toastPrefab == null)
                 {
-                    Debug.LogError("ToastNotificationManager: toastCanvas, belowGoldParent, messageParent, toastPrefab을 모두 지정해주세요!");
                     enabled = false;
                     return;
                 }
@@ -144,7 +143,6 @@ namespace PigeonGame.UI
         {
             if (Instance == null)
             {
-                Debug.LogWarning("ToastNotificationManager가 없습니다. 씬에 추가해주세요.");
                 return;
             }
             Instance.ShowToast(message, ToastType.Warning, ToastPosition.Message, Instance.defaultDuration);
@@ -157,7 +155,6 @@ namespace PigeonGame.UI
         {
             if (Instance == null)
             {
-                Debug.LogWarning("ToastNotificationManager가 없습니다. 씬에 추가해주세요.");
                 return;
             }
             Instance.ShowToast(message, ToastType.Success, ToastPosition.Message, Instance.defaultDuration);
@@ -234,7 +231,6 @@ namespace PigeonGame.UI
         {
             if (toastPrefab == null)
             {
-                Debug.LogError("ToastNotificationManager: toastPrefab이 지정되지 않았습니다!");
                 return null;
             }
 
@@ -242,7 +238,6 @@ namespace PigeonGame.UI
             Transform parent = GetParentForPosition(data.position);
             if (parent == null)
             {
-                Debug.LogError($"ToastNotificationManager: {data.position}에 해당하는 parent가 지정되지 않았습니다!");
                 return null;
             }
 
@@ -252,7 +247,6 @@ namespace PigeonGame.UI
             RectTransform rect = toastObj.GetComponent<RectTransform>();
             if (rect == null)
             {
-                Debug.LogError("ToastNotificationManager: toastPrefab에 RectTransform이 없습니다!");
                 Destroy(toastObj);
                 return null;
             }
@@ -310,6 +304,8 @@ namespace PigeonGame.UI
         /// </summary>
         private IEnumerator ShowToastAnimation(GameObject toastObj, float duration)
         {
+            if (toastObj == null) yield break;
+
             RectTransform rect = toastObj.GetComponent<RectTransform>();
             if (rect == null) yield break;
 
@@ -322,24 +318,34 @@ namespace PigeonGame.UI
             float elapsed = 0f;
             while (elapsed < slideInDuration)
             {
+                if (toastObj == null || rect == null) yield break;
+
                 elapsed += Time.deltaTime;
                 float t = elapsed / slideInDuration;
                 t = Mathf.SmoothStep(0f, 1f, t);
                 rect.anchoredPosition = Vector2.Lerp(hiddenPos, targetPos, t);
                 yield return null;
             }
-            rect.anchoredPosition = targetPos;
+
+            if (toastObj != null && rect != null)
+            {
+                rect.anchoredPosition = targetPos;
+            }
 
             // 대기
             yield return new WaitForSeconds(duration);
 
             // 슬라이드 아웃
+            if (toastObj == null || rect == null) yield break;
+
             elapsed = 0f;
             Vector2 startPos = rect.anchoredPosition;
             Vector2 endPos = hiddenPos;
 
             while (elapsed < slideOutDuration)
             {
+                if (toastObj == null || rect == null) yield break;
+
                 elapsed += Time.deltaTime;
                 float t = elapsed / slideOutDuration;
                 t = Mathf.SmoothStep(0f, 1f, t);
@@ -358,11 +364,14 @@ namespace PigeonGame.UI
             }
 
             // 제거
-            if (activeToasts.Contains(toastObj))
+            if (toastObj != null)
             {
-                activeToasts.Remove(toastObj);
+                if (activeToasts.Contains(toastObj))
+                {
+                    activeToasts.Remove(toastObj);
+                }
+                Destroy(toastObj);
             }
-            Destroy(toastObj);
         }
 
         /// <summary>
@@ -384,6 +393,8 @@ namespace PigeonGame.UI
             float elapsed = 0f;
             while (elapsed < slideOutDuration)
             {
+                if (toastObj == null || rect == null) yield break;
+
                 elapsed += Time.deltaTime;
                 float t = elapsed / slideOutDuration;
                 t = Mathf.SmoothStep(0f, 1f, t);
@@ -401,11 +412,14 @@ namespace PigeonGame.UI
                 yield return null;
             }
 
-            if (activeToasts.Contains(toastObj))
+            if (toastObj != null)
             {
-                activeToasts.Remove(toastObj);
+                if (activeToasts.Contains(toastObj))
+                {
+                    activeToasts.Remove(toastObj);
+                }
+                Destroy(toastObj);
             }
-            Destroy(toastObj);
         }
 
 

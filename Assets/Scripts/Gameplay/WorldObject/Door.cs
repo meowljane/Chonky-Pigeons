@@ -65,10 +65,6 @@ namespace PigeonGame.Gameplay
             }
 
             // DoorSet에서 데이터를 찾지 못한 경우 기본값 사용
-            if (doorDefinition == null)
-            {
-                Debug.LogWarning($"Door: DoorType {doorType}에 대한 데이터를 DoorSet에서 찾을 수 없습니다. 기본값을 사용합니다.");
-            }
         }
 
         public override void OnInteract()

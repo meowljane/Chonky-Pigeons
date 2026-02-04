@@ -179,8 +179,6 @@ namespace PigeonGame.UI
             // 토스트 알림 표시
             ToastNotificationManager.ShowSuccess("게임 데이터가 초기화되었습니다.\n게임을 재시작합니다...");
 
-            Debug.Log("게임 데이터 초기화 완료 - 씬 재시작");
-
             // 씬 재시작 (게임 완전히 리셋)
             RestartGame();
         }

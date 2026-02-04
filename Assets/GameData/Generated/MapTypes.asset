@@ -15,12 +15,12 @@ MonoBehaviour:
   version: 1
   maps:
   - mapType: 0
-    displayName: "\uB9F5 1"
+    displayName: "\uB458\uAE30\uB4B7\uB730"
   - mapType: 1
-    displayName: "\uB9F5 2"
+    displayName: "\uAF41\uAF41\uB458\uAE30"
   - mapType: 2
-    displayName: "\uB9F5 3"
+    displayName: "\uD53C\uC874\uB85C\uB4DC"
   - mapType: 3
-    displayName: "\uB9F5 4"
+    displayName: "\uB458\uAE30\uC232"
   - mapType: 4
-    displayName: "\uB9F5 5"
+    displayName: "\uB3C4\uBE0C\uD5E4\uBE10"

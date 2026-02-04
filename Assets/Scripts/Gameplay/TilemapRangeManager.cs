@@ -104,8 +104,6 @@ namespace PigeonGame.Gameplay
                     exhibitionTilemaps.Add(tilemap);
                 }
             }
-
-            Debug.Log($"TilemapRangeManager: {tilemapToMapArea.Count}개의 맵 타일맵, {tilemapToTerrainArea.Count}개의 지형 타일맵, {tilemapToDoorArea.Count}개의 문 타일맵, {playerMovementTilemaps.Count}개의 플레이어 이동 타일맵, {exhibitionTilemaps.Count}개의 전시 타일맵을 로드했습니다.");
         }
 
         /// <summary>

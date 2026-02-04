@@ -11,8 +11,6 @@ namespace PigeonGame.Gameplay
     /// </summary>
     public class SaveInitializer : MonoBehaviour
     {
-        [Header("Auto Save Settings")]
-        [SerializeField] private bool enableAutoSave = true;
         [SerializeField] private float saveCooldown = 0.5f; // 중복 저장 방지용 쿨다운 (초)
 
         private float lastSaveTime = 0f;
@@ -24,10 +22,7 @@ namespace PigeonGame.Gameplay
             SaveManager.LoadOrCreateAndApply();
             
             // 자동 저장 이벤트 구독
-            if (enableAutoSave)
-            {
-                SubscribeToSaveEvents();
-            }
+            SubscribeToSaveEvents();
             
             isInitialized = true;
         }

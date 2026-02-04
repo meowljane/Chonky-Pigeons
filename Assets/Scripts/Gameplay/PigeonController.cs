@@ -222,10 +222,9 @@ namespace PigeonGame.Gameplay
         /// <summary>
         /// 전시관 비둘기로 설정 (타일맵 기반)
         /// </summary>
-        public void SetAsExhibitionPigeon(Collider2D area = null)
+        public void SetAsExhibitionPigeon()
         {
             isExhibitionPigeon = true;
-            // 타일맵 기반으로 변경되었으므로 area 파라미터는 무시됨
         }
     }
 }

@@ -65,16 +65,5 @@ namespace PigeonGame.Gameplay
             }
             return false;
         }
-
-        /// <summary>
-        /// 지역 번호로 지역 이름 가져오기 (하위 호환성)
-        /// </summary>
-        public string GetAreaName(int areaNumber)
-        {
-            // 타일맵 기반으로는 지역 번호 개념이 없으므로 기본값 반환
-            // 필요시 TilemapRangeManager에 지역 번호 매핑 추가 가능
-            return $"Area {areaNumber}";
-        }
-
     }
 }

@@ -343,7 +343,6 @@ namespace PigeonGame.UI
 
             if (spawnPos == Vector3.zero)
             {
-                Debug.LogWarning("ExhibitionUI: 전시 영역 타일맵을 찾을 수 없습니다. ExhibitionArea 컴포넌트가 있는 타일맵을 확인하세요.");
                 return;
             }
 
