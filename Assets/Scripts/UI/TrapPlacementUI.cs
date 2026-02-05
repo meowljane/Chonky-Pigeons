@@ -205,9 +205,9 @@ namespace PigeonGame.UI
                 return;
 
             TerrainType currentTerrain = TerrainType.SAND;
-            if (PlayerController.Instance != null && MapManager.Instance != null)
+            if (PlayerController.Instance != null)
             {
-                currentTerrain = MapManager.Instance.GetTerrainTypeAtPosition(PlayerController.Instance.Position);
+                currentTerrain = TilemapRangeManager.Instance?.GetTerrainTypeAtPosition(PlayerController.Instance.Position) ?? TerrainType.SAND;
             }
 
             if (currentTerrainText != null)

@@ -67,8 +67,6 @@ namespace PigeonGame.Save
         {
             public FaceType faceId;
             public bool isUnlocked;
-            public float minWeight;
-            public float maxWeight;
         }
     }
 }

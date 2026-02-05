@@ -13,8 +13,6 @@ namespace PigeonGame.Gameplay
         public class FaceEncyclopediaData
         {
             public bool isUnlocked;
-            public float minWeight = float.MaxValue;
-            public float maxWeight = float.MinValue;
         }
 
         [System.Serializable]
@@ -40,6 +38,20 @@ namespace PigeonGame.Gameplay
             }
         }
 
+        private void UpdateWeightRange(SpeciesEncyclopediaData data, float weight)
+        {
+            data.isUnlocked = true;
+            if (data.minWeight == float.MaxValue)
+                data.minWeight = weight;
+            else if (weight < data.minWeight)
+                data.minWeight = weight;
+
+            if (data.maxWeight == float.MinValue)
+                data.maxWeight = weight;
+            else if (weight > data.maxWeight)
+                data.maxWeight = weight;
+        }
+
         public void RecordPigeon(PigeonInstanceStats stats)
         {
             if (stats == null)
@@ -50,59 +62,26 @@ namespace PigeonGame.Gameplay
             float weight = stats.weight;
 
             if (!encyclopediaData.ContainsKey(speciesId))
-            {
                 encyclopediaData[speciesId] = new SpeciesEncyclopediaData();
-            }
 
             SpeciesEncyclopediaData speciesData = encyclopediaData[speciesId];
-            speciesData.isUnlocked = true;
-
-            if (speciesData.minWeight == float.MaxValue)
-                speciesData.minWeight = weight;
-            else if (weight < speciesData.minWeight)
-                speciesData.minWeight = weight;
-
-            if (speciesData.maxWeight == float.MinValue)
-                speciesData.maxWeight = weight;
-            else if (weight > speciesData.maxWeight)
-                speciesData.maxWeight = weight;
+            UpdateWeightRange(speciesData, weight);
 
             if (!speciesData.faces.ContainsKey(faceId))
-            {
                 speciesData.faces[faceId] = new FaceEncyclopediaData();
-            }
 
-            FaceEncyclopediaData faceData = speciesData.faces[faceId];
-            faceData.isUnlocked = true;
-
-            if (faceData.minWeight == float.MaxValue)
-                faceData.minWeight = weight;
-            else if (weight < faceData.minWeight)
-                faceData.minWeight = weight;
-
-            if (faceData.maxWeight == float.MinValue)
-                faceData.maxWeight = weight;
-            else if (weight > faceData.maxWeight)
-                faceData.maxWeight = weight;
+            speciesData.faces[faceId].isUnlocked = true;
         }
 
         public SpeciesEncyclopediaData GetSpeciesData(PigeonSpecies speciesType)
         {
-            if (encyclopediaData.ContainsKey(speciesType))
-            {
-                return encyclopediaData[speciesType];
-            }
-            return new SpeciesEncyclopediaData();
+            return encyclopediaData.TryGetValue(speciesType, out var data) ? data : new SpeciesEncyclopediaData();
         }
 
         public FaceEncyclopediaData GetFaceData(PigeonSpecies speciesType, FaceType faceType)
         {
             SpeciesEncyclopediaData speciesData = GetSpeciesData(speciesType);
-            if (speciesData.faces.ContainsKey(faceType))
-            {
-                return speciesData.faces[faceType];
-            }
-            return new FaceEncyclopediaData();
+            return speciesData.faces.TryGetValue(faceType, out var data) ? data : new FaceEncyclopediaData();
         }
 
         public Dictionary<PigeonSpecies, SpeciesEncyclopediaData> GetAllSpeciesData()
@@ -135,9 +114,7 @@ namespace PigeonGame.Gameplay
                     var faceEntry = new EncyclopediaSaveData.FaceEntry
                     {
                         faceId = faceId,
-                        isUnlocked = faceData.isUnlocked,
-                        minWeight = faceData.minWeight,
-                        maxWeight = faceData.maxWeight
+                        isUnlocked = faceData.isUnlocked
                     };
 
                     speciesEntry.faces.Add(faceEntry);
@@ -176,9 +153,7 @@ namespace PigeonGame.Gameplay
                     {
                         var faceData = new FaceEncyclopediaData
                         {
-                            isUnlocked = faceEntry.isUnlocked,
-                            minWeight = faceEntry.minWeight,
-                            maxWeight = faceEntry.maxWeight
+                            isUnlocked = faceEntry.isUnlocked
                         };
 
                         speciesData.faces[faceEntry.faceId] = faceData;

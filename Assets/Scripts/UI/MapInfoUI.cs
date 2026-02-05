@@ -57,7 +57,7 @@ namespace PigeonGame.UI
                 mapNameText.text = mapDisplay;
             }
 
-            TerrainType currentTerrain = MapManager.Instance != null ? MapManager.Instance.GetTerrainTypeAtPosition(PlayerController.Instance.Position) : TerrainType.SAND;
+            TerrainType currentTerrain = TilemapRangeManager.Instance?.GetTerrainTypeAtPosition(PlayerController.Instance.Position) ?? TerrainType.SAND;
             string terrainName = currentTerrain.ToString();
             var registry = GameDataRegistry.Instance;
             if (registry?.TerrainTypes != null)

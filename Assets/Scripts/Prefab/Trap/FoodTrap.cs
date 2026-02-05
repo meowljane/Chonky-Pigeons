@@ -205,7 +205,7 @@ namespace PigeonGame.Gameplay
             if (!pigeonControllerCache.TryGetValue(pigeon, out PigeonController controller))
             {
                 controller = pigeon.GetComponent<PigeonController>();
-                if (controller?.Stats == null)
+                if (controller == null)
                     return false;
                 pigeonControllerCache[pigeon] = controller;
             }
@@ -268,14 +268,12 @@ namespace PigeonGame.Gameplay
 
         protected override void OnTriggerEnter2D(Collider2D other)
         {
-            if (isCaptured)
-                base.OnTriggerEnter2D(other);
+            base.OnTriggerEnter2D(other);
         }
 
         protected override void OnTriggerExit2D(Collider2D other)
         {
-            if (isCaptured)
-                base.OnTriggerExit2D(other);
+            base.OnTriggerExit2D(other);
         }
 
         public override bool CanInteract()

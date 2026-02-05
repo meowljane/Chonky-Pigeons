@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3860959181588578094}
   - component: {fileID: 539172784031734001}
   - component: {fileID: 5389737534915919875}
-  - component: {fileID: 4239671996350517772}
+  - component: {fileID: 7136393160394160639}
   m_Layer: 0
   m_Name: Map3Door
   m_TagString: Untagged
@@ -236,7 +236,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &4239671996350517772
+--- !u!114 &7136393160394160639
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -245,9 +245,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 273390206489208747}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87213d5627fe5cd4dba3792c233bf869, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.DoorTilemapArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 2
+  mapType: 0
+  terrainType: 4
   doorType: 1
 --- !u!1 &585407493327415147
 GameObject:
@@ -12961,7 +12964,7 @@ GameObject:
   - component: {fileID: 4315489793801045328}
   - component: {fileID: 7408980109811288149}
   - component: {fileID: 8025846691807604466}
-  - component: {fileID: 1131481298507383064}
+  - component: {fileID: 3741514993153185631}
   m_Layer: 0
   m_Name: Map2
   m_TagString: Untagged
@@ -15076,7 +15079,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &1131481298507383064
+--- !u!114 &3741514993153185631
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -15085,10 +15088,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1244435034645375634}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 716f0c394b12f78479a2e431d3d70250, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.MapArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 0
   mapType: 1
+  terrainType: 4
+  doorType: 0
 --- !u!1 &1661029973949221355
 GameObject:
   m_ObjectHideFlags: 0
@@ -15100,7 +15106,7 @@ GameObject:
   - component: {fileID: 1297332754455480358}
   - component: {fileID: 4535269186680921903}
   - component: {fileID: 8833042500634193750}
-  - component: {fileID: 7273824117857213527}
+  - component: {fileID: 720781659089133161}
   m_Layer: 0
   m_Name: Map3
   m_TagString: Untagged
@@ -17415,7 +17421,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &7273824117857213527
+--- !u!114 &720781659089133161
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -17424,10 +17430,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1661029973949221355}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 716f0c394b12f78479a2e431d3d70250, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.MapArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 0
   mapType: 2
+  terrainType: 4
+  doorType: 0
 --- !u!1 &2163397354954030016
 GameObject:
   m_ObjectHideFlags: 0
@@ -17439,7 +17448,7 @@ GameObject:
   - component: {fileID: 2500685346201117426}
   - component: {fileID: 725182242456757265}
   - component: {fileID: 4970197498921474581}
-  - component: {fileID: 4683436657423278773}
+  - component: {fileID: 2380915430173911714}
   m_Layer: 0
   m_Name: snowy
   m_TagString: Untagged
@@ -18510,7 +18519,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &4683436657423278773
+--- !u!114 &2380915430173911714
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -18519,10 +18528,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2163397354954030016}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d89170b88f99fb342856ecc6b0d56cc9, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.TerrainArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 1
+  mapType: 0
   terrainType: 3
+  doorType: 0
 --- !u!1 &2567208169267073765
 GameObject:
   m_ObjectHideFlags: 0
@@ -18534,7 +18546,7 @@ GameObject:
   - component: {fileID: 2653011581715035587}
   - component: {fileID: 1651058014863668870}
   - component: {fileID: 6981637423874327245}
-  - component: {fileID: 7679696423438671594}
+  - component: {fileID: 8195301391610834768}
   m_Layer: 0
   m_Name: road
   m_TagString: Untagged
@@ -19437,7 +19449,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &7679696423438671594
+--- !u!114 &8195301391610834768
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -19446,10 +19458,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2567208169267073765}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d89170b88f99fb342856ecc6b0d56cc9, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.TerrainArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 1
+  mapType: 0
   terrainType: 1
+  doorType: 0
 --- !u!1 &2679721415716811028
 GameObject:
   m_ObjectHideFlags: 0
@@ -19461,7 +19476,7 @@ GameObject:
   - component: {fileID: 6876513369655385994}
   - component: {fileID: 6078956442116134691}
   - component: {fileID: 317292627561317439}
-  - component: {fileID: 2824836698625447354}
+  - component: {fileID: 6900065069175703389}
   m_Layer: 0
   m_Name: Exhibition
   m_TagString: Untagged
@@ -20646,7 +20661,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &2824836698625447354
+--- !u!114 &6900065069175703389
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20655,9 +20670,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2679721415716811028}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d3e6ca8877d8a348ae5085b0174a0ad, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.ExhibitionArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 4
+  mapType: 0
+  terrainType: 4
+  doorType: 0
 --- !u!1 &2929742628623796749
 GameObject:
   m_ObjectHideFlags: 0
@@ -20669,7 +20688,7 @@ GameObject:
   - component: {fileID: 2114009981069864984}
   - component: {fileID: 8738074495296957938}
   - component: {fileID: 2822777612199275973}
-  - component: {fileID: 3546073548065384499}
+  - component: {fileID: 2761164908228470830}
   m_Layer: 0
   m_Name: Map4Door
   m_TagString: Untagged
@@ -20894,7 +20913,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &3546073548065384499
+--- !u!114 &2761164908228470830
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20903,9 +20922,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 2929742628623796749}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87213d5627fe5cd4dba3792c233bf869, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.DoorTilemapArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 2
+  mapType: 0
+  terrainType: 4
   doorType: 2
 --- !u!1 &3606157290221386963
 GameObject:
@@ -20918,7 +20940,7 @@ GameObject:
   - component: {fileID: 3977229115369827990}
   - component: {fileID: 916106692366609743}
   - component: {fileID: 7994352087489984136}
-  - component: {fileID: 7574943795901107375}
+  - component: {fileID: 926805436791385592}
   m_Layer: 0
   m_Name: Map1
   m_TagString: Untagged
@@ -23063,7 +23085,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &7574943795901107375
+--- !u!114 &926805436791385592
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -23072,10 +23094,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 3606157290221386963}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 716f0c394b12f78479a2e431d3d70250, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.MapArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 0
   mapType: 0
+  terrainType: 4
+  doorType: 0
 --- !u!1 &3755035932036073601
 GameObject:
   m_ObjectHideFlags: 0
@@ -37367,7 +37392,7 @@ GameObject:
   - component: {fileID: 6412437782939650461}
   - component: {fileID: 8893093780844179129}
   - component: {fileID: 2687363277121453628}
-  - component: {fileID: 5069701718969447111}
+  - component: {fileID: 4887717665707338794}
   m_Layer: 0
   m_Name: grass
   m_TagString: Untagged
@@ -38734,7 +38759,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &5069701718969447111
+--- !u!114 &4887717665707338794
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -38743,10 +38768,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 4898664023178653670}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d89170b88f99fb342856ecc6b0d56cc9, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.TerrainArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 1
+  mapType: 0
   terrainType: 4
+  doorType: 0
 --- !u!1 &5013202451398071155
 GameObject:
   m_ObjectHideFlags: 0
@@ -38758,7 +38786,7 @@ GameObject:
   - component: {fileID: 4056514367310994881}
   - component: {fileID: 8600663746344193800}
   - component: {fileID: 923643972326349826}
-  - component: {fileID: 7127400463926238807}
+  - component: {fileID: 498669868840852959}
   m_Layer: 0
   m_Name: wateland
   m_TagString: Untagged
@@ -39853,7 +39881,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &7127400463926238807
+--- !u!114 &498669868840852959
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -39862,10 +39890,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 5013202451398071155}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d89170b88f99fb342856ecc6b0d56cc9, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.TerrainArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 1
+  mapType: 0
   terrainType: 2
+  doorType: 0
 --- !u!1 &5098141379743476441
 GameObject:
   m_ObjectHideFlags: 0
@@ -39877,7 +39908,7 @@ GameObject:
   - component: {fileID: 587814823712120131}
   - component: {fileID: 464518785331756522}
   - component: {fileID: 963929291003047871}
-  - component: {fileID: 6257762742280549267}
+  - component: {fileID: 9039393178389716395}
   m_Layer: 0
   m_Name: Map5Door
   m_TagString: Untagged
@@ -40102,7 +40133,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &6257762742280549267
+--- !u!114 &9039393178389716395
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40111,9 +40142,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5098141379743476441}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87213d5627fe5cd4dba3792c233bf869, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.DoorTilemapArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 2
+  mapType: 0
+  terrainType: 4
   doorType: 3
 --- !u!1 &5441058702837299122
 GameObject:
@@ -40126,7 +40160,7 @@ GameObject:
   - component: {fileID: 277891633861249445}
   - component: {fileID: 2717669620654915260}
   - component: {fileID: 6711698492233601879}
-  - component: {fileID: 8848247855137936493}
+  - component: {fileID: 7567611221118642576}
   m_Layer: 0
   m_Name: Map4
   m_TagString: Untagged
@@ -42271,7 +42305,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &8848247855137936493
+--- !u!114 &7567611221118642576
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42280,10 +42314,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 5441058702837299122}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 716f0c394b12f78479a2e431d3d70250, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.MapArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 0
   mapType: 3
+  terrainType: 4
+  doorType: 0
 --- !u!1 &6039751054882892350
 GameObject:
   m_ObjectHideFlags: 0
@@ -42295,7 +42332,7 @@ GameObject:
   - component: {fileID: 7148237161916346863}
   - component: {fileID: 4163518048230346887}
   - component: {fileID: 8566276920959044099}
-  - component: {fileID: 2428303486063865545}
+  - component: {fileID: 8205999800470672574}
   m_Layer: 0
   m_Name: Map2Door
   m_TagString: Untagged
@@ -42511,7 +42548,7 @@ TilemapRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 96213575
   m_SortingLayer: 1
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -42520,7 +42557,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &2428303486063865545
+--- !u!114 &8205999800470672574
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42529,9 +42566,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 6039751054882892350}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87213d5627fe5cd4dba3792c233bf869, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.DoorTilemapArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 2
+  mapType: 0
+  terrainType: 4
   doorType: 0
 --- !u!1 &6181022809899971750
 GameObject:
@@ -42544,7 +42584,7 @@ GameObject:
   - component: {fileID: 7875382745163398187}
   - component: {fileID: 9053939207827787563}
   - component: {fileID: 7361674178443646563}
-  - component: {fileID: 8108953795192862208}
+  - component: {fileID: 1479981893398977880}
   m_Layer: 0
   m_Name: Map5
   m_TagString: Untagged
@@ -44689,7 +44729,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &8108953795192862208
+--- !u!114 &1479981893398977880
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -44698,10 +44738,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 6181022809899971750}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 716f0c394b12f78479a2e431d3d70250, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.MapArea
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 0
   mapType: 4
+  terrainType: 4
+  doorType: 0
 --- !u!1 &7326095464530471257
 GameObject:
   m_ObjectHideFlags: 0
@@ -47394,7 +47437,7 @@ GameObject:
   - component: {fileID: 6275509316884715966}
   - component: {fileID: 6680909375521181857}
   - component: {fileID: 8633164189396419320}
-  - component: {fileID: 5867120851616645692}
+  - component: {fileID: 2710263071976026859}
   m_Layer: 0
   m_Name: Movable
   m_TagString: Untagged
@@ -59279,7 +59322,7 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
---- !u!114 &5867120851616645692
+--- !u!114 &2710263071976026859
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -59288,10 +59331,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 8103578590031382510}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fd30cce0f64bef4f89aa4aa40659ff1, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf1cd16542ef30429c61f7491bb8b8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.PlayerMovementArea
---- !u!114 &8885121081496277459
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Area
+  areaType: 3
+  mapType: 0
+  terrainType: 4
+  doorType: 0
+--- !u!114 &2325429923723423592
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

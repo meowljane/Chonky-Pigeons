@@ -50,25 +50,19 @@ namespace PigeonGame.Gameplay
 
         protected virtual void OnTriggerEnter2D(Collider2D other)
         {
-            if (other.GetComponent<PlayerController>() != null)
+            if (other.CompareTag("Player") || other.GetComponent<PlayerController>() != null)
             {
                 isPlayerInRange = true;
-                if (InteractionSystem.Instance != null)
-                {
-                    InteractionSystem.Instance.RegisterInteractable(this);
-                }
+                InteractionSystem.Instance?.RegisterInteractable(this);
             }
         }
 
         protected virtual void OnTriggerExit2D(Collider2D other)
         {
-            if (other.GetComponent<PlayerController>() != null)
+            if (other.CompareTag("Player") || other.GetComponent<PlayerController>() != null)
             {
                 isPlayerInRange = false;
-                if (InteractionSystem.Instance != null)
-                {
-                    InteractionSystem.Instance.UnregisterInteractable(this);
-                }
+                InteractionSystem.Instance?.UnregisterInteractable(this);
             }
         }
 

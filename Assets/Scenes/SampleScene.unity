@@ -1204,8 +1204,8 @@ MonoBehaviour:
   feedIncreaseButton: {fileID: 851350928}
   totalPriceText: {fileID: 726151858}
   installButton: {fileID: 1757971376}
-  trapPlacer: {fileID: 384587256}
-  pigeonManager: {fileID: 45691160}
+  trapPlacer: {fileID: 149545014}
+  pigeonManager: {fileID: 149545017}
 --- !u!114 &27673303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1540,55 +1540,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &45691157
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 45691159}
-  - component: {fileID: 45691160}
-  m_Layer: 0
-  m_Name: PigeonManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &45691159
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 45691157}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.86205, y: -0.13667, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1527790806}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &45691160
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 45691157}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0b1e72e20ad5df4c9a93e6cd2955eeb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.WorldPigeonManager
-  pigeonPrefab: {fileID: 7369415880916472406, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
-  spawnCheckInterval: 1
-  spawnChance: 0.2
-  despawnChance: 0.2
-  forceFleeDespawnTime: 5
 --- !u!1 &49350924
 GameObject:
   m_ObjectHideFlags: 0
@@ -3514,7 +3465,7 @@ MonoBehaviour:
   pigeonCountText: {fileID: 465824176}
   speciesProbabilityText: {fileID: 1553719917}
   updateInterval: 0.5
-  pigeonManager: {fileID: 45691160}
+  pigeonManager: {fileID: 149545017}
 --- !u!114 &143541413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3529,6 +3480,103 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.UI.MoneyDisplay
   moneyText: {fileID: 1365766898}
   moneyFormat: ' {0}G'
+--- !u!1 &149545012
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 149545013}
+  - component: {fileID: 149545016}
+  - component: {fileID: 149545015}
+  - component: {fileID: 149545014}
+  - component: {fileID: 149545017}
+  m_Layer: 0
+  m_Name: MapManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &149545013
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 149545012}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1527790806}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &149545014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 149545012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84a48442a06d76d4d89130ecfc39af9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.TrapPlacer
+  trapPrefab: {fileID: 1046078026758184712, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
+--- !u!114 &149545015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 149545012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b8a6039f12f40f42b839486c40a5b67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.InteractionSystem
+  highlightColor: {r: 1, g: 0, b: 0, a: 0.78431374}
+  inventoryUI: {fileID: 27673297}
+  pigeonShopUI: {fileID: 27673300}
+  trapShopUI: {fileID: 27673296}
+  exhibitionUI: {fileID: 27673304}
+  pigeonResearchUI: {fileID: 27673303}
+  upgradeShopUI: {fileID: 27673309}
+  doorPurchaseUI: {fileID: 27673311}
+--- !u!114 &149545016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 149545012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 841245498883cde448e66d83f3f9fa5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.TilemapRangeManager
+--- !u!114 &149545017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 149545012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0b1e72e20ad5df4c9a93e6cd2955eeb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.WorldPigeonManager
+  pigeonPrefab: {fileID: 7369415880916472406, guid: 0ce4091f30dc37d4e91a30e186acc120, type: 3}
+  spawnCheckInterval: 1
+  spawnChance: 0.2
+  despawnChance: 0.2
+  forceFleeDespawnTime: 5
 --- !u!1 &151094255
 GameObject:
   m_ObjectHideFlags: 0
@@ -7517,15 +7565,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 384587253}
-  - component: {fileID: 384587256}
-  - component: {fileID: 384587257}
   - component: {fileID: 384587262}
   - component: {fileID: 384587261}
   - component: {fileID: 384587260}
   - component: {fileID: 384587259}
-  - component: {fileID: 384587258}
   - component: {fileID: 384587263}
-  - component: {fileID: 384587264}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -7548,52 +7592,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1527790806}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &384587256
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 384587252}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84a48442a06d76d4d89130ecfc39af9a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.TrapPlacer
-  trapPrefab: {fileID: 1046078026758184712, guid: 8e46811abfcd49143bd6c9aaf7a356eb, type: 3}
-  pigeonManager: {fileID: 45691160}
---- !u!114 &384587257
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 384587252}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17dba12b90707454da6fcce65500154b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.MapManager
---- !u!114 &384587258
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 384587252}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b8a6039f12f40f42b839486c40a5b67, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.InteractionSystem
-  highlightColor: {r: 1, g: 0, b: 0, a: 0.78431374}
-  inventoryUI: {fileID: 27673297}
-  pigeonShopUI: {fileID: 27673300}
-  trapShopUI: {fileID: 27673296}
-  exhibitionUI: {fileID: 27673304}
-  pigeonResearchUI: {fileID: 27673303}
-  upgradeShopUI: {fileID: 27673309}
-  doorPurchaseUI: {fileID: 27673311}
 --- !u!114 &384587259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7660,7 +7658,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.GameManager
-  startingMoney: 10000
+  startingMoney: 0
   startingUnlockedTraps: 00000000
   startingUnlockedSpecies: 0000000001000000
 --- !u!114 &384587263
@@ -7672,21 +7670,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 384587252}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 841245498883cde448e66d83f3f9fa5a, type: 3}
+  m_Script: {fileID: 11500000, guid: c764edec15260aa4ba0ad295511bdbfb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.TilemapRangeManager
---- !u!114 &384587264
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 384587252}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4330e81fd89635e43b544b0f31889e01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.SaveInitializer
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.SaveManager
   saveCooldown: 0.5
 --- !u!1 &395045963
 GameObject:
@@ -12946,7 +12932,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Door
   interactionRadius: 1
   doorType: 2
-  doorTilemap: {fileID: 1221620633}
+  doorTilemap: {fileID: 8738074496247996004}
 --- !u!212 &769911195
 SpriteRenderer:
   serializedVersion: 2
@@ -14264,7 +14250,7 @@ Transform:
   - {fileID: 2073263857}
   - {fileID: 769911193}
   - {fileID: 1408082020}
-  - {fileID: 1428394648}
+  - {fileID: 8302345901382357641}
   m_Father: {fileID: 102367357}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &864881543
@@ -17591,87 +17577,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1220626968}
   m_CullTransparentMesh: 1
---- !u!1001 &1221620630
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 864881542}
-    m_Modifications:
-    - target: {fileID: 585407493327415147, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-      propertyPath: m_Name
-      value: Map1 (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8566276920959044099, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-      propertyPath: m_SortingOrder
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
---- !u!1839735485 &1221620631 stripped
-Tilemap:
-  m_CorrespondingSourceObject: {fileID: 4163518048230346887, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-  m_PrefabInstance: {fileID: 1221620630}
-  m_PrefabAsset: {fileID: 0}
---- !u!1839735485 &1221620632 stripped
-Tilemap:
-  m_CorrespondingSourceObject: {fileID: 464518785331756522, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-  m_PrefabInstance: {fileID: 1221620630}
-  m_PrefabAsset: {fileID: 0}
---- !u!1839735485 &1221620633 stripped
-Tilemap:
-  m_CorrespondingSourceObject: {fileID: 8738074495296957938, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-  m_PrefabInstance: {fileID: 1221620630}
-  m_PrefabAsset: {fileID: 0}
---- !u!1839735485 &1221620634 stripped
-Tilemap:
-  m_CorrespondingSourceObject: {fileID: 539172784031734001, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-  m_PrefabInstance: {fileID: 1221620630}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1222428603
 GameObject:
   m_ObjectHideFlags: 0
@@ -18309,7 +18214,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Door
   interactionRadius: 1
   doorType: 0
-  doorTilemap: {fileID: 1221620631}
+  doorTilemap: {fileID: 4163518049164649233}
 --- !u!1 &1256061328
 GameObject:
   m_ObjectHideFlags: 0
@@ -21233,7 +21138,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Door
   interactionRadius: 1
   doorType: 3
-  doorTilemap: {fileID: 1221620632}
+  doorTilemap: {fileID: 464518784403738236}
 --- !u!212 &1408082022
 SpriteRenderer:
   serializedVersion: 2
@@ -21592,11 +21497,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1424325882}
   m_CullTransparentMesh: 1
---- !u!224 &1428394648 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-  m_PrefabInstance: {fileID: 1221620630}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1429294894
 GameObject:
   m_ObjectHideFlags: 0
@@ -22976,7 +22876,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 384587253}
-  - {fileID: 45691159}
+  - {fileID: 149545013}
   - {fileID: 27673294}
   - {fileID: 2131084054}
   m_Father: {fileID: 0}
@@ -30478,7 +30378,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Door
   interactionRadius: 1
   doorType: 1
-  doorTilemap: {fileID: 1221620634}
+  doorTilemap: {fileID: 539172782812261223}
 --- !u!212 &2073263859
 SpriteRenderer:
   serializedVersion: 2
@@ -31638,6 +31538,16 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1839735485 &464518784403738236 stripped
+Tilemap:
+  m_CorrespondingSourceObject: {fileID: 464518785331756522, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+  m_PrefabInstance: {fileID: 4375115531925504521}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1839735485 &539172782812261223 stripped
+Tilemap:
+  m_CorrespondingSourceObject: {fileID: 539172784031734001, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+  m_PrefabInstance: {fileID: 4375115531925504521}
+  m_PrefabAsset: {fileID: 0}
 --- !u!222 &1075705890914243633
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -31941,6 +31851,108 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1839735485 &4163518049164649233 stripped
+Tilemap:
+  m_CorrespondingSourceObject: {fileID: 4163518048230346887, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+  m_PrefabInstance: {fileID: 4375115531925504521}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &4375115531925504521
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 864881542}
+    m_Modifications:
+    - target: {fileID: 585407493327415147, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_Name
+      value: Map
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
 --- !u!114 &4575113946653384433
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32258,6 +32270,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6008804520328853332}
   m_CullTransparentMesh: 1
+--- !u!224 &8302345901382357641 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8302345902325014815, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+  m_PrefabInstance: {fileID: 4375115531925504521}
+  m_PrefabAsset: {fileID: 0}
 --- !u!222 &8425926573214712633
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -32266,6 +32283,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6786776521155887864}
   m_CullTransparentMesh: 1
+--- !u!1839735485 &8738074496247996004 stripped
+Tilemap:
+  m_CorrespondingSourceObject: {fileID: 8738074495296957938, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
+  m_PrefabInstance: {fileID: 4375115531925504521}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &8989561623649894858
 RectTransform:
   m_ObjectHideFlags: 0

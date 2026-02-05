@@ -12,60 +12,29 @@ namespace PigeonGame.Gameplay
         [SerializeField] private Tilemap doorTilemap; 
 
         private DoorDefinition doorDefinition;
-        private Vector3Int doorTilePosition; 
 
         protected override void Start()
         {
             base.Start();
 
-            LoadDoorData();
+            var registry = GameDataRegistry.Instance;
+            doorDefinition = registry?.DoorSet?.GetDoorById(doorType);
 
             if (doorTilemap == null)
             {
-                DoorTilemapArea[] doorAreas = FindObjectsByType<DoorTilemapArea>(FindObjectsSortMode.None);
-                foreach (var doorArea in doorAreas)
-                {
-                    if (doorArea.DoorType == doorType)
-                    {
-                        doorTilemap = doorArea.GetComponent<Tilemap>();
-                        break;
-                    }
-                }
-
+                doorTilemap = TilemapRangeManager.Instance?.GetDoorTilemapByType(doorType);
                 if (doorTilemap == null)
                     Debug.LogError($"DoorType {doorType}에 해당하는 DoorTilemapArea를 찾을 수 없습니다!", this);
             }
 
-            if (doorTilemap != null)
-            {
-                doorTilePosition = doorTilemap.WorldToCell(transform.position);
-            }
-
             if (GameManager.Instance?.IsDoorUnlocked(doorType) == true)
-            {
                 UnlockDoor();
-            }
-        }
-
-        private void LoadDoorData()
-        {
-            var registry = GameDataRegistry.Instance;
-            if (registry?.DoorSet != null)
-            {
-                doorDefinition = registry.DoorSet.GetDoorById(doorType);
-            }
-
         }
 
         public override void OnInteract()
         {
-            if (!CanInteract())
+            if (!CanInteract() || GameManager.Instance?.IsDoorUnlocked(doorType) == true)
                 return;
-
-            if (GameManager.Instance?.IsDoorUnlocked(doorType) == true)
-            {
-                return;
-            }
 
             int cost = doorDefinition?.unlockCost ?? 100;
             MapType mapToUnlock = doorDefinition?.unlocksMap ?? MapType.MAP1;
@@ -74,12 +43,7 @@ namespace PigeonGame.Gameplay
 
         public override bool CanInteract()
         {
-            if (GameManager.Instance?.IsDoorUnlocked(doorType) == true)
-            {
-                return false;
-            }
-
-            return base.CanInteract();
+            return GameManager.Instance?.IsDoorUnlocked(doorType) != true && base.CanInteract();
         }
 
         public void UnlockDoor()

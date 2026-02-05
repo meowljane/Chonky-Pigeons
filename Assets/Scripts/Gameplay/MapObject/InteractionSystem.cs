@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 using PigeonGame.UI;
 using PigeonGame.Data;
 
@@ -29,44 +28,16 @@ namespace PigeonGame.Gameplay
         private void Awake()
         {
             if (Instance == null)
-            {
                 Instance = this;
-            }
             else
-            {
                 Destroy(gameObject);
-            }
         }
 
-        private void Start()
-        {
-            InitializeUIComponents();
-        }
-
-        public void InitializeUIComponents()
-        {
-            if (inventoryUI == null)
-                Debug.LogError("InventoryUI가 할당되지 않았습니다!", this);
-            if (pigeonShopUI == null)
-                Debug.LogError("PigeonShopUI가 할당되지 않았습니다!", this);
-            if (trapShopUI == null)
-                Debug.LogError("TrapShopUI가 할당되지 않았습니다!", this);
-            if (exhibitionUI == null)
-                Debug.LogError("ExhibitionUI가 할당되지 않았습니다!", this);
-            if (pigeonResearchUI == null)
-                Debug.LogError("PigeonResearchUI가 할당되지 않았습니다!", this);
-            if (upgradeShopUI == null)
-                Debug.LogError("UpgradeShopUI가 할당되지 않았습니다!", this);
-            if (doorPurchaseUI == null)
-                Debug.LogError("DoorPurchaseUI가 할당되지 않았습니다!", this);
-        }
 
         private void OnDestroy()
         {
             if (Instance == this)
-            {
                 Instance = null;
-            }
         }
 
         public void RegisterInteractable(IInteractable interactable)
@@ -89,9 +60,7 @@ namespace PigeonGame.Gameplay
                     HideOutline();
                     currentInteractable = null;
                     if (nearbyInteractables.Count > 0)
-                    {
                         UpdateClosestInteractable();
-                    }
                 }
             }
         }
@@ -116,9 +85,6 @@ namespace PigeonGame.Gameplay
 
             foreach (var interactable in nearbyInteractables)
             {
-                if (interactable == null || !interactable.CanInteract())
-                    continue;
-
                 if (interactable is MonoBehaviour monoBehaviour)
                 {
                     Vector2 toObject = (Vector2)monoBehaviour.transform.position - playerPosition;
@@ -136,13 +102,9 @@ namespace PigeonGame.Gameplay
                 currentInteractable = closestInteractable;
 
                 if (currentInteractable != null)
-                {
                     ShowOutline(currentInteractable);
-                }
                 else
-                {
                     HideOutline();
-                }
             }
         }
 
@@ -156,55 +118,32 @@ namespace PigeonGame.Gameplay
 
         public void OpenPigeonShop()
         {
-            if (pigeonShopUI != null)
-            {
-                pigeonShopUI.OpenShopPanel();
-            }
+            pigeonShopUI.OpenShopPanel();
         }
 
         public void OpenTrapShop()
         {
-            if (trapShopUI != null)
-            {
-                trapShopUI.OpenShopPanel();
-            }
+            trapShopUI.OpenShopPanel();
         }
 
         public void OpenExhibition()
         {
-            if (exhibitionUI != null)
-            {
-                exhibitionUI.OpenExhibitionPanel();
-            }
+            exhibitionUI.OpenExhibitionPanel();
         }
 
         public void OpenPigeonResearch()
         {
-            if (pigeonResearchUI != null)
-            {
-                pigeonResearchUI.OpenShopPanel();
-            }
+            pigeonResearchUI.OpenShopPanel();
         }
 
         public void OpenUpgradeShop()
         {
-            if (upgradeShopUI != null)
-            {
-                upgradeShopUI.OpenShopPanel();
-            }
+            upgradeShopUI.OpenShopPanel();
         }
 
         public void OpenDoorPurchase(Door door, DoorType doorType, int cost, MapType unlocksMap)
         {
-            if (doorPurchaseUI == null)
-            {
-                InitializeUIComponents();
-            }
-
-            if (doorPurchaseUI != null)
-            {
-                doorPurchaseUI.OpenPurchasePanel(door, doorType, cost, unlocksMap);
-            }
+            doorPurchaseUI.OpenPurchasePanel(door, doorType, cost, unlocksMap);
         }
 
         public bool CanInteract()
@@ -216,33 +155,29 @@ namespace PigeonGame.Gameplay
         {
             HideOutline();
 
-            if (interactable is MonoBehaviour monoBehaviour)
-            {
-                GameObject targetObject = monoBehaviour.gameObject;
+            if (!(interactable is MonoBehaviour monoBehaviour))
+                return;
 
-                SpriteRenderer spriteRenderer = targetObject.GetComponent<SpriteRenderer>();
-                if (spriteRenderer == null)
-                {
-                    spriteRenderer = targetObject.GetComponentInChildren<SpriteRenderer>();
-                }
+            GameObject targetObject = monoBehaviour.gameObject;
+            SpriteRenderer spriteRenderer = targetObject.GetComponent<SpriteRenderer>() 
+                ?? targetObject.GetComponentInChildren<SpriteRenderer>();
 
-                if (spriteRenderer != null && spriteRenderer.sprite != null)
-                {
-                    GameObject highlightObj = new GameObject("InteractionHighlight");
-                    highlightObj.transform.SetParent(targetObject.transform, false);
-                    highlightObj.transform.localPosition = Vector3.zero;
-                    highlightObj.transform.localScale = Vector3.one;
-                    highlightObj.transform.localRotation = Quaternion.identity;
+            if (spriteRenderer?.sprite == null)
+                return;
 
-                    SpriteRenderer highlightRenderer = highlightObj.AddComponent<SpriteRenderer>();
-                    highlightRenderer.sprite = spriteRenderer.sprite;
-                    highlightRenderer.color = highlightColor; 
-                    highlightRenderer.sortingOrder = spriteRenderer.sortingOrder + 1; 
-                    highlightRenderer.sortingLayerName = spriteRenderer.sortingLayerName;
+            GameObject highlightObj = new GameObject("InteractionHighlight");
+            highlightObj.transform.SetParent(targetObject.transform, false);
+            highlightObj.transform.localPosition = Vector3.zero;
+            highlightObj.transform.localScale = Vector3.one;
+            highlightObj.transform.localRotation = Quaternion.identity;
 
-                    currentOutlineObject = highlightObj;
-                }
-            }
+            SpriteRenderer highlightRenderer = highlightObj.AddComponent<SpriteRenderer>();
+            highlightRenderer.sprite = spriteRenderer.sprite;
+            highlightRenderer.color = highlightColor;
+            highlightRenderer.sortingOrder = spriteRenderer.sortingOrder + 1;
+            highlightRenderer.sortingLayerName = spriteRenderer.sortingLayerName;
+
+            currentOutlineObject = highlightObj;
         }
 
         private void HideOutline()

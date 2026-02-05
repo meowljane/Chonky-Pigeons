@@ -11,35 +11,12 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            if (InteractionSystem.Instance == null)
-            {
-                GameObject interactionObj = new GameObject("InteractionSystem");
-                InteractionSystem interactionSystem = interactionObj.AddComponent<InteractionSystem>();
-                interactionSystem.InitializeUIComponents();
-            }
-            else
-            {
-                InteractionSystem.Instance.InitializeUIComponents();
-            }
-
             UIHelper.SafeAddListener(interactionButton, OnInteractionButtonClicked);
         }
 
         private void OnInteractionButtonClicked()
         {
-            InteractionSystem interactionSystem = InteractionSystem.Instance;
-
-            if (interactionSystem == null)
-            {
-                GameObject interactionObj = new GameObject("InteractionSystem");
-                interactionSystem = interactionObj.AddComponent<InteractionSystem>();
-                interactionSystem.InitializeUIComponents();
-            }
-
-            if (interactionSystem != null)
-            {
-                interactionSystem.OnInteract();
-            }
+            InteractionSystem.Instance?.OnInteract();
         }
 
         private void OnDestroy()

@@ -13,6 +13,66 @@ namespace PigeonGame.Gameplay
         [SerializeField] private float forceFleeDespawnTime = 5f; 
         public static WorldPigeonManager Instance { get; private set; }
 
+        public static PigeonInstanceStats CreateInstanceStats(PigeonSpecies speciesType, int obesity, float weight, FaceType faceType)
+        {
+            var registry = GameDataRegistry.Instance;
+            if (registry == null)
+                return null;
+
+            var species = registry.SpeciesSet?.GetSpeciesById(speciesType);
+            if (species == null)
+                return null;
+
+            var face = registry.Faces?.GetFaceById(faceType);
+            if (face == null)
+                return null;
+
+            var aiProfile = registry.AIProfiles;
+            if (aiProfile == null)
+                return null;
+
+            if (aiProfile.tiers == null)
+                aiProfile.OnAfterDeserialize();
+
+            if (!aiProfile.tiers.ContainsKey(species.rarityTier))
+                return null;
+
+            var tierProfile = aiProfile.tiers[species.rarityTier];
+            var stats = new PigeonInstanceStats
+            {
+                speciesId = speciesType,
+                obesity = obesity,
+                weight = weight,
+                faceId = faceType
+            };
+
+            stats.bitePower = obesity;
+
+            float baseEatInterval = 1.8f;
+            float baseEatChance = 0.75f;
+            int obesityTier = obesity;
+
+            float obesityIntervalMultiplier = 1.0f;
+            float obesityChanceMultiplier = 1.0f;
+            float obesityDiscount = 1.0f;
+
+            if (aiProfile.obesityRule?.obesityProfiles != null && aiProfile.obesityRule.obesityProfiles.ContainsKey(obesityTier))
+            {
+                var obesityProfile = aiProfile.obesityRule.obesityProfiles[obesityTier];
+                obesityIntervalMultiplier = obesityProfile.eatIntervalMultiplier;
+                obesityChanceMultiplier = obesityProfile.eatChanceMultiplier;
+                obesityDiscount = obesityProfile.priceDiscount;
+            }
+
+            stats.eatInterval = baseEatInterval * obesityIntervalMultiplier;
+            stats.eatChance = baseEatChance * obesityChanceMultiplier;
+            stats.playerAlertPerSec = tierProfile.playerAlertPerSec;
+            stats.crowdAlertPerNeighborPerSec = tierProfile.crowdAlertPerNeighborPerSec;
+            stats.price = Mathf.RoundToInt(species.basePrice * obesityDiscount * face.priceMultiplier);
+
+            return stats;
+        }
+
         private Dictionary<string, List<PigeonController>> pigeonsByMapName = new Dictionary<string, List<PigeonController>>();
         private Dictionary<PigeonController, string> pigeonToMapName = new Dictionary<PigeonController, string>();
         private Dictionary<PigeonController, PigeonAI> pigeonAICache = new Dictionary<PigeonController, PigeonAI>(); 
@@ -21,13 +81,9 @@ namespace PigeonGame.Gameplay
         private void Awake()
         {
             if (Instance == null)
-            {
                 Instance = this;
-            }
             else
-            {
                 Destroy(gameObject);
-            }
         }
 
         private void Start()
@@ -117,16 +173,8 @@ namespace PigeonGame.Gameplay
                         if (validPigeons.Count > 0)
                         {
                             var pigeon = validPigeons[0];
-                            if (!pigeonAICache.TryGetValue(pigeon, out PigeonAI ai))
-                            {
-                                ai = pigeon.GetComponent<PigeonAI>();
-                                if (ai != null)
-                                    pigeonAICache[pigeon] = ai;
-                            }
-                            if (ai != null)
-                            {
-                                ai.ForceFlee();
-                            }
+                            PigeonAI ai = GetOrCachePigeonAI(pigeon);
+                            ai?.ForceFlee();
                         }
                     }
                 }
@@ -143,6 +191,17 @@ namespace PigeonGame.Gameplay
             return pigeons;
         }
 
+        private PigeonAI GetOrCachePigeonAI(PigeonController pigeon)
+        {
+            if (!pigeonAICache.TryGetValue(pigeon, out PigeonAI ai))
+            {
+                ai = pigeon.GetComponent<PigeonAI>();
+                if (ai != null)
+                    pigeonAICache[pigeon] = ai;
+            }
+            return ai;
+        }
+
         private List<PigeonController> GetValidPigeonsForManagement(string mapName)
         {
             var pigeons = GetCleanedPigeonList(mapName);
@@ -153,12 +212,7 @@ namespace PigeonGame.Gameplay
                 if (pigeon.IsExhibitionPigeon)
                     continue;
 
-                if (!pigeonAICache.TryGetValue(pigeon, out PigeonAI ai))
-                {
-                    ai = pigeon.GetComponent<PigeonAI>();
-                    if (ai != null)
-                        pigeonAICache[pigeon] = ai;
-                }
+                PigeonAI ai = GetOrCachePigeonAI(pigeon);
                 if (ai?.CurrentState == PigeonState.Flee)
                     continue;
 
@@ -196,16 +250,10 @@ namespace PigeonGame.Gameplay
         {
             float baseWeight = species.baseSpawnWeight;
 
-            float upgradeFactor = 1.0f;
-            if (GameManager.Instance != null && UpgradeData.Instance != null)
-            {
-                upgradeFactor = UpgradeData.Instance.GetSpeciesWeightMultiplier(species.speciesType);
-            }
+            float upgradeFactor = UpgradeData.Instance?.GetSpeciesWeightMultiplier(species.speciesType) ?? 1.0f;
 
             if (activeTraps == null || activeTraps.Count == 0)
-            {
                 return baseWeight * upgradeFactor;
-            }
 
             int matchingTrapCount = 0; 
             int matchingTerrainCount = 0; 
@@ -213,7 +261,7 @@ namespace PigeonGame.Gameplay
             foreach (var trap in activeTraps)
             {
                 bool isFavoriteTrap = trap.TrapId == species.favoriteTrapType;
-                TerrainType terrainType = MapManager.Instance != null ? MapManager.Instance.GetTerrainTypeAtPosition(trap.transform.position) : TerrainType.SAND;
+                TerrainType terrainType = TilemapRangeManager.Instance?.GetTerrainTypeAtPosition(trap.transform.position) ?? TerrainType.SAND;
                 bool isFavoriteTerrain = terrainType == species.favoriteTerrain;
 
                 if (isFavoriteTrap)
@@ -335,12 +383,12 @@ namespace PigeonGame.Gameplay
             FaceType faceType = selectedFace.faceType;
 
             PigeonSpecies speciesType = species.speciesType;
-            Vector3 spawnPosition = new Vector3(position.x, position.y, 0);
+            Vector3 spawnPosition = new Vector3(position.x, position.y, 0f);
             GameObject pigeonObj = Instantiate(pigeonPrefab, spawnPosition, Quaternion.identity);
             pigeonObj.SetActive(true);
 
             PigeonController controller = pigeonObj.GetComponent<PigeonController>();
-            controller.Initialize(PigeonInstanceFactory.CreateInstanceStats(speciesType, obesity, weightKg, faceType));
+            controller.Initialize(CreateInstanceStats(speciesType, obesity, weightKg, faceType));
 
             if (!pigeonsByMapName.ContainsKey(mapName))
                 pigeonsByMapName[mapName] = new List<PigeonController>();
@@ -390,13 +438,9 @@ namespace PigeonGame.Gameplay
                     continue;
                 }
 
-                if (!pigeonAICache.TryGetValue(pigeon, out PigeonAI ai))
-                {
-                    ai = pigeon.GetComponent<PigeonAI>();
-                    if (ai == null)
-                        continue;
-                    pigeonAICache[pigeon] = ai;
-                }
+                PigeonAI ai = GetOrCachePigeonAI(pigeon);
+                if (ai == null)
+                    continue;
 
                 if (ai.CurrentState == PigeonState.Flee && ai.FleeElapsedTime >= forceFleeDespawnTime)
                 {
@@ -409,11 +453,7 @@ namespace PigeonGame.Gameplay
 
         public string GetMapNameForPigeon(PigeonController pigeon)
         {
-            if (pigeon != null && pigeonToMapName.ContainsKey(pigeon))
-            {
-                return pigeonToMapName[pigeon];
-            }
-            return null;
+            return pigeon != null && pigeonToMapName.TryGetValue(pigeon, out string mapName) ? mapName : null;
         }
 
         private void RemovePigeonFromMap(PigeonController pigeon)
@@ -424,9 +464,7 @@ namespace PigeonGame.Gameplay
             if (pigeonToMapName.TryGetValue(pigeon, out string mapName))
             {
                 if (pigeonsByMapName.ContainsKey(mapName))
-                {
                     pigeonsByMapName[mapName].Remove(pigeon);
-                }
                 pigeonToMapName.Remove(pigeon);
             }
             pigeonAICache.Remove(pigeon);

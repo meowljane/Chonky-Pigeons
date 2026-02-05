@@ -14,7 +14,6 @@ namespace PigeonGame.Gameplay
 
         public static PlayerController Instance { get; private set; }
         public Vector2 Position => (Vector2)transform.position;
-        public string CurrentMapName => TilemapRangeManager.Instance?.GetMapNameAtPosition(transform.position) ?? "Unknown";
 
         private void Awake()
         {

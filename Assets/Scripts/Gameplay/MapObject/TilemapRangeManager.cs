@@ -14,11 +14,7 @@ namespace PigeonGame.Gameplay
         private Dictionary<Vector3Int, bool> mapRangeCache = new Dictionary<Vector3Int, bool>();
         private Dictionary<Vector3Int, bool> playerMovementCache = new Dictionary<Vector3Int, bool>();
 
-        private Dictionary<Tilemap, MapArea> tilemapToMapArea = new Dictionary<Tilemap, MapArea>();
-        private Dictionary<Tilemap, TerrainArea> tilemapToTerrainArea = new Dictionary<Tilemap, TerrainArea>();
-        private Dictionary<Tilemap, DoorTilemapArea> tilemapToDoorArea = new Dictionary<Tilemap, DoorTilemapArea>();
-        private List<Tilemap> playerMovementTilemaps = new List<Tilemap>();
-        private List<Tilemap> exhibitionTilemaps = new List<Tilemap>();
+        private Dictionary<Tilemap, Area> tilemapToArea = new Dictionary<Tilemap, Area>();
 
         private void Awake()
         {
@@ -43,51 +39,20 @@ namespace PigeonGame.Gameplay
 
         private void InitializeTilemaps()
         {
-            tilemapToMapArea.Clear();
-            tilemapToTerrainArea.Clear();
-            tilemapToDoorArea.Clear();
-            playerMovementTilemaps.Clear();
-            exhibitionTilemaps.Clear();
+            tilemapToArea.Clear();
             mapTypeCache.Clear();
             terrainTypeCache.Clear();
             mapRangeCache.Clear();
             playerMovementCache.Clear();
 
-            Tilemap[] allTilemaps = FindObjectsByType<Tilemap>(FindObjectsSortMode.None);
-
-            foreach (var tilemap in allTilemaps)
+            Area[] allAreas = FindObjectsByType<Area>(FindObjectsSortMode.None);
+            foreach (var area in allAreas)
             {
-                if (tilemap == null) continue;
+                if (area == null) continue;
 
-                MapArea mapArea = tilemap.GetComponent<MapArea>();
-                if (mapArea != null)
-                {
-                    tilemapToMapArea[tilemap] = mapArea;
-                }
-
-                PlayerMovementArea playerMovementArea = tilemap.GetComponent<PlayerMovementArea>();
-                if (playerMovementArea != null)
-                {
-                    playerMovementTilemaps.Add(tilemap);
-                }
-
-                TerrainArea terrainArea = tilemap.GetComponent<TerrainArea>();
-                if (terrainArea != null)
-                {
-                    tilemapToTerrainArea[tilemap] = terrainArea;
-                }
-
-                DoorTilemapArea doorArea = tilemap.GetComponent<DoorTilemapArea>();
-                if (doorArea != null)
-                {
-                    tilemapToDoorArea[tilemap] = doorArea;
-                }
-
-                ExhibitionArea exhibitionArea = tilemap.GetComponent<ExhibitionArea>();
-                if (exhibitionArea != null)
-                {
-                    exhibitionTilemaps.Add(tilemap);
-                }
+                Tilemap tilemap = area.GetComponent<Tilemap>();
+                if (tilemap != null)
+                    tilemapToArea[tilemap] = area;
             }
         }
 
@@ -107,54 +72,27 @@ namespace PigeonGame.Gameplay
             );
         }
 
-        private Tilemap FindMapTilemapAtPosition(Vector3 position)
+        private Tilemap FindTilemapAtPosition(Vector3 position, AreaType areaType)
         {
-            foreach (var kvp in tilemapToMapArea)
+            foreach (var kvp in tilemapToArea)
             {
                 Tilemap tilemap = kvp.Key;
-                if (tilemap == null) continue;
+                Area area = kvp.Value;
+                if (tilemap == null || area == null || area.AreaType != areaType) continue;
 
                 Vector3Int cellPos = WorldToCell(position, tilemap);
                 if (tilemap.HasTile(cellPos))
-                {
                     return tilemap;
-                }
             }
-
             return null;
         }
 
-        private Tilemap FindTerrainTilemapAtPosition(Vector3 position)
-        {
-            foreach (var kvp in tilemapToTerrainArea)
-            {
-                Tilemap tilemap = kvp.Key;
-                if (tilemap == null) continue;
-
-                Vector3Int cellPos = WorldToCell(position, tilemap);
-                if (tilemap.HasTile(cellPos))
-                {
-                    return tilemap;
-                }
-            }
-
-            return null;
-        }
+        private Tilemap FindMapTilemapAtPosition(Vector3 position) => FindTilemapAtPosition(position, AreaType.Map);
+        private Tilemap FindTerrainTilemapAtPosition(Vector3 position) => FindTilemapAtPosition(position, AreaType.Terrain);
 
         private bool IsInPlayerMovementTilemap(Vector3 position)
         {
-            foreach (var tilemap in playerMovementTilemaps)
-            {
-                if (tilemap == null) continue;
-
-                Vector3Int cellPos = WorldToCell(position, tilemap);
-                if (tilemap.HasTile(cellPos))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return FindTilemapAtPosition(position, AreaType.PlayerMovement) != null;
         }
 
         public bool IsInMapRange(Vector3 position)
@@ -173,23 +111,11 @@ namespace PigeonGame.Gameplay
 
         private bool IsBlockedByDoor(Vector3 position)
         {
-            foreach (var kvp in tilemapToDoorArea)
-            {
-                Tilemap tilemap = kvp.Key;
-                DoorTilemapArea doorArea = kvp.Value;
-                if (tilemap == null || doorArea == null) continue;
+            Tilemap doorTilemap = FindTilemapAtPosition(position, AreaType.Door);
+            if (doorTilemap == null || !tilemapToArea.TryGetValue(doorTilemap, out Area doorArea))
+                return false;
 
-                Vector3Int cellPos = WorldToCell(position, tilemap);
-                if (tilemap.HasTile(cellPos))
-                {
-                    if (GameManager.Instance != null && !GameManager.Instance.IsDoorUnlocked(doorArea.DoorType))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+            return GameManager.Instance != null && !GameManager.Instance.IsDoorUnlocked(doorArea.DoorType);
         }
 
         public bool IsInPlayerMovementRange(Vector3 position)
@@ -220,7 +146,7 @@ namespace PigeonGame.Gameplay
             MapType mapType = MapType.MAP1; 
 
             Tilemap mapTilemap = FindMapTilemapAtPosition(position);
-            if (mapTilemap != null && tilemapToMapArea.TryGetValue(mapTilemap, out MapArea mapArea))
+            if (mapTilemap != null && tilemapToArea.TryGetValue(mapTilemap, out Area mapArea) && mapArea.AreaType == AreaType.Map)
             {
                 mapType = mapArea.MapType;
             }
@@ -256,7 +182,7 @@ namespace PigeonGame.Gameplay
             TerrainType terrainType = TerrainType.SAND; 
 
             Tilemap terrainTilemap = FindTerrainTilemapAtPosition(position);
-            if (terrainTilemap != null && tilemapToTerrainArea.TryGetValue(terrainTilemap, out TerrainArea terrainArea))
+            if (terrainTilemap != null && tilemapToArea.TryGetValue(terrainTilemap, out Area terrainArea) && terrainArea.AreaType == AreaType.Terrain)
             {
                 terrainType = terrainArea.TerrainType;
             }
@@ -265,13 +191,15 @@ namespace PigeonGame.Gameplay
             return terrainType;
         }
 
-        public List<Vector3> GetAllValidPositionsInMapRange()
+        private List<Vector3> GetValidPositionsForAreaType(AreaType areaType)
         {
             List<Vector3> positions = new List<Vector3>();
 
-            foreach (var tilemap in tilemapToMapArea.Keys)
+            foreach (var kvp in tilemapToArea)
             {
-                if (tilemap == null) continue;
+                Tilemap tilemap = kvp.Key;
+                Area area = kvp.Value;
+                if (tilemap == null || area == null || area.AreaType != areaType) continue;
 
                 BoundsInt bounds = tilemap.cellBounds;
                 foreach (var pos in bounds.allPositionsWithin)
@@ -287,33 +215,31 @@ namespace PigeonGame.Gameplay
             return positions;
         }
 
+        public List<Vector3> GetAllValidPositionsInMapRange()
+        {
+            return GetValidPositionsForAreaType(AreaType.Map);
+        }
+
         public void InvalidatePlayerMovementCache(Vector3 position)
         {
             Vector3Int gridPos = WorldToGrid(position);
             playerMovementCache.Remove(gridPos);
         }
 
+        public Tilemap GetDoorTilemapByType(DoorType doorType)
+        {
+            foreach (var kvp in tilemapToArea)
+            {
+                Area area = kvp.Value;
+                if (area != null && area.AreaType == AreaType.Door && area.DoorType == doorType)
+                    return kvp.Key;
+            }
+            return null;
+        }
+
         public Vector3 GetRandomPositionInExhibitionArea()
         {
-            if (exhibitionTilemaps.Count == 0)
-                return Vector3.zero;
-
-            List<Vector3> validPositions = new List<Vector3>();
-
-            foreach (var tilemap in exhibitionTilemaps)
-            {
-                if (tilemap == null) continue;
-
-                BoundsInt bounds = tilemap.cellBounds;
-                foreach (var pos in bounds.allPositionsWithin)
-                {
-                    if (tilemap.HasTile(pos))
-                    {
-                        Vector3 worldPos = tilemap.CellToWorld(pos) + tilemap.cellSize * 0.5f;
-                        validPositions.Add(worldPos);
-                    }
-                }
-            }
+            List<Vector3> validPositions = GetValidPositionsForAreaType(AreaType.Exhibition);
 
             if (validPositions.Count == 0)
                 return Vector3.zero;
@@ -323,18 +249,7 @@ namespace PigeonGame.Gameplay
 
         public bool IsInExhibitionArea(Vector3 position)
         {
-            foreach (var tilemap in exhibitionTilemaps)
-            {
-                if (tilemap == null) continue;
-
-                Vector3Int cellPos = WorldToCell(position, tilemap);
-                if (tilemap.HasTile(cellPos))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return FindTilemapAtPosition(position, AreaType.Exhibition) != null;
         }
     }
 }

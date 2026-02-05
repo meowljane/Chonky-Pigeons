@@ -126,7 +126,7 @@ namespace PigeonGame.UI
 
         private void OnConfirmReset()
         {
-            SaveManager.DeleteSave();
+            SaveManager.Instance?.DeleteSave();
 
             if (confirmDialog != null)
             {

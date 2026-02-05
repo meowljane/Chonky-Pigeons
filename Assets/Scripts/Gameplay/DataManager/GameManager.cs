@@ -45,9 +45,7 @@ namespace PigeonGame.Gameplay
                 Initialize();
             }
             else
-            {
                 Destroy(gameObject);
-            }
         }
 
         private void Initialize()
@@ -72,27 +70,12 @@ namespace PigeonGame.Gameplay
         public void Reset()
         {
             currentMoney = startingMoney;
-
             unlockedTraps.Clear();
             unlockedSpecies.Clear();
             unlockedDoors.Clear();
-
-            foreach (var trapType in startingUnlockedTraps)
-            {
-                unlockedTraps.Add(trapType);
-                OnTrapUnlocked?.Invoke(trapType);
-            }
-
-            foreach (var speciesType in startingUnlockedSpecies)
-            {
-                unlockedSpecies.Add(speciesType);
-                OnSpeciesUnlocked?.Invoke(speciesType);
-            }
-
             inventory.Clear();
             exhibition.Clear();
-
-            OnMoneyChanged?.Invoke(currentMoney);
+            Initialize();
         }
 
         public void AddMoney(int amount)
@@ -178,9 +161,8 @@ namespace PigeonGame.Gameplay
                 return false;
 
             var registry = GameDataRegistry.Instance;
-            var trapData = registry.Traps.GetTrapById(trapType);
-
-            if (!SpendMoney(trapData.unlockCost))
+            var trapData = registry?.Traps?.GetTrapById(trapType);
+            if (trapData == null || !SpendMoney(trapData.unlockCost))
                 return false;
 
             unlockedTraps.Add(trapType);
@@ -200,9 +182,8 @@ namespace PigeonGame.Gameplay
                 return false;
 
             var registry = GameDataRegistry.Instance;
-            var speciesData = registry.SpeciesSet.GetSpeciesById(speciesType);
-
-            if (!SpendMoney(speciesData.unlockCost))
+            var speciesData = registry?.SpeciesSet?.GetSpeciesById(speciesType);
+            if (speciesData == null || !SpendMoney(speciesData.unlockCost))
                 return false;
 
             unlockedSpecies.Add(speciesType);
@@ -255,15 +236,14 @@ namespace PigeonGame.Gameplay
         public int CalculateTrapInstallCost(TrapType trapType, int feedAmount)
         {
             var registry = GameDataRegistry.Instance;
-            var trapData = registry.Traps.GetTrapById(trapType);
+            var trapData = registry?.Traps?.GetTrapById(trapType);
+            if (trapData == null)
+                return 0;
 
             int totalCost = trapData.installCost;
-
             int additionalFeed = feedAmount - trapData.feedAmount;
             if (additionalFeed > 0)
-            {
                 totalCost += additionalFeed * trapData.feedCostPerUnit;
-            }
 
             return totalCost;
         }
@@ -274,14 +254,14 @@ namespace PigeonGame.Gameplay
                 return false;
 
             int totalCost = CalculateTrapInstallCost(trapType, feedAmount);
-
-            if (currentMoney < totalCost)
+            if (totalCost > 0 && currentMoney < totalCost)
             {
                 ToastNotificationManager.ShowWarning("골드가 부족합니다!");
                 return false;
             }
 
-            SpendMoney(totalCost);
+            if (totalCost > 0)
+                SpendMoney(totalCost);
             return true;
         }
 
@@ -305,6 +285,20 @@ namespace PigeonGame.Gameplay
             return true;
         }
 
+        private void AddPigeonsToSaveData(List<PigeonInstanceSaveData> saveList, List<PigeonInstanceStats> sourceList)
+        {
+            foreach (var pigeon in sourceList)
+            {
+                if (pigeon == null) continue;
+                saveList.Add(new PigeonInstanceSaveData
+                {
+                    speciesId = pigeon.speciesId,
+                    faceId = pigeon.faceId,
+                    weight = pigeon.weight
+                });
+            }
+        }
+
         public GameManagerSaveData CreateSaveData()
         {
             var data = new GameManagerSaveData
@@ -316,29 +310,25 @@ namespace PigeonGame.Gameplay
             data.unlockedSpecies.AddRange(unlockedSpecies);
             data.unlockedDoors.AddRange(unlockedDoors);
 
-            foreach (var pigeon in inventory)
-            {
-                if (pigeon == null) continue;
-                data.inventory.Add(new PigeonInstanceSaveData
-                {
-                    speciesId = pigeon.speciesId,
-                    faceId = pigeon.faceId,
-                    weight = pigeon.weight
-                });
-            }
-
-            foreach (var pigeon in exhibition)
-            {
-                if (pigeon == null) continue;
-                data.exhibition.Add(new PigeonInstanceSaveData
-                {
-                    speciesId = pigeon.speciesId,
-                    faceId = pigeon.faceId,
-                    weight = pigeon.weight
-                });
-            }
+            AddPigeonsToSaveData(data.inventory, inventory);
+            AddPigeonsToSaveData(data.exhibition, exhibition);
 
             return data;
+        }
+
+        private void LoadPigeonsFromSaveData(List<PigeonInstanceSaveData> saveList, List<PigeonInstanceStats> targetList, System.Action<PigeonInstanceStats> onAdded)
+        {
+            foreach (var entry in saveList)
+            {
+                if (entry == null) continue;
+
+                int obesity = Mathf.RoundToInt(entry.weight);
+                var stats = WorldPigeonManager.CreateInstanceStats(entry.speciesId, obesity, entry.weight, entry.faceId);
+                if (stats == null) continue;
+
+                targetList.Add(stats);
+                onAdded?.Invoke(stats);
+            }
         }
 
         public void ApplySaveData(GameManagerSaveData data)
@@ -374,29 +364,8 @@ namespace PigeonGame.Gameplay
             inventory.Clear();
             exhibition.Clear();
 
-            foreach (var entry in data.inventory)
-            {
-                if (entry == null) continue;
-
-                int obesity = Mathf.RoundToInt(entry.weight);
-                var stats = PigeonInstanceFactory.CreateInstanceStats(entry.speciesId, obesity, entry.weight, entry.faceId);
-                if (stats == null) continue;
-
-                inventory.Add(stats);
-                OnPigeonAddedToInventory?.Invoke(stats);
-            }
-
-            foreach (var entry in data.exhibition)
-            {
-                if (entry == null) continue;
-
-                int obesity = Mathf.RoundToInt(entry.weight);
-                var stats = PigeonInstanceFactory.CreateInstanceStats(entry.speciesId, obesity, entry.weight, entry.faceId);
-                if (stats == null) continue;
-
-                exhibition.Add(stats);
-                OnPigeonAddedToExhibition?.Invoke(stats);
-            }
+            LoadPigeonsFromSaveData(data.inventory, inventory, OnPigeonAddedToInventory);
+            LoadPigeonsFromSaveData(data.exhibition, exhibition, OnPigeonAddedToExhibition);
         }
 
     }

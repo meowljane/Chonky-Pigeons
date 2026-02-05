@@ -62,18 +62,22 @@ namespace PigeonGame.Gameplay
             inspectorMaxTrapCount = maxTrapCount;
         }
 
+        private void NotifyUpgradeChanged()
+        {
+            UpdateInspectorValues();
+            OnUpgradeChanged?.Invoke();
+        }
+
         public void AddInventorySlotBonus(int bonus)
         {
             inventorySlotBonus += bonus;
-            UpdateInspectorValues();
-            OnUpgradeChanged?.Invoke();
+            NotifyUpgradeChanged();
         }
 
         public void SetInventorySlotBonus(int bonus)
         {
             inventorySlotBonus = bonus;
-            UpdateInspectorValues();
-            OnUpgradeChanged?.Invoke();
+            NotifyUpgradeChanged();
         }
 
         public void SetIncreaseSpecies(PigeonSpecies? species)
@@ -108,22 +112,19 @@ namespace PigeonGame.Gameplay
         public void SetMaxTrapCount(int count)
         {
             maxTrapCount = count;
-            UpdateInspectorValues();
-            OnUpgradeChanged?.Invoke();
+            NotifyUpgradeChanged();
         }
 
         public void SetPigeonsPerMapUnlockedLevel(int level)
         {
             pigeonsPerMapUnlockedLevel = level;
-            UpdateInspectorValues();
-            OnUpgradeChanged?.Invoke();
+            NotifyUpgradeChanged();
         }
 
         public void SetPigeonsPerMapSelectedValue(int value)
         {
             pigeonsPerMapSelectedValue = value;
-            UpdateInspectorValues();
-            OnUpgradeChanged?.Invoke();
+            NotifyUpgradeChanged();
         }
 
         public void Reset()

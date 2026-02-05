@@ -17,14 +17,14 @@ namespace PigeonGame.UI
         private Camera mainCamera;
         private string trapName = "먹이";
         private Transform canvasTransform;
-        private bool trapNameUpdated = false;
 
         private void Start()
         {
             mainCamera = Camera.main ?? FindFirstObjectByType<Camera>();
 
-            UpdateTrapName();
-            trapNameUpdated = true;
+            var trapData = GameDataRegistry.Instance?.Traps?.GetTrapById(trap.TrapId);
+            if (trapData != null)
+                trapName = trapData.name;
 
             foodBar.type = Image.Type.Filled;
             foodBar.fillMethod = Image.FillMethod.Horizontal;
@@ -38,25 +38,12 @@ namespace PigeonGame.UI
             canvasTransform = foodText.canvas?.transform ?? GetComponentInChildren<Canvas>()?.transform ?? transform;
         }
 
-        private void UpdateTrapName()
-        {
-            var trapData = GameDataRegistry.Instance?.Traps?.GetTrapById(trap.TrapId);
-            if (trapData != null)
-                trapName = trapData.name;
-        }
-
         private void Update()
         {
             if (mainCamera != null && canvasTransform != null)
             {
                 canvasTransform.LookAt(canvasTransform.position + mainCamera.transform.rotation * Vector3.forward,
                     mainCamera.transform.rotation * Vector3.up);
-            }
-
-            if (!trapNameUpdated)
-            {
-                UpdateTrapName();
-                trapNameUpdated = true;
             }
 
             int current = trap.CurrentFeedAmount;
