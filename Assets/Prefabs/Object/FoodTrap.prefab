@@ -221,6 +221,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.FoodTrap
   interactionRadius: 2
   trapId: 0
+  spriteRenderer: {fileID: 8371566422970891740}
   pigeonIconSpriteRenderer: {fileID: 2766863966726498540}
   pigeonFaceIconSpriteRenderer: {fileID: 6993176016210891027}
 --- !u!114 &6956431657956489839
@@ -232,7 +233,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1046078026758184712}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c, type: 3}
+  m_Script: {fileID: 11500000, guid: 103bdf40d3dafe9479d4cac60193c05e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.UI.TrapFoodDisplay
   foodText: {fileID: 2157394961479818825}
@@ -241,6 +242,7 @@ MonoBehaviour:
   fullColor: {r: 0, g: 1, b: 0, a: 1}
   emptyColor: {r: 1, g: 0, b: 0, a: 1}
   offset: {x: 0, y: 1, z: 0}
+  trap: {fileID: 218586867324098390}
 --- !u!1 &2550120459288624211
 GameObject:
   m_ObjectHideFlags: 0

@@ -35,31 +35,17 @@ namespace PigeonGame.Gameplay
         {
             get
             {
-                if (rb == null)
-                    return MovementState.Idle;
-
-                if (ai != null && ai.CurrentState == PigeonState.Flee)
-                {
+                if (ai.CurrentState == PigeonState.Flee)
                     return MovementState.Flying;
-                }
 
                 Vector2? currentTarget = GetCurrentTarget();
                 if (currentTarget == null)
-                {
                     return MovementState.Idle; 
-                }
 
                 float sqrDistance = ((Vector2)transform.position - currentTarget.Value).sqrMagnitude;
                 const float arrivalThreshold = 0.01f; 
 
-                if (sqrDistance < arrivalThreshold)
-                {
-                    return MovementState.Idle; 
-                }
-                else
-                {
-                    return MovementState.Walking; 
-                }
+                return sqrDistance < arrivalThreshold ? MovementState.Idle : MovementState.Walking;
             }
         }
 
@@ -78,35 +64,30 @@ namespace PigeonGame.Gameplay
             return wanderTarget;
         }
 
-        private Rigidbody2D rb;
-        private PigeonAI ai;
-        private PigeonController controller;
+        [SerializeField] private Rigidbody2D rb;
+        [SerializeField] private PigeonAI ai;
+        [SerializeField] private PigeonController controller;
         private Vector2 wanderTarget;
         private float wanderTimer;
         private FoodTrap targetFoodTrap;
         private Vector2 backoffTarget;
         private bool backoffTargetSet = false;
-        private Vector2 backoffStartPosition; 
         private Camera mainCamera;
         private bool backoffCausedByPlayer = false;
         private float backoffEndTime = 0f; 
         private const float BACKOFF_COOLDOWN = 2f; 
-        private Vector2 lastMovementDirection = Vector2.right; 
+        private Vector2 lastMovementDirection = Vector2.right;
+        private float sqrDetectionRadius;
 
         public Vector2 MovementDirection => lastMovementDirection;
 
         private void Awake()
         {
-            rb = GetComponent<Rigidbody2D>();
-            if (rb == null)
-                return;
             rb.gravityScale = 0;
             rb.linearDamping = 5f;
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-
-            ai = GetComponent<PigeonAI>();
-            controller = GetComponent<PigeonController>();
             mainCamera = Camera.main;
+            sqrDetectionRadius = detectionRadius * detectionRadius;
         }
 
         private void Start()
@@ -116,9 +97,6 @@ namespace PigeonGame.Gameplay
 
         private void Update()
         {
-            if (ai == null || controller == null || controller.Stats == null)
-                return;
-
             if (controller.IsExhibitionPigeon)
             {
                 HandleExhibitionWander();
@@ -143,13 +121,10 @@ namespace PigeonGame.Gameplay
                     HandleBackOff();
                     return;
                 }
-                else
-                {
-                    backoffTargetSet = false;
-                    backoffCausedByPlayer = false; 
-                    targetFoodTrap = null; 
-                    backoffEndTime = Time.time; 
-                }
+                backoffTargetSet = false;
+                backoffCausedByPlayer = false; 
+                targetFoodTrap = null; 
+                backoffEndTime = Time.time; 
             }
 
             if (IsPlayerNearby())
@@ -160,34 +135,23 @@ namespace PigeonGame.Gameplay
             }
 
             if (state == PigeonState.BackOff)
-            {
                 HandleBackOff();
-            }
             else
-            {
                 HandleNormalMovement();
-            }
         }
 
         private void UpdateAlertSystem()
         {
-            if (controller == null || controller.Stats == null || ai == null)
+            if (ai.CurrentState == PigeonState.Flee || PlayerController.Instance == null)
                 return;
 
-            if (ai.CurrentState == PigeonState.Flee)
-                return;
+            Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
+            float sqrDistance = toPlayer.sqrMagnitude;
 
-            if (PlayerController.Instance != null)
+            if (sqrDistance <= sqrDetectionRadius)
             {
-                Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
-                float sqrDistance = toPlayer.sqrMagnitude;
-                float sqrRadius = detectionRadius * detectionRadius;
-
-                if (sqrDistance <= sqrRadius)
-                {
-                    float distanceFactor = Mathf.Clamp01(1f - (sqrDistance / sqrRadius));
-                    ai.AddPlayerAlert(Time.deltaTime * distanceFactor);
-                }
+                float distanceFactor = Mathf.Clamp01(1f - (sqrDistance / sqrDetectionRadius));
+                ai.AddPlayerAlert(Time.deltaTime * distanceFactor);
             }
         }
 
@@ -197,20 +161,15 @@ namespace PigeonGame.Gameplay
                 return false;
 
             float sqrDistance = ((Vector2)transform.position - PlayerController.Instance.Position).sqrMagnitude;
-            float sqrRadius = detectionRadius * detectionRadius;
-            return sqrDistance <= sqrRadius;
+            return sqrDistance <= sqrDetectionRadius;
         }
 
         private void HandleNormalMovement()
         {
             if (Time.time - backoffEndTime >= BACKOFF_COOLDOWN)
-            {
                 FindNearestFoodTrap();
-            }
             else
-            {
-                targetFoodTrap = null; 
-            }
+                targetFoodTrap = null;
 
             wanderTimer += Time.deltaTime;
             if (wanderTimer >= wanderInterval)
@@ -218,8 +177,6 @@ namespace PigeonGame.Gameplay
                 SetNewWanderTarget();
                 wanderTimer = 0f;
             }
-
-            if (rb == null) return;
 
             Vector2 targetPos = targetFoodTrap != null && !targetFoodTrap.HasCapturedPigeon
                 ? (Vector2)targetFoodTrap.transform.position
@@ -230,26 +187,15 @@ namespace PigeonGame.Gameplay
 
         private void HandleBackOff()
         {
-            if (controller == null || controller.Stats == null)
-                return;
-
             float backoffDistance = backoffCausedByPlayer ? detectionRadius : detectionRadius * 2f;
-
-            if (!backoffTargetSet)
-            {
-                backoffStartPosition = transform.position;
-                Vector2 backoffDirection = CalculateBackoffDirection();
-                backoffTarget = backoffStartPosition + backoffDirection * backoffDistance;
-                backoffTarget = ClampToMapBounds(backoffTarget);
-                backoffTargetSet = true;
-            }
-
             float sqrDistanceToTarget = ((Vector2)transform.position - backoffTarget).sqrMagnitude;
-            if (sqrDistanceToTarget < 0.04f) 
+
+            if (!backoffTargetSet || sqrDistanceToTarget < 0.04f)
             {
                 Vector2 backoffDirection = CalculateBackoffDirection();
                 backoffTarget = (Vector2)transform.position + backoffDirection * backoffDistance;
                 backoffTarget = ClampToMapBounds(backoffTarget);
+                backoffTargetSet = true;
             }
 
             MoveTowardsTarget(backoffTarget, backoffSpeed);
@@ -260,12 +206,9 @@ namespace PigeonGame.Gameplay
             if (backoffCausedByPlayer && PlayerController.Instance != null)
             {
                 Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
-                if (toPlayer.sqrMagnitude > 0.01f) 
-                {
+                if (toPlayer.sqrMagnitude > 0.01f)
                     return -toPlayer.normalized;
-                }
             }
-
             return Random.insideUnitCircle.normalized;
         }
 
@@ -275,11 +218,8 @@ namespace PigeonGame.Gameplay
                 mainCamera = Camera.main;
 
             Vector2 fleeDirection = CalculateFleeDirection();
-
             if (fleeDirection.sqrMagnitude > 0.01f)
-            {
                 lastMovementDirection = fleeDirection;
-            }
 
             rb.linearVelocity = fleeDirection * fleeSpeed;
         }
@@ -289,7 +229,7 @@ namespace PigeonGame.Gameplay
             if (PlayerController.Instance != null)
             {
                 Vector2 toPlayer = PlayerController.Instance.Position - (Vector2)transform.position;
-                return -toPlayer.normalized;
+                return toPlayer.sqrMagnitude > 0.01f ? -toPlayer.normalized : Random.insideUnitCircle.normalized;
             }
 
             if (mainCamera != null)
@@ -297,51 +237,37 @@ namespace PigeonGame.Gameplay
                 Vector2 screenPos = mainCamera.WorldToScreenPoint(transform.position);
                 Vector2 screenCenter = new Vector2(Screen.width / 2f, Screen.height / 2f);
                 Vector2 toCenter = screenCenter - screenPos;
-                return toCenter.normalized;
+                return toCenter.sqrMagnitude > 0.01f ? toCenter.normalized : Random.insideUnitCircle.normalized;
             }
 
             return Random.insideUnitCircle.normalized;
         }
 
-        private void MoveTowardsTarget(Vector2 target, float speed)
+        private void MoveTowardsTarget(Vector2 target, float speed, System.Func<Vector2, Vector2> clampFunc = null)
         {
             Vector2 toTarget = target - (Vector2)transform.position;
             float sqrDistance = toTarget.sqrMagnitude;
 
-            if (sqrDistance < 0.01f) 
+            if (sqrDistance < 0.01f)
             {
                 rb.linearVelocity = Vector2.zero;
+                return;
             }
-            else
-            {
-                Vector2 direction = toTarget.normalized;
 
-                if (direction.sqrMagnitude > 0.01f)
-                {
-                    lastMovementDirection = direction;
-                }
+            Vector2 direction = toTarget.normalized;
+            if (direction.sqrMagnitude > 0.01f)
+                lastMovementDirection = direction;
 
-                Vector2 newVelocity = direction * speed;
-                Vector2 newPosition = (Vector2)transform.position + newVelocity * Time.fixedDeltaTime;
-
-                newPosition = ClampToMapBounds(newPosition);
-
-                rb.MovePosition(newPosition);
-            }
+            Vector2 newVelocity = direction * speed;
+            Vector2 newPosition = (Vector2)transform.position + newVelocity * Time.fixedDeltaTime;
+            newPosition = (clampFunc ?? ClampToMapBounds)(newPosition);
+            rb.MovePosition(newPosition);
         }
 
         private Vector2 ClampToMapBounds(Vector2 position)
         {
-            if (TilemapRangeManager.Instance != null)
-            {
-                if (TilemapRangeManager.Instance.IsInMapRange(position))
-                {
-                    return position;
-                }
-
-                return transform.position;
-            }
-
+            if (TilemapRangeManager.Instance?.IsInMapRange(position) == true)
+                return position;
             return transform.position;
         }
 
@@ -380,10 +306,7 @@ namespace PigeonGame.Gameplay
             targetFoodTrap = nearestTrap;
         }
 
-        public float GetEatingRadius()
-        {
-            return eatingRadius;
-        }
+        public float GetEatingRadius() => eatingRadius;
 
         private void SetNewWanderTarget()
         {
@@ -393,9 +316,6 @@ namespace PigeonGame.Gameplay
 
         private void HandleExhibitionWander()
         {
-            if (rb == null || controller == null)
-                return;
-
             wanderTimer += Time.deltaTime;
             if (wanderTimer >= wanderInterval)
             {
@@ -408,77 +328,26 @@ namespace PigeonGame.Gameplay
 
         private void MoveTowardsExhibitionTarget(Vector2 target, float speed)
         {
-            if (controller == null || !controller.IsExhibitionPigeon || rb == null)
-                return;
-
-            Vector2 toTarget = target - (Vector2)transform.position;
-            float sqrDistance = toTarget.sqrMagnitude;
-
-            if (sqrDistance < 0.01f)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
-            else
-            {
-                Vector2 direction = toTarget.normalized;
-
-                if (direction.sqrMagnitude > 0.01f)
-                {
-                    lastMovementDirection = direction;
-                }
-
-                Vector2 newVelocity = direction * speed;
-                Vector2 newPosition = (Vector2)transform.position + newVelocity * Time.fixedDeltaTime;
-
-                newPosition = ClampToExhibitionBounds(newPosition);
-
-                rb.MovePosition(newPosition);
-            }
+            MoveTowardsTarget(target, speed, ClampToExhibitionBounds);
         }
 
         private Vector2 ClampToExhibitionBounds(Vector2 position)
         {
-            if (controller == null || !controller.IsExhibitionPigeon)
-                return position;
-
-            if (TilemapRangeManager.Instance != null)
-            {
-                if (!TilemapRangeManager.Instance.IsInExhibitionArea(position))
-                {
-                    return transform.position;
-                }
-            }
-
+            if (TilemapRangeManager.Instance?.IsInExhibitionArea(position) == false)
+                return transform.position;
             return position;
         }
 
         private void SetNewExhibitionWanderTarget()
         {
-            if (controller == null || !controller.IsExhibitionPigeon)
+            if (!controller.IsExhibitionPigeon)
             {
                 SetNewWanderTarget();
                 return;
             }
 
-            if (TilemapRangeManager.Instance != null)
-            {
-                Vector3 randomPos = TilemapRangeManager.Instance.GetRandomPositionInExhibitionArea();
-                if (randomPos != Vector3.zero)
-                {
-                    wanderTarget = randomPos;
-                    return;
-                }
-            }
-
-            wanderTarget = transform.position;
-        }
-
-        private bool IsPointInCollider(Vector2 point, Collider2D collider)
-        {
-            if (collider == null)
-                return false;
-
-            return collider.OverlapPoint(point);
+            Vector3 randomPos = TilemapRangeManager.Instance?.GetRandomPositionInExhibitionArea() ?? Vector3.zero;
+            wanderTarget = randomPos != Vector3.zero ? randomPos : transform.position;
         }
 
     }

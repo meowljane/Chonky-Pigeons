@@ -23,23 +23,13 @@ namespace PigeonGame.UI
 
         public void SetUnlocked(bool isUnlocked)
         {
-            if (lockOverlay != null)
-            {
-                lockOverlay.SetActive(!isUnlocked);
-            }
-
-            if (button != null)
-            {
-                button.interactable = isUnlocked;
-            }
+            lockOverlay.SetActive(!isUnlocked);
+            button.interactable = isUnlocked;
         }
 
         public void SetSelected(bool isSelected)
         {
-            if (checkmark != null)
-            {
-                checkmark.SetActive(isSelected);
-            }
+            checkmark.SetActive(isSelected);
         }
     }
 }

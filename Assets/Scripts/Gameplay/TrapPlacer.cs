@@ -96,7 +96,7 @@ namespace PigeonGame.Gameplay
             return false;
         }
 
-        public bool PlaceTrapAtPlayerPosition(TrapType trapType, int feedAmount = 0)
+        public bool PlaceTrapAtPlayerPosition(TrapType trapType, int feedAmount)
         {
             if (PlayerController.Instance == null)
                 return false;
@@ -164,14 +164,7 @@ namespace PigeonGame.Gameplay
             if (trap == null)
                 return false;
 
-            if (trapData != null)
-            {
-                trap.SetTrapIdAndFeedAmount(trapType, actualFeedAmount);
-            }
-            else
-            {
-                trap.SetTrapId(trapType);
-            }
+            trap.SetTrapIdAndFeedAmount(trapType, actualFeedAmount);
 
             if (trapObj.GetComponent<UI.TrapFoodDisplay>() == null)
             {

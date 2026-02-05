@@ -6,33 +6,25 @@ namespace PigeonGame.Gameplay
 {
     public class FoodTrap : InteractableBase
     {
-        [SerializeField] private TrapType trapId;
+        private TrapType trapId;
         private TrapDefinition trapData;
 
-        public void SetTrapId(TrapType trapType)
+        public void SetTrapIdAndFeedAmount(TrapType trapType, int feedAmount = 0)
         {
             trapId = trapType;
-            LoadTrapData();
-            if (trapData != null)
-            {
-                currentFeedAmount = trapData.feedAmount;
-            }
-        }
-
-        public void SetTrapIdAndFeedAmount(TrapType trapType, int feedAmount)
-        {
-            trapId = trapType;
-            LoadTrapData();
-            if (trapData != null)
-            {
-                currentFeedAmount = Mathf.Max(1, feedAmount);
-                initialFeedAmount = currentFeedAmount;
-            }
-        }
-
-        private void LoadTrapData()
-        {
             trapData = GameDataRegistry.Instance?.Traps?.GetTrapById(trapId);
+            if (trapData != null)
+            {
+                if (feedAmount > 0)
+                {
+                    currentFeedAmount = Mathf.Max(1, feedAmount);
+                    initialFeedAmount = currentFeedAmount;
+                }
+                else
+                {
+                    currentFeedAmount = trapData.feedAmount;
+                }
+            }
         }
         private int currentFeedAmount;
         private int initialFeedAmount; 
@@ -46,7 +38,7 @@ namespace PigeonGame.Gameplay
 
         private PigeonInstanceStats capturedPigeonStats; 
         private bool isCaptured = false; 
-        private SpriteRenderer spriteRenderer;
+        [SerializeField] private SpriteRenderer spriteRenderer;
 
         [Header("Captured Pigeon Overlay")]
         [SerializeField] private SpriteRenderer pigeonIconSpriteRenderer; 
@@ -68,24 +60,15 @@ namespace PigeonGame.Gameplay
         {
             base.Start();
 
-            spriteRenderer = GetComponent<SpriteRenderer>();
-
-            LoadTrapData();
             if (trapData != null)
             {
                 if (currentFeedAmount <= 0)
-                {
                     currentFeedAmount = trapData.feedAmount;
-                }
                 if (initialFeedAmount <= 0)
-                {
                     initialFeedAmount = currentFeedAmount;
-                }
 
-                if (trapData.icon != null && spriteRenderer != null)
-                {
+                if (trapData.icon != null)
                     spriteRenderer.sprite = trapData.icon;
-                }
             }
         }
 
@@ -132,27 +115,23 @@ namespace PigeonGame.Gameplay
             if (nearbyPigeons.Count <= 1)
                 return;
 
-            float deltaTime = Time.deltaTime;
-
             int competingCount = 0;
             foreach (var pigeon in nearbyPigeons)
             {
-                if (pigeon != null && pigeon.CanEat())
-                {
+                if (pigeon.CanEat())
                     competingCount++;
-                }
             }
 
             if (competingCount <= 1)
                 return;
 
+            float deltaTime = Time.deltaTime;
             int competitorCount = competingCount - 1;
+
             foreach (var pigeon in nearbyPigeons)
             {
-                if (pigeon == null || !pigeon.CanEat() || pigeon.CurrentState == PigeonState.Flee)
-                    continue;
-
-                pigeon.AddCrowdAlert(competitorCount, deltaTime);
+                if (pigeon.CanEat() && pigeon.CurrentState != PigeonState.Flee)
+                    pigeon.AddCrowdAlert(competitorCount, deltaTime);
             }
         }
 
@@ -161,17 +140,10 @@ namespace PigeonGame.Gameplay
             const float EATING_STATE_DURATION = 0.5f;
 
             currentlyEatingPigeons.RemoveWhere(p => p == null);
-
             reusablePigeonsToRemoveList.Clear();
 
             foreach (var pigeon in currentlyEatingPigeons)
             {
-                if (pigeon == null)
-                {
-                    reusablePigeonsToRemoveList.Add(pigeon);
-                    continue;
-                }
-
                 if (!pigeon.CanEat() || pigeon.CurrentState == PigeonState.Flee)
                 {
                     reusablePigeonsToRemoveList.Add(pigeon);
@@ -179,16 +151,12 @@ namespace PigeonGame.Gameplay
                 }
 
                 if (!eatingStateTimers.ContainsKey(pigeon))
-                {
                     eatingStateTimers[pigeon] = 0f;
-                }
 
                 eatingStateTimers[pigeon] += Time.deltaTime;
 
                 if (eatingStateTimers[pigeon] >= EATING_STATE_DURATION)
-                {
                     reusablePigeonsToRemoveList.Add(pigeon);
-                }
             }
 
             foreach (var pigeon in reusablePigeonsToRemoveList)
@@ -221,13 +189,11 @@ namespace PigeonGame.Gameplay
 
                 Vector2 toPigeon = (Vector2)(pigeon.transform.position - transform.position);
                 float sqrDistance = toPigeon.sqrMagnitude;
-                float pigeonEatingRadius = movement.GetEatingRadius();
-                float sqrRadius = pigeonEatingRadius * pigeonEatingRadius;
+                float eatingRadius = movement.GetEatingRadius();
+                float sqrRadius = eatingRadius * eatingRadius;
 
                 if (sqrDistance <= sqrRadius)
-                {
                     nearbyPigeons.Add(pigeon);
-                }
             }
         }
 
@@ -239,22 +205,18 @@ namespace PigeonGame.Gameplay
             if (!pigeonControllerCache.TryGetValue(pigeon, out PigeonController controller))
             {
                 controller = pigeon.GetComponent<PigeonController>();
-                if (controller == null || controller.Stats == null)
+                if (controller?.Stats == null)
                     return false;
                 pigeonControllerCache[pigeon] = controller;
             }
 
-            if (controller.Stats == null)
-                return false;
-
-            var stats = controller.Stats;
-
-            if (Random.value > pigeon.GetEatChance())
+            if (controller.Stats == null || Random.value > pigeon.GetEatChance())
                 return false;
 
             currentlyEatingPigeons.Add(pigeon);
             eatingStateTimers[pigeon] = 0f;
 
+            var stats = controller.Stats;
             int bitePower = stats.bitePower;
             currentFeedAmount -= bitePower;
 
@@ -262,91 +224,58 @@ namespace PigeonGame.Gameplay
             {
                 capturedPigeonStats = stats.Clone();
                 isCaptured = true;
-                ChangeToCapturedState();
+                
+                if (trapData?.capturedSprite != null)
+                    spriteRenderer.sprite = trapData.capturedSprite;
+
+                var registry = GameDataRegistry.Instance;
+                if (registry != null)
+                {
+                    UpdateSpriteRenderer(pigeonIconSpriteRenderer, 
+                        registry.SpeciesSet?.GetSpeciesById(capturedPigeonStats.speciesId)?.icon ?? 
+                        registry.SpeciesSet?.GetSpeciesById(PigeonSpecies.SP01)?.icon);
+
+                    UpdateSpriteRenderer(pigeonFaceIconSpriteRenderer,
+                        registry.Faces?.GetFaceById(capturedPigeonStats.faceId)?.icon ?? 
+                        registry.Faces?.GetFaceById(FaceType.F00)?.icon);
+                }
+
                 OnCaptured?.Invoke(pigeon);
                 pigeonControllerCache.Remove(pigeon);
                 pigeonMovementCache.Remove(pigeon);
                 Destroy(pigeon.gameObject);
-                return true;
             }
 
             return true;
         }
 
-        private void ChangeToCapturedState()
+
+        private void UpdateSpriteRenderer(SpriteRenderer renderer, Sprite sprite)
         {
-            if (trapData != null && trapData.capturedSprite != null && spriteRenderer != null)
+            if (sprite != null)
             {
-                spriteRenderer.sprite = trapData.capturedSprite;
+                renderer.sprite = sprite;
+                renderer.enabled = true;
+                Color color = renderer.color;
+                color.a = 0.7f;
+                renderer.color = color;
             }
-
-            ShowCapturedPigeonOverlay();
-        }
-
-        private void ShowCapturedPigeonOverlay()
-        {
-            if (capturedPigeonStats == null)
-                return;
-
-            var registry = GameDataRegistry.Instance;
-            if (registry == null)
-                return;
-
-            if (pigeonIconSpriteRenderer != null)
+            else
             {
-                var species = registry.SpeciesSet?.GetSpeciesById(capturedPigeonStats.speciesId);
-                var defaultSpecies = registry.SpeciesSet?.GetSpeciesById(PigeonSpecies.SP01);
-                var iconToUse = species?.icon ?? defaultSpecies?.icon;
-
-                if (iconToUse != null)
-                {
-                    pigeonIconSpriteRenderer.sprite = iconToUse;
-                    pigeonIconSpriteRenderer.enabled = true;
-
-                    Color color = pigeonIconSpriteRenderer.color;
-                    color.a = 0.7f;
-                    pigeonIconSpriteRenderer.color = color;
-                }
-                else
-                {
-                    pigeonIconSpriteRenderer.enabled = false;
-                }
-            }
-
-            if (pigeonFaceIconSpriteRenderer != null)
-            {
-                var face = registry.Faces?.GetFaceById(capturedPigeonStats.faceId);
-                var defaultFace = registry.Faces?.GetFaceById(FaceType.F00);
-                var faceIconToUse = face?.icon ?? defaultFace?.icon;
-
-                if (faceIconToUse != null)
-                {
-                    pigeonFaceIconSpriteRenderer.sprite = faceIconToUse;
-                    pigeonFaceIconSpriteRenderer.enabled = true;
-
-                    Color color = pigeonFaceIconSpriteRenderer.color;
-                    color.a = 0.7f;
-                    pigeonFaceIconSpriteRenderer.color = color;
-                }
-                else
-                {
-                    pigeonFaceIconSpriteRenderer.enabled = false;
-                }
+                renderer.enabled = false;
             }
         }
 
         protected override void OnTriggerEnter2D(Collider2D other)
         {
-            if (!isCaptured)
-                return;
-            base.OnTriggerEnter2D(other);
+            if (isCaptured)
+                base.OnTriggerEnter2D(other);
         }
 
         protected override void OnTriggerExit2D(Collider2D other)
         {
-            if (!isCaptured)
-                return;
-            base.OnTriggerExit2D(other);
+            if (isCaptured)
+                base.OnTriggerExit2D(other);
         }
 
         public override bool CanInteract()

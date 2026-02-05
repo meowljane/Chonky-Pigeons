@@ -16,17 +16,12 @@ namespace PigeonGame.Gameplay
         private PigeonInstanceStats stats;
         private float alert = 0f;
         private PigeonState currentState = PigeonState.Normal;
-        private PigeonMovement movement;
+        [SerializeField] private PigeonMovement movement;
         private float fleeStateStartTime = 0f;
 
         public float Alert => alert;
         public PigeonState CurrentState => currentState;
         public float FleeElapsedTime => currentState == PigeonState.Flee ? Time.time - fleeStateStartTime : 0f;
-
-        private void Awake()
-        {
-            movement = GetComponent<PigeonMovement>();
-        }
 
         public void Initialize(PigeonInstanceStats stats)
         {
@@ -37,9 +32,6 @@ namespace PigeonGame.Gameplay
 
         private void Update()
         {
-            if (stats == null)
-                return;
-
             if (currentState != PigeonState.Flee)
             {
                 const float alertDecayPerSec = 10f;
@@ -50,65 +42,43 @@ namespace PigeonGame.Gameplay
 
         public void AddPlayerAlert(float deltaTime)
         {
-            if (!CanAddAlert())
-                return;
-            alert += stats.playerAlertPerSec * movement.AlertWeight * deltaTime;
+            if (currentState != PigeonState.Flee)
+                alert += stats.playerAlertPerSec * movement.AlertWeight * deltaTime;
         }
 
         public void AddCrowdAlert(int neighborCount, float deltaTime)
         {
-            if (!CanAddAlert())
-                return;
-            alert += stats.crowdAlertPerNeighborPerSec * movement.AlertWeight * neighborCount * deltaTime;
-        }
-
-        private bool CanAddAlert()
-        {
-            return currentState != PigeonState.Flee && movement != null;
+            if (currentState != PigeonState.Flee)
+                alert += stats.crowdAlertPerNeighborPerSec * movement.AlertWeight * neighborCount * deltaTime;
         }
 
         public void ForceFlee()
         {
-            PigeonState previousState = currentState;
-            currentState = PigeonState.Flee;
-
-            if (previousState != PigeonState.Flee)
+            if (currentState != PigeonState.Flee)
             {
+                currentState = PigeonState.Flee;
                 fleeStateStartTime = Time.time;
             }
         }
 
         private void UpdateState()
         {
-            if (movement == null)
-                return;
-
             if (currentState == PigeonState.Flee)
                 return;
 
             PigeonState previousState = currentState;
 
             if (alert >= movement.FleeThreshold)
-            {
                 currentState = PigeonState.Flee;
-            }
             else if (alert >= movement.BackoffThreshold)
-            {
                 currentState = PigeonState.BackOff;
-            }
             else if (alert >= movement.WarnThreshold)
-            {
                 currentState = PigeonState.Cautious;
-            }
             else
-            {
                 currentState = PigeonState.Normal;
-            }
 
             if (currentState == PigeonState.Flee && previousState != PigeonState.Flee)
-            {
                 fleeStateStartTime = Time.time;
-            }
         }
 
         public bool CanEat()
@@ -118,7 +88,7 @@ namespace PigeonGame.Gameplay
 
         public float GetEatChance()
         {
-            if (stats == null || !CanEat())
+            if (!CanEat())
                 return 0f;
 
             float chance = stats.eatChance;
@@ -126,16 +96,14 @@ namespace PigeonGame.Gameplay
             {
                 var modifier = GetStressModifier();
                 if (modifier?.enabled == true)
-                {
                     chance *= modifier.warnEatChanceMultiplier;
-                }
             }
             return chance;
         }
 
         public float GetEatInterval()
         {
-            if (stats == null || !CanEat())
+            if (!CanEat())
                 return float.MaxValue;
 
             float interval = stats.eatInterval;
@@ -143,14 +111,12 @@ namespace PigeonGame.Gameplay
             {
                 var modifier = GetStressModifier();
                 if (modifier?.enabled == true)
-                {
                     interval *= modifier.warnEatIntervalMultiplier;
-                }
             }
             return interval;
         }
 
-        private PigeonGame.Data.StressToEatModifier GetStressModifier()
+        private StressToEatModifier GetStressModifier()
         {
             return GameDataRegistry.Instance?.AIProfiles?.stressToEatModifier;
         }

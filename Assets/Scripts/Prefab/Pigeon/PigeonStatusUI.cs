@@ -20,40 +20,22 @@ namespace PigeonGame.UI
             Color.red
         };
 
-        private PigeonAI pigeonAI;
-        private PigeonController pigeonController;
+        [SerializeField] private PigeonAI pigeonAI;
+        [SerializeField] private PigeonController pigeonController;
         private Camera mainCamera;
         private bool isEating = false;
 
-        private void Awake()
-        {
-            if (alertBar == null || alertBarBackground == null)
-            {
-                CreateUI();
-            }
-        }
-
         private void Start()
         {
-            pigeonAI = GetComponent<PigeonAI>();
-            pigeonController = GetComponent<PigeonController>();
-
-            mainCamera = Camera.main;
-            if (mainCamera == null)
-            {
-                mainCamera = FindFirstObjectByType<Camera>();
-            }
-
+            mainCamera = Camera.main ?? FindFirstObjectByType<Camera>();
             if (alertBar == null || alertBarBackground == null)
-            {
                 CreateUI();
-            }
         }
 
         private void CreateUI()
         {
             Canvas existingCanvas = GetComponentInChildren<Canvas>();
-            if (existingCanvas != null && existingCanvas.name == "PigeonStatusCanvas")
+            if (existingCanvas?.name == "PigeonStatusCanvas")
             {
                 Image[] images = existingCanvas.GetComponentsInChildren<Image>();
                 foreach (var img in images)
@@ -65,9 +47,7 @@ namespace PigeonGame.UI
                 }
                 eatingText = existingCanvas.GetComponentInChildren<TextMeshProUGUI>();
                 if (alertBar != null && alertBarBackground != null && eatingText != null)
-                {
                     return;
-                }
             }
 
             GameObject canvasObj = new GameObject("PigeonStatusCanvas");
@@ -145,17 +125,10 @@ namespace PigeonGame.UI
 
         private void Update()
         {
-            if (pigeonAI == null)
-                pigeonAI = GetComponent<PigeonAI>();
-            if (pigeonController == null)
-                pigeonController = GetComponent<PigeonController>();
-
             if (pigeonAI == null || pigeonController == null || pigeonController.Stats == null)
-            {
                 return;
-            }
 
-            if (mainCamera != null && alertBar != null && alertBar.canvas != null)
+            if (mainCamera != null && alertBar?.canvas != null)
             {
                 Transform canvasTransform = alertBar.canvas.transform;
                 canvasTransform.LookAt(canvasTransform.position + mainCamera.transform.rotation * Vector3.forward,
@@ -168,54 +141,38 @@ namespace PigeonGame.UI
 
         private void UpdateAlertBar()
         {
-            if (alertBar == null || pigeonAI == null || pigeonController == null || pigeonController.Stats == null)
+            if (alertBar == null)
                 return;
 
-            PigeonState state = pigeonAI.CurrentState;
-            float alert = pigeonAI.Alert;
+            alertBar.fillAmount = Mathf.Clamp01(pigeonAI.Alert / 100.0f);
 
-            float fillAmount = Mathf.Clamp01(alert / 100.0f);
-
-            alertBar.fillAmount = fillAmount;
-
-            int stateIndex = (int)state;
+            int stateIndex = (int)pigeonAI.CurrentState;
             if (stateIndex >= 0 && stateIndex < alertColors.Length)
-            {
                 alertBar.color = alertColors[stateIndex];
-            }
         }
 
         private void CheckEatingStatus()
         {
-            if (pigeonAI == null || !pigeonAI.CanEat())
+            if (!pigeonAI.CanEat())
             {
                 isEating = false;
-                if (eatingText != null)
-                {
-                    eatingText.gameObject.SetActive(false);
-                }
+                eatingText?.gameObject.SetActive(false);
                 return;
             }
 
-            FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
             isEating = false;
+            FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
 
             foreach (var trap in allTraps)
             {
-                if (trap == null || trap.HasCapturedPigeon)
-                    continue;
-
-                if (trap.IsPigeonEating(pigeonAI))
+                if (trap != null && !trap.HasCapturedPigeon && trap.IsPigeonEating(pigeonAI))
                 {
                     isEating = true;
                     break;
                 }
             }
 
-            if (eatingText != null)
-            {
-                eatingText.gameObject.SetActive(isEating);
-            }
+            eatingText?.gameObject.SetActive(isEating);
         }
     }
 }
