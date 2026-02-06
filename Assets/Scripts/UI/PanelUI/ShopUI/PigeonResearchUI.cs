@@ -20,12 +20,7 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            if (shopPanel != null)
-            {
-                shopPanel.SetActive(false);
-            }
-
-            UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
+            ShopUIHelper.InitializeShopPanel(shopPanel, closeButton, goldText, OnCloseButtonClicked);
 
             if (GameManager.Instance != null)
             {
@@ -33,19 +28,12 @@ namespace PigeonGame.UI
                 GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
             }
 
-            UpdateGoldText();
             UpdateShopDisplay();
         }
 
         public void OpenShopPanel()
         {
-            if (shopPanel != null)
-            {
-                shopPanel.SetActive(true);
-                UpdateGoldText();
-                UpdateShopDisplay();
-                ScrollRectHelper.ScrollToTop(shopPanel);
-            }
+            ShopUIHelper.OpenShopPanel(shopPanel, goldText, UpdateShopDisplay);
         }
 
         private void OnSpeciesUnlocked(PigeonSpecies speciesType)
@@ -55,13 +43,7 @@ namespace PigeonGame.UI
 
         private void OnMoneyChanged(int money)
         {
-            UpdateGoldText();
-            UpdateShopDisplay();
-        }
-
-        private void UpdateGoldText()
-        {
-            UIHelper.UpdateGoldText(goldText);
+            ShopUIHelper.HandleMoneyChanged(goldText, UpdateShopDisplay);
         }
 
         private void UpdateShopDisplay()
@@ -69,7 +51,7 @@ namespace PigeonGame.UI
             if (speciesContainer == null || speciesSlot == null)
                 return;
 
-            ClearSpeciesItems();
+            UIHelper.ClearSlotList(speciesItems);
 
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.SpeciesSet == null)
@@ -108,57 +90,15 @@ namespace PigeonGame.UI
                 slotUI.NameText.text = speciesData.name;
             }
 
-            var registry = GameDataRegistry.Instance;
-            var defaultSpecies = (registry != null && registry.SpeciesSet != null)
-                ? registry.SpeciesSet.GetSpeciesById(PigeonSpecies.SP01)
-                : null;
-            var defaultFace = (registry != null && registry.Faces != null)
-                ? registry.Faces.GetFaceById(FaceType.F00)
-                : null;
-
-            if (slotUI.IconImage != null)
-            {
-                var iconToUse = speciesData?.icon ?? defaultSpecies?.icon;
-                if (iconToUse != null)
-                {
-                    slotUI.IconImage.sprite = iconToUse;
-                    slotUI.IconImage.enabled = true;
-                }
-            }
-
-            if (slotUI.FaceIconImage != null && defaultFace?.icon != null)
-            {
-                slotUI.FaceIconImage.sprite = defaultFace.icon;
-                slotUI.FaceIconImage.enabled = true;
-            }
+            UIHelper.SetSpeciesIcon(slotUI.IconImage, speciesData);
+            UIHelper.SetFaceIcon(slotUI.FaceIconImage, null);
 
             if (slotUI.BuyButton != null)
             {
-                slotUI.BuyButton.interactable = !isUnlocked && canAfford;
                 slotUI.BuyButton.onClick.RemoveAllListeners();
                 slotUI.BuyButton.onClick.AddListener(() => OnBuyClicked(speciesData.speciesType));
-
-                if (slotUI.ButtonText != null)
-                {
-                    if (isUnlocked)
-                    {
-                        slotUI.ButtonText.text = "해금됨";
-                    }
-                    else if (canAfford)
-                    {
-                        slotUI.ButtonText.text = $"해금\n{speciesData.unlockCost}G";
-                    }
-                    else
-                    {
-                        slotUI.ButtonText.text = $"돈부족\n{speciesData.unlockCost}G";
-                    }
-                }
+                ShopUIHelper.SetupUnlockButton(slotUI.BuyButton, slotUI.ButtonText, isUnlocked, canAfford, speciesData.unlockCost);
             }
-        }
-
-        private void ClearSpeciesItems()
-        {
-            UIHelper.ClearSlotList(speciesItems);
         }
 
         private void OnBuyClicked(PigeonSpecies speciesType)
@@ -172,10 +112,7 @@ namespace PigeonGame.UI
 
         private void OnCloseButtonClicked()
         {
-            if (shopPanel != null)
-            {
-                shopPanel.SetActive(false);
-            }
+            ShopUIHelper.CloseShopPanel(shopPanel);
         }
 
         private void OnDestroy()

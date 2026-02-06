@@ -80,12 +80,7 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            if (shopPanel != null)
-            {
-                shopPanel.SetActive(false);
-            }
-
-            UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
+            ShopUIHelper.InitializeShopPanel(shopPanel, closeButton, goldText, OnCloseButtonClicked);
 
             if (GameManager.Instance != null)
             {
@@ -98,7 +93,6 @@ namespace PigeonGame.UI
             }
 
             InitializeUpgradeDefinitions();
-            UpdateGoldText();
             UpdateShopDisplay();
         }
 
@@ -125,28 +119,17 @@ namespace PigeonGame.UI
 
         public void OpenShopPanel()
         {
-            if (shopPanel != null)
-            {
-                shopPanel.SetActive(true);
-                UpdateGoldText();
-                UpdateShopDisplay();
-            }
+            ShopUIHelper.OpenShopPanel(shopPanel, goldText, UpdateShopDisplay);
         }
 
         private void OnMoneyChanged(int money)
         {
-            UpdateGoldText();
-            UpdateShopDisplay();
+            ShopUIHelper.HandleMoneyChanged(goldText, UpdateShopDisplay);
         }
 
         private void OnUpgradeChanged()
         {
             UpdateShopDisplay();
-        }
-
-        private void UpdateGoldText()
-        {
-            UIHelper.UpdateGoldText(goldText);
         }
 
         private void UpdateShopDisplay()
@@ -606,10 +589,7 @@ namespace PigeonGame.UI
 
         private void OnCloseButtonClicked()
         {
-            if (shopPanel != null)
-            {
-                shopPanel.SetActive(false);
-            }
+            ShopUIHelper.CloseShopPanel(shopPanel);
         }
 
         private void OnDestroy()

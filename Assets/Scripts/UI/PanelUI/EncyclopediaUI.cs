@@ -29,10 +29,7 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            if (encyclopediaPanel != null)
-            {
-                encyclopediaPanel.SetActive(false);
-            }
+            PanelUIHelper.InitializePanel(encyclopediaPanel, closeButton, CloseEncyclopedia);
 
             if (speciesListPanel != null)
             {
@@ -40,27 +37,18 @@ namespace PigeonGame.UI
             }
 
             UIHelper.SafeAddListener(encyclopediaButton, OpenEncyclopedia);
-            UIHelper.SafeAddListener(closeButton, CloseEncyclopedia);
 
             UpdateSpeciesList();
         }
 
         public void OpenEncyclopedia()
         {
-            if (encyclopediaPanel != null)
-            {
-                encyclopediaPanel.SetActive(true);
-                UpdateSpeciesList();
-                ScrollRectHelper.ScrollToTop(encyclopediaPanel);
-            }
+            PanelUIHelper.OpenPanel(encyclopediaPanel, UpdateSpeciesList);
         }
 
         public void CloseEncyclopedia()
         {
-            if (encyclopediaPanel != null)
-            {
-                encyclopediaPanel.SetActive(false);
-            }
+            PanelUIHelper.ClosePanel(encyclopediaPanel);
         }
 
         private void UpdateSpeciesList()
@@ -107,29 +95,8 @@ namespace PigeonGame.UI
                 slotUI.BackgroundImage.color = isUnlocked ? unlockedColor : lockedColor;
             }
 
-            var registry = GameDataRegistry.Instance;
-            var defaultSpecies = (registry != null && registry.SpeciesSet != null)
-                ? registry.SpeciesSet.GetSpeciesById(PigeonSpecies.SP01)
-                : null;
-            var defaultFace = (registry != null && registry.Faces != null)
-                ? registry.Faces.GetFaceById(FaceType.F00)
-                : null;
-
-            if (slotUI.IconImage != null)
-            {
-                var iconToUse = species?.icon ?? defaultSpecies?.icon;
-                if (iconToUse != null)
-                {
-                    slotUI.IconImage.sprite = iconToUse;
-                    slotUI.IconImage.enabled = true;
-                }
-            }
-
-            if (slotUI.FaceIconImage != null && defaultFace?.icon != null)
-            {
-                slotUI.FaceIconImage.sprite = defaultFace.icon;
-                slotUI.FaceIconImage.enabled = true;
-            }
+            UIHelper.SetSpeciesIcon(slotUI.IconImage, species);
+            UIHelper.SetFaceIcon(slotUI.FaceIconImage, null);
 
             if (slotUI.NameText != null)
             {

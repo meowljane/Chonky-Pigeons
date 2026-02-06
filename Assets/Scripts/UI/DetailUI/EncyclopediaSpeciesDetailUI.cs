@@ -29,12 +29,7 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            if (speciesDetailPanel != null)
-            {
-                speciesDetailPanel.SetActive(false);
-            }
-
-            UIHelper.SafeAddListener(backButton, CloseDetail);
+            PanelUIHelper.InitializePanel(speciesDetailPanel, backButton, CloseDetail);
         }
 
         public void ShowSpeciesDetail(SpeciesDefinition species)
@@ -43,7 +38,7 @@ namespace PigeonGame.UI
                 return;
 
             currentSpecies = species;
-            speciesDetailPanel.SetActive(true);
+            PanelUIHelper.OpenPanel(speciesDetailPanel);
 
             if (speciesNameText != null)
                 speciesNameText.text = species.name;
@@ -71,28 +66,8 @@ namespace PigeonGame.UI
 
             if (preferenceText != null)
             {
-                var registry = GameDataRegistry.Instance;
-                string terrainName = species.favoriteTerrain.ToString();
-                string trapName = species.favoriteTrapType.ToString();
-
-                if (registry?.TerrainTypes != null)
-                {
-                    var terrainDef = registry.TerrainTypes.GetTerrainById(species.favoriteTerrain);
-                    if (terrainDef != null)
-                    {
-                        terrainName = terrainDef.koreanName;
-                    }
-                }
-
-                if (registry?.Traps != null)
-                {
-                    var trapDef = registry.Traps.GetTrapById(species.favoriteTrapType);
-                    if (trapDef != null)
-                    {
-                        trapName = trapDef.name;
-                    }
-                }
-
+                string terrainName = UIHelper.GetTerrainName(species.favoriteTerrain);
+                string trapName = UIHelper.GetTrapName(species.favoriteTrapType);
                 preferenceText.text = $"선호 지형: {terrainName} / 선호 덫: {trapName}";
             }
 
@@ -104,7 +79,7 @@ namespace PigeonGame.UI
             if (faceGridContainer == null || faceSlot == null)
                 return;
 
-            ClearFaceSlots();
+            UIHelper.ClearSlotList(faceSlotObjects);
 
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.Faces == null)
@@ -181,41 +156,13 @@ namespace PigeonGame.UI
 
             var face = registry.Faces.GetFaceById(faceType);
 
-            var defaultSpecies = registry.SpeciesSet.GetSpeciesById(PigeonSpecies.SP01);
-            var defaultFace = registry.Faces.GetFaceById(FaceType.F00);
-
-            if (speciesIconImage != null)
-            {
-                var iconToUse = currentSpecies?.icon ?? defaultSpecies?.icon;
-                if (iconToUse != null)
-                {
-                    speciesIconImage.sprite = iconToUse;
-                    speciesIconImage.enabled = true;
-                }
-            }
-
-            if (speciesFaceIconImage != null)
-            {
-                var faceIconToUse = face?.icon ?? defaultFace?.icon;
-                if (faceIconToUse != null)
-                {
-                    speciesFaceIconImage.sprite = faceIconToUse;
-                    speciesFaceIconImage.enabled = true;
-                }
-            }
+            UIHelper.SetSpeciesIcon(speciesIconImage, currentSpecies);
+            UIHelper.SetFaceIcon(speciesFaceIconImage, face);
         }
 
         public void CloseDetail()
         {
-            if (speciesDetailPanel != null)
-            {
-                speciesDetailPanel.SetActive(false);
-            }
-        }
-
-        private void ClearFaceSlots()
-        {
-            UIHelper.ClearSlotList(faceSlotObjects);
+            PanelUIHelper.ClosePanel(speciesDetailPanel);
         }
 
         private void OnDestroy()

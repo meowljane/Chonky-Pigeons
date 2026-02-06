@@ -27,13 +27,8 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            UIHelper.SafeAddListener(detailCloseButton, ClosePanel);
+            PanelUIHelper.InitializePanel(detailPanel, detailCloseButton, ClosePanel);
             UIHelper.SafeAddListener(moveButton, OnMoveButtonClicked);
-
-            if (detailPanel != null)
-            {
-                detailPanel.SetActive(false);
-            }
         }
 
         public void ShowDetail(PigeonInstanceStats stats, System.Action<PigeonInstanceStats> onClosedCallback = null, 
@@ -49,34 +44,17 @@ namespace PigeonGame.UI
             var species = registry.SpeciesSet.GetSpeciesById(stats.speciesId);
             var face = registry.Faces != null ? registry.Faces.GetFaceById(stats.faceId) : null;
 
-            var defaultSpecies = registry.SpeciesSet.GetSpeciesById(PigeonSpecies.SP01);
-            var defaultFace = registry.Faces != null ? registry.Faces.GetFaceById(FaceType.F00) : null;
+            var defaultSpecies = UIHelper.GetDefaultSpecies();
+            var defaultFace = UIHelper.GetDefaultFace();
 
             currentStats = stats;
             onClosed = onClosedCallback;
             onMoveClicked = onMoveCallback;
 
-            detailPanel.SetActive(true);
+            PanelUIHelper.OpenPanel(detailPanel);
 
-            if (detailIconImage != null)
-            {
-                var iconToUse = species?.icon ?? defaultSpecies?.icon;
-                if (iconToUse != null)
-                {
-                    detailIconImage.sprite = iconToUse;
-                    detailIconImage.enabled = true;
-                }
-            }
-
-            if (detailFaceIconImage != null)
-            {
-                var faceIconToUse = face?.icon ?? defaultFace?.icon;
-                if (faceIconToUse != null)
-                {
-                    detailFaceIconImage.sprite = faceIconToUse;
-                    detailFaceIconImage.enabled = true;
-                }
-            }
+            UIHelper.SetSpeciesIcon(detailIconImage, species);
+            UIHelper.SetFaceIcon(detailFaceIconImage, face);
 
             if (detailNameText != null)
             {
@@ -103,17 +81,8 @@ namespace PigeonGame.UI
             if (moveButton != null)
             {
                 moveButton.gameObject.SetActive(showMoveButton);
-                if (showMoveButton && !string.IsNullOrEmpty(moveButtonText))
-                {
-                    if (moveButtonTextComponent != null)
-                    {
-                        moveButtonTextComponent.text = moveButtonText;
-                    }
-                    else
-                    {
-                        Debug.LogWarning("MoveButtonTextComponent가 할당되지 않았습니다. 버튼 텍스트가 업데이트되지 않습니다.", this);
-                    }
-                }
+                if (showMoveButton && !string.IsNullOrEmpty(moveButtonText) && moveButtonTextComponent != null)
+                    moveButtonTextComponent.text = moveButtonText;
             }
         }
 
@@ -127,10 +96,7 @@ namespace PigeonGame.UI
 
         public void ClosePanel()
         {
-            if (detailPanel != null)
-            {
-                detailPanel.SetActive(false);
-            }
+            PanelUIHelper.ClosePanel(detailPanel);
 
             if (onClosed != null && currentStats != null)
             {

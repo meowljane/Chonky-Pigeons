@@ -276,47 +276,15 @@ namespace PigeonGame.Gameplay
             return Mathf.Max(0f, finalWeight);
         }
 
-        private List<FoodTrap> cachedTraps = new List<FoodTrap>();
-        private List<FoodTrap> reusableActiveTrapsList = new List<FoodTrap>(); 
-        private float trapCacheUpdateTimer = 0f;
-        private const float TRAP_CACHE_UPDATE_INTERVAL = 2f; 
 
-        private List<FoodTrap> GetActiveTrapsInMap(string mapName)
-        {
-            trapCacheUpdateTimer += Time.deltaTime;
-            if (trapCacheUpdateTimer >= TRAP_CACHE_UPDATE_INTERVAL)
-            {
-                trapCacheUpdateTimer = 0f;
-                cachedTraps.Clear();
-                FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
-                if (allTraps != null)
-                {
-                    cachedTraps.AddRange(allTraps);
-                }
-            }
-
-            reusableActiveTrapsList.Clear();
-            if (TilemapRangeManager.Instance == null)
-                return reusableActiveTrapsList;
-
-            foreach (var trap in cachedTraps)
-            {
-                if (trap == null) continue;
-
-                string trapMapName = TilemapRangeManager.Instance.GetMapNameAtPosition(trap.transform.position);
-                if (trapMapName == mapName)
-                {
-                    reusableActiveTrapsList.Add(trap);
-                }
-            }
-            return reusableActiveTrapsList;
-        }
 
         private List<float> reusableWeightsList = new List<float>();
 
         private SpeciesDefinition SelectSpeciesWithPreference(SpeciesDefinition[] allSpecies, string mapName)
         {
-            List<FoodTrap> activeTraps = GetActiveTrapsInMap(mapName);
+            List<FoodTrap> activeTraps = TrapPlacer.Instance != null 
+                ? TrapPlacer.Instance.GetActiveTrapsInMap(mapName) 
+                : new List<FoodTrap>();
 
             reusableWeightsList.Clear();
             float totalWeight = 0f;
@@ -490,7 +458,9 @@ namespace PigeonGame.Gameplay
                 return reusableProbabilitiesDict;
             }
 
-            List<FoodTrap> activeTraps = GetActiveTrapsInMap(currentMapName);
+            List<FoodTrap> activeTraps = TrapPlacer.Instance != null 
+                ? TrapPlacer.Instance.GetActiveTrapsInMap(currentMapName) 
+                : new List<FoodTrap>();
 
             List<SpeciesDefinition> unlockedSpecies = GetUnlockedSpecies(allSpecies);
 

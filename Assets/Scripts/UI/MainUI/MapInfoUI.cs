@@ -17,6 +17,7 @@ namespace PigeonGame.UI
 
         [Header("References")]
         [SerializeField] private WorldPigeonManager pigeonManager;
+        [SerializeField] private TrapPlacer trapPlacer;
 
         private float updateTimer = 0f;
 
@@ -41,100 +42,64 @@ namespace PigeonGame.UI
             if (PlayerController.Instance == null || pigeonManager == null)
                 return;
 
-            string currentMapName = "없음";
-            if (TilemapRangeManager.Instance != null)
-            {
-                currentMapName = TilemapRangeManager.Instance.GetMapNameAtPosition(PlayerController.Instance.Position);
-                if (string.IsNullOrEmpty(currentMapName) || currentMapName == "Unknown")
-                {
-                    currentMapName = "없음";
-                }
-            }
+            string currentMapName = GetCurrentMapName();
 
-            string mapDisplay = $"현재 맵: {currentMapName}";
             if (mapNameText != null)
-            {
-                mapNameText.text = mapDisplay;
-            }
+                mapNameText.text = $"현재 맵: {currentMapName}";
 
             TerrainType currentTerrain = TilemapRangeManager.Instance?.GetTerrainTypeAtPosition(PlayerController.Instance.Position) ?? TerrainType.SAND;
-            string terrainName = currentTerrain.ToString();
-            var registry = GameDataRegistry.Instance;
-            if (registry?.TerrainTypes != null)
-            {
-                var terrainDef = registry.TerrainTypes.GetTerrainById(currentTerrain);
-                if (terrainDef != null)
-                {
-                    terrainName = terrainDef.koreanName;
-                }
-            }
-            string terrainDisplay = $"현재 지형: {terrainName}";
-
             if (terrainTypeText != null)
-            {
-                terrainTypeText.text = terrainDisplay;
-            }
+                terrainTypeText.text = $"현재 지형: {UIHelper.GetTerrainName(currentTerrain)}";
 
-            UpdateTrapAndPigeonCount();
+            UpdateTrapAndPigeonCount(currentMapName);
 
             UpdateSpeciesProbabilities();
         }
 
-        private void UpdateTrapAndPigeonCount()
+        private string GetCurrentMapName()
         {
-            if (PlayerController.Instance == null || TilemapRangeManager.Instance == null)
-                return;
+            if (TilemapRangeManager.Instance == null)
+                return "없음";
 
-            string currentMapName = TilemapRangeManager.Instance.GetMapNameAtPosition(PlayerController.Instance.Position);
-            if (string.IsNullOrEmpty(currentMapName) || currentMapName == "Unknown")
+            string mapName = TilemapRangeManager.Instance.GetMapNameAtPosition(PlayerController.Instance.Position);
+            if (string.IsNullOrEmpty(mapName) || mapName == "Unknown")
+                return "없음";
+
+            return mapName;
+        }
+
+        private void UpdateTrapAndPigeonCount(string currentMapName)
+        {
+            if (currentMapName == "없음")
             {
-                if (trapCountText != null)
-                {
-                    trapCountText.text = "덫: 없음";
-                }
-                if (pigeonCountText != null)
-                {
-                    pigeonCountText.text = "비둘기: 없음";
-                }
+                if (trapCountText != null) trapCountText.text = "덫: 없음";
+                if (pigeonCountText != null) pigeonCountText.text = "비둘기: 없음";
                 return;
             }
 
             int activeTrapCount = GetActiveTrapCountInMap(currentMapName);
-            int maxTrapCount = UpgradeData.Instance != null ? UpgradeData.Instance.MaxTrapCount : 2;
-            string trapDisplay = $"덫: {activeTrapCount}/{maxTrapCount}개";
-
+            int maxTrapCount = UpgradeData.Instance?.MaxTrapCount ?? 2;
             if (trapCountText != null)
-            {
-                trapCountText.text = trapDisplay;
-            }
+                trapCountText.text = $"덫: {activeTrapCount}/{maxTrapCount}개";
 
             int currentPigeonCount = GetPigeonCountInMap(currentMapName);
-            int maxPigeonCount = GameManager.Instance != null ? GameManager.Instance.MaxPigeonsPerMap : 5;
-            string pigeonDisplay = $"비둘기: {currentPigeonCount}/{maxPigeonCount}마리";
-
+            int maxPigeonCount = GameManager.Instance?.MaxPigeonsPerMap ?? 5;
             if (pigeonCountText != null)
-            {
-                pigeonCountText.text = pigeonDisplay;
-            }
+                pigeonCountText.text = $"비둘기: {currentPigeonCount}/{maxPigeonCount}마리";
         }
 
         private int GetActiveTrapCountInMap(string mapName)
         {
-            if (string.IsNullOrEmpty(mapName) || TilemapRangeManager.Instance == null)
+            if (string.IsNullOrEmpty(mapName))
                 return 0;
 
-            FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
-            int count = 0;
-            foreach (var trap in allTraps)
-            {
-                if (trap != null)
-                {
-                    string trapMapName = TilemapRangeManager.Instance.GetMapNameAtPosition(trap.transform.position);
-                    if (trapMapName == mapName)
-                        count++;
-                }
-            }
-            return count;
+            if (trapPlacer != null)
+                return trapPlacer.GetActiveTrapCountInMap(mapName);
+
+            if (TrapPlacer.Instance != null)
+                return TrapPlacer.Instance.GetActiveTrapCountInMap(mapName);
+
+            return 0;
         }
 
         private int GetPigeonCountInMap(string mapName)

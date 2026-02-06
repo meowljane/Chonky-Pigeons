@@ -3541,7 +3541,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.InteractionSystem
   highlightColor: {r: 1, g: 0, b: 0, a: 0.78431374}
-  inventoryUI: {fileID: 27673297}
   pigeonShopUI: {fileID: 27673300}
   trapShopUI: {fileID: 27673296}
   exhibitionUI: {fileID: 27673304}
@@ -4922,6 +4921,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.WorldShop
   interactionRadius: 2
   shopType: 0
+  doorType: 0
 --- !u!1 &220700922
 GameObject:
   m_ObjectHideFlags: 0
@@ -11812,6 +11812,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.WorldShop
   interactionRadius: 2
   shopType: 3
+  doorType: 0
 --- !u!1 &702504551
 GameObject:
   m_ObjectHideFlags: 0
@@ -12413,6 +12414,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.WorldShop
   interactionRadius: 2
   shopType: 1
+  doorType: 0
 --- !u!1 &732054317
 GameObject:
   m_ObjectHideFlags: 0
@@ -12895,7 +12897,7 @@ GameObject:
   - component: {fileID: 769911193}
   - component: {fileID: 769911196}
   - component: {fileID: 769911195}
-  - component: {fileID: 769911194}
+  - component: {fileID: 769911197}
   m_Layer: 0
   m_Name: Map4Door
   m_TagString: Untagged
@@ -12918,21 +12920,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 864881542}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &769911194
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 769911192}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6822dcccc306a514e91d27dd6df17575, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Door
-  interactionRadius: 1
-  doorType: 2
-  doorTilemap: {fileID: 8738074496247996004}
 --- !u!212 &769911195
 SpriteRenderer:
   serializedVersion: 2
@@ -13028,6 +13015,21 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 1
+--- !u!114 &769911197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 769911192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4bcc73b54984d649a1bad6418cf6441, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.WorldShop
+  interactionRadius: 1
+  shopType: 5
+  doorType: 2
 --- !u!1 &790315344
 GameObject:
   m_ObjectHideFlags: 0
@@ -15062,6 +15064,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.WorldShop
   interactionRadius: 2
   shopType: 4
+  doorType: 0
 --- !u!1 &948284102
 GameObject:
   m_ObjectHideFlags: 0
@@ -16612,6 +16615,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.WorldShop
   interactionRadius: 2
   shopType: 2
+  doorType: 0
 --- !u!1 &1135103090
 GameObject:
   m_ObjectHideFlags: 0
@@ -18209,12 +18213,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1252839053}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6822dcccc306a514e91d27dd6df17575, type: 3}
+  m_Script: {fileID: 11500000, guid: f4bcc73b54984d649a1bad6418cf6441, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Door
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.WorldShop
   interactionRadius: 1
+  shopType: 5
   doorType: 0
-  doorTilemap: {fileID: 4163518049164649233}
 --- !u!1 &1256061328
 GameObject:
   m_ObjectHideFlags: 0
@@ -21101,7 +21105,7 @@ GameObject:
   - component: {fileID: 1408082020}
   - component: {fileID: 1408082023}
   - component: {fileID: 1408082022}
-  - component: {fileID: 1408082021}
+  - component: {fileID: 1408082024}
   m_Layer: 0
   m_Name: Map5Door
   m_TagString: Untagged
@@ -21124,21 +21128,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 864881542}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1408082021
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1408082019}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6822dcccc306a514e91d27dd6df17575, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Door
-  interactionRadius: 1
-  doorType: 3
-  doorTilemap: {fileID: 464518784403738236}
 --- !u!212 &1408082022
 SpriteRenderer:
   serializedVersion: 2
@@ -21234,6 +21223,21 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 1
+--- !u!114 &1408082024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408082019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4bcc73b54984d649a1bad6418cf6441, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.WorldShop
+  interactionRadius: 1
+  shopType: 5
+  doorType: 3
 --- !u!1 &1414927658
 GameObject:
   m_ObjectHideFlags: 0
@@ -30341,7 +30345,7 @@ GameObject:
   - component: {fileID: 2073263857}
   - component: {fileID: 2073263860}
   - component: {fileID: 2073263859}
-  - component: {fileID: 2073263858}
+  - component: {fileID: 2073263861}
   m_Layer: 0
   m_Name: Map3Door
   m_TagString: Untagged
@@ -30364,21 +30368,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 864881542}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2073263858
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2073263856}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6822dcccc306a514e91d27dd6df17575, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.Door
-  interactionRadius: 1
-  doorType: 1
-  doorTilemap: {fileID: 539172782812261223}
 --- !u!212 &2073263859
 SpriteRenderer:
   serializedVersion: 2
@@ -30474,6 +30463,21 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 1
+--- !u!114 &2073263861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2073263856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4bcc73b54984d649a1bad6418cf6441, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Gameplay.WorldShop
+  interactionRadius: 1
+  shopType: 5
+  doorType: 1
 --- !u!1 &2084959214
 GameObject:
   m_ObjectHideFlags: 0
@@ -31538,16 +31542,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!1839735485 &464518784403738236 stripped
-Tilemap:
-  m_CorrespondingSourceObject: {fileID: 464518785331756522, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-  m_PrefabInstance: {fileID: 4375115531925504521}
-  m_PrefabAsset: {fileID: 0}
---- !u!1839735485 &539172782812261223 stripped
-Tilemap:
-  m_CorrespondingSourceObject: {fileID: 539172784031734001, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-  m_PrefabInstance: {fileID: 4375115531925504521}
-  m_PrefabAsset: {fileID: 0}
 --- !u!222 &1075705890914243633
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -31851,11 +31845,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1839735485 &4163518049164649233 stripped
-Tilemap:
-  m_CorrespondingSourceObject: {fileID: 4163518048230346887, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-  m_PrefabInstance: {fileID: 4375115531925504521}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4375115531925504521
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -32283,11 +32272,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6786776521155887864}
   m_CullTransparentMesh: 1
---- !u!1839735485 &8738074496247996004 stripped
-Tilemap:
-  m_CorrespondingSourceObject: {fileID: 8738074495296957938, guid: 4195d4a32bbb690438f3a5367f725398, type: 3}
-  m_PrefabInstance: {fileID: 4375115531925504521}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &8989561623649894858
 RectTransform:
   m_ObjectHideFlags: 0

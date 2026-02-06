@@ -160,18 +160,7 @@ namespace PigeonGame.UI
                 return;
             }
 
-            isEating = false;
-            FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
-
-            foreach (var trap in allTraps)
-            {
-                if (trap != null && !trap.HasCapturedPigeon && trap.IsPigeonEating(pigeonAI))
-                {
-                    isEating = true;
-                    break;
-                }
-            }
-
+            isEating = pigeonAI.IsEating;
             eatingText?.gameObject.SetActive(isEating);
         }
     }

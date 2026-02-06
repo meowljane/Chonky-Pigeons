@@ -28,13 +28,9 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            if (inventoryPanel != null)
-            {
-                inventoryPanel.SetActive(false);
-            }
+            PanelUIHelper.InitializePanel(inventoryPanel, closeButton, OnCloseButtonClicked);
 
             UIHelper.SafeAddListener(inventoryButton, ToggleInventory);
-            UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
 
             if (GameManager.Instance != null)
             {
@@ -46,16 +42,16 @@ namespace PigeonGame.UI
 
         public void ToggleInventory()
         {
-            if (inventoryPanel == null)
-                return;
+            if (inventoryPanel == null) return;
 
             bool isActive = inventoryPanel.activeSelf;
-            inventoryPanel.SetActive(!isActive);
-
             if (!isActive)
             {
-                UpdateInventoryDisplay();
-                ScrollRectHelper.ScrollToTop(inventoryPanel);
+                PanelUIHelper.OpenPanel(inventoryPanel, UpdateInventoryDisplay);
+            }
+            else
+            {
+                PanelUIHelper.ClosePanel(inventoryPanel);
             }
         }
 
@@ -69,7 +65,7 @@ namespace PigeonGame.UI
             if (GameManager.Instance == null)
                 return;
 
-            ClearItemList(slotInstances);
+            UIHelper.ClearSlotList(slotInstances);
 
             if (gridContainer == null || inventorySlot == null)
                 return;
@@ -100,9 +96,7 @@ namespace PigeonGame.UI
         private void UpdateInventoryCountText(int currentCount)
         {
             if (inventoryCountText != null)
-            {
                 inventoryCountText.text = $"({currentCount}/{GameManager.Instance.MaxInventorySlots})";
-            }
         }
 
         private void SetupSlotUI(GameObject slotObj, PigeonInstanceStats stats, int index)
@@ -130,44 +124,31 @@ namespace PigeonGame.UI
 
         public void ShowPigeonDetail(PigeonInstanceStats stats, System.Action<PigeonInstanceStats> onClosed = null)
         {
-            if (detailPanelUI == null)
-                return;
+            if (detailPanelUI == null) return;
 
             onDetailPanelClosed = onClosed;
             currentDetailPigeonStats = stats;
 
             detailPanelUI.ShowDetail(stats, (closedStats) => {
                 if (onDetailPanelClosed != null && currentDetailPigeonStats != null)
-            {
+                {
                     var savedStats = currentDetailPigeonStats;
                     onDetailPanelClosed.Invoke(savedStats);
                     onDetailPanelClosed = null;
-            }
+                }
                 currentDetailPigeonStats = null;
             });
         }
 
         public void CloseDetailPanel()
         {
-            if (detailPanelUI != null)
-            {
-                detailPanelUI.ClosePanel();
-            }
+            detailPanelUI?.ClosePanel();
         }
 
         private void OnCloseButtonClicked()
         {
-            if (inventoryPanel != null)
-            {
-                inventoryPanel.SetActive(false);
-            }
-
+            PanelUIHelper.ClosePanel(inventoryPanel);
             CloseDetailPanel();
-        }
-
-        private void ClearItemList(List<GameObject> list)
-        {
-            UIHelper.ClearSlotList(list);
         }
 
         private void OnDestroy()

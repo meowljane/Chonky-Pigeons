@@ -37,12 +37,7 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            if (exhibitionPanel != null)
-            {
-                exhibitionPanel.SetActive(false);
-            }
-
-            UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
+            PanelUIHelper.InitializePanel(exhibitionPanel, closeButton, OnCloseButtonClicked);
 
             if (GameManager.Instance != null)
             {
@@ -56,12 +51,7 @@ namespace PigeonGame.UI
 
         public void OpenExhibitionPanel()
         {
-            if (exhibitionPanel != null)
-            {
-                exhibitionPanel.SetActive(true);
-                UpdateDisplay();
-                ScrollRectHelper.ScrollToTop(exhibitionPanel);
-            }
+            PanelUIHelper.OpenPanel(exhibitionPanel, UpdateDisplay);
         }
 
         private void OnPigeonAdded(PigeonInstanceStats stats)
@@ -92,7 +82,7 @@ namespace PigeonGame.UI
             if (GameManager.Instance == null || inventoryGridContainer == null || inventorySlot == null)
                 return;
 
-            ClearSlots(inventorySlotInstances);
+            UIHelper.ClearSlotList(inventorySlotInstances);
 
             var inventory = GameManager.Instance.Inventory;
             int maxSlots = GameManager.Instance.MaxInventorySlots;
@@ -114,9 +104,7 @@ namespace PigeonGame.UI
             }
 
             if (inventoryCountText != null)
-            {
                 inventoryCountText.text = $"인벤토리: {inventory.Count}";
-            }
         }
 
         private void UpdateExhibitionDisplay()
@@ -124,7 +112,7 @@ namespace PigeonGame.UI
             if (GameManager.Instance == null || exhibitionGridContainer == null || inventorySlot == null)
                 return;
 
-            ClearSlots(exhibitionSlotInstances);
+            UIHelper.ClearSlotList(exhibitionSlotInstances);
 
             var exhibition = GameManager.Instance.Exhibition;
             int slotCount = Mathf.Min(exhibition.Count, MAX_EXHIBITION_SLOTS);
@@ -145,52 +133,18 @@ namespace PigeonGame.UI
             }
 
             if (exhibitionCountText != null)
-            {
                 exhibitionCountText.text = $"전시관: {exhibition.Count}/{MAX_EXHIBITION_SLOTS}";
-            }
         }
 
         private void SetupSlotUI(GameObject slotObj, PigeonInstanceStats stats, bool isInventory, int index)
         {
-            InventorySlotUI slotUI = slotObj.GetComponent<InventorySlotUI>();
-            if (slotUI == null) return;
-
-            var registry = GameDataRegistry.Instance;
-            var species = (registry?.SpeciesSet != null) ? registry.SpeciesSet.GetSpeciesById(stats.speciesId) : null;
-            var face = (registry?.Faces != null) ? registry.Faces.GetFaceById(stats.faceId) : null;
-
-            var defaultSpecies = (registry?.SpeciesSet != null) ? registry.SpeciesSet.GetSpeciesById(PigeonSpecies.SP01) : null;
-            var defaultFace = (registry?.Faces != null) ? registry.Faces.GetFaceById(FaceType.F00) : null;
-
-            if (slotUI.IconImage != null)
+            if (isInventory)
             {
-                var iconToUse = species?.icon ?? defaultSpecies?.icon;
-                if (iconToUse != null)
-                {
-                    slotUI.IconImage.sprite = iconToUse;
-                    slotUI.IconImage.enabled = true;
-                }
+                UIHelper.SetupPigeonSlot(slotObj, stats, index, (idx) => OnSlotClicked(stats, isInventory, idx));
             }
-
-            if (slotUI.FaceIconImage != null)
+            else
             {
-                var faceIconToUse = face?.icon ?? defaultFace?.icon;
-                if (faceIconToUse != null)
-                {
-                    slotUI.FaceIconImage.sprite = faceIconToUse;
-                    slotUI.FaceIconImage.enabled = true;
-                }
-            }
-
-            if (slotUI.NameText != null)
-            {
-                slotUI.NameText.text = species?.name ?? stats.speciesId.ToString();
-            }
-
-            if (slotUI.Button != null)
-            {
-                slotUI.Button.onClick.RemoveAllListeners();
-                slotUI.Button.onClick.AddListener(() => OnSlotClicked(stats, isInventory, index));
+                UIHelper.SetupPigeonSlotWithCustomCallback(slotObj, stats, OnSlotClicked, isInventory, index);
             }
         }
 
@@ -269,20 +223,8 @@ namespace PigeonGame.UI
 
         private void OnCloseButtonClicked()
         {
-            if (exhibitionPanel != null)
-            {
-                exhibitionPanel.SetActive(false);
-            }
-
-            if (detailPanelUI != null)
-            {
-                detailPanelUI.ClosePanel();
-            }
-        }
-
-        private void ClearSlots(List<GameObject> list)
-        {
-            UIHelper.ClearSlotList(list);
+            PanelUIHelper.ClosePanel(exhibitionPanel);
+            detailPanelUI?.ClosePanel();
         }
 
         private void RefreshExhibitionPigeons()
@@ -318,20 +260,14 @@ namespace PigeonGame.UI
             spawnPos.z = 0f; 
 
             GameObject pigeonObj = Instantiate(pigeonPrefab, spawnPos, Quaternion.identity);
-            if (!pigeonObj.activeSelf)
-            {
-                pigeonObj.SetActive(true);
-            }
+            pigeonObj.SetActive(true);
 
             PigeonController controller = pigeonObj.GetComponent<PigeonController>();
-            if (controller != null)
-            {
-                controller.Initialize(stats);
+            if (controller == null) return;
 
-                controller.SetAsExhibitionPigeon();
-
-                exhibitionPigeons.Add(controller);
-            }
+            controller.Initialize(stats);
+            controller.SetAsExhibitionPigeon();
+            exhibitionPigeons.Add(controller);
         }
 
         private void ClearExhibitionPigeons()

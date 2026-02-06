@@ -18,10 +18,12 @@ namespace PigeonGame.Gameplay
         private PigeonState currentState = PigeonState.Normal;
         [SerializeField] private PigeonMovement movement;
         private float fleeStateStartTime = 0f;
+        private bool isEating;
 
         public float Alert => alert;
         public PigeonState CurrentState => currentState;
         public float FleeElapsedTime => currentState == PigeonState.Flee ? Time.time - fleeStateStartTime : 0f;
+        public bool IsEating => isEating;
 
         public void Initialize(PigeonInstanceStats stats)
         {
@@ -50,6 +52,11 @@ namespace PigeonGame.Gameplay
         {
             if (currentState != PigeonState.Flee)
                 alert += stats.crowdAlertPerNeighborPerSec * movement.AlertWeight * neighborCount * deltaTime;
+        }
+
+        public void SetEating(bool value)
+        {
+            isEating = value;
         }
 
         public void ForceFlee()

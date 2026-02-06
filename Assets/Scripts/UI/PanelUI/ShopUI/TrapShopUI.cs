@@ -20,12 +20,7 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            if (shopPanel != null)
-            {
-                shopPanel.SetActive(false);
-            }
-
-            UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
+            ShopUIHelper.InitializeShopPanel(shopPanel, closeButton, goldText, OnCloseButtonClicked);
 
             if (GameManager.Instance != null)
             {
@@ -33,19 +28,12 @@ namespace PigeonGame.UI
                 GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
             }
 
-            UpdateGoldText();
             UpdateShopDisplay();
         }
 
         public void OpenShopPanel()
         {
-            if (shopPanel != null)
-            {
-                shopPanel.SetActive(true);
-                UpdateGoldText();
-                UpdateShopDisplay();
-                ScrollRectHelper.ScrollToTop(shopPanel);
-            }
+            ShopUIHelper.OpenShopPanel(shopPanel, goldText, UpdateShopDisplay);
         }
 
         private void OnTrapUnlocked(TrapType trapType)
@@ -55,13 +43,7 @@ namespace PigeonGame.UI
 
         private void OnMoneyChanged(int money)
         {
-            UpdateGoldText();
-            UpdateShopDisplay();
-        }
-
-        private void UpdateGoldText()
-        {
-            UIHelper.UpdateGoldText(goldText);
+            ShopUIHelper.HandleMoneyChanged(goldText, UpdateShopDisplay);
         }
 
         private void UpdateShopDisplay()
@@ -69,7 +51,7 @@ namespace PigeonGame.UI
             if (trapContainer == null || trapSlot == null)
                 return;
 
-            ClearTrapItems();
+            UIHelper.ClearSlotList(trapItems);
 
             var registry = GameDataRegistry.Instance;
             if (registry == null || registry.Traps == null)
@@ -95,18 +77,7 @@ namespace PigeonGame.UI
             bool isUnlocked = GameManager.Instance != null && GameManager.Instance.IsTrapUnlocked(trapData.trapType);
             bool canAfford = GameManager.Instance != null && GameManager.Instance.CurrentMoney >= trapData.unlockCost;
 
-            if (slotUI.IconImage != null)
-            {
-                if (trapData.icon != null)
-                {
-                    slotUI.IconImage.sprite = trapData.icon;
-                    slotUI.IconImage.enabled = true;
-                }
-                else
-                {
-                    slotUI.IconImage.enabled = false;
-                }
-            }
+            UIHelper.SetTrapIcon(slotUI.IconImage, trapData.icon);
 
             if (slotUI.NameText != null)
             {
@@ -115,51 +86,14 @@ namespace PigeonGame.UI
 
             if (slotUI.PreferenceText != null)
             {
-                var registry = GameDataRegistry.Instance;
-                List<string> favoriteSpeciesNames = new List<string>();
-
-                if (registry != null && registry.SpeciesSet != null)
-                {
-                    foreach (var species in registry.SpeciesSet.species)
-                    {
-                        if (species.favoriteTrapType == trapData.trapType)
-                        {
-                            favoriteSpeciesNames.Add(species.name);
-                        }
-                    }
-                }
-
-                if (favoriteSpeciesNames.Count > 0)
-                {
-                    slotUI.PreferenceText.text = $"선호 비둘기 : {string.Join(", ", favoriteSpeciesNames)}";
-                }
-                else
-                {
-                    slotUI.PreferenceText.text = "선호 비둘기 : 없음";
-                }
+                slotUI.PreferenceText.text = UIHelper.GetFavoriteSpeciesText(species => species.favoriteTrapType == trapData.trapType, "선호 비둘기");
             }
 
             if (slotUI.BuyButton != null)
             {
-                slotUI.BuyButton.interactable = !isUnlocked && canAfford;
                 slotUI.BuyButton.onClick.RemoveAllListeners();
                 slotUI.BuyButton.onClick.AddListener(() => OnBuyClicked(trapData.trapType));
-
-                if (slotUI.ButtonText != null)
-                {
-                    if (isUnlocked)
-                    {
-                        slotUI.ButtonText.text = "해금됨";
-                    }
-                    else if (canAfford)
-                    {
-                        slotUI.ButtonText.text = $"해금\n{trapData.unlockCost}G";
-                    }
-                    else
-                    {
-                        slotUI.ButtonText.text = $"돈부족\n{trapData.unlockCost}G";
-                    }
-                }
+                ShopUIHelper.SetupUnlockButton(slotUI.BuyButton, slotUI.ButtonText, isUnlocked, canAfford, trapData.unlockCost);
             }
         }
 
@@ -172,17 +106,9 @@ namespace PigeonGame.UI
             }
         }
 
-        private void ClearTrapItems()
-        {
-            UIHelper.ClearSlotList(trapItems);
-        }
-
         private void OnCloseButtonClicked()
         {
-            if (shopPanel != null)
-            {
-                shopPanel.SetActive(false);
-            }
+            ShopUIHelper.CloseShopPanel(shopPanel);
         }
 
         private void OnDestroy()

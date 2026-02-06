@@ -58,13 +58,7 @@ namespace PigeonGame.UI
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            isDragging = false;
-            inputVector = Vector2.zero;
-
-            if (handle != null)
-            {
-                handle.anchoredPosition = Vector2.zero;
-            }
+            ResetJoystick();
         }
 
         public void ResetJoystick()

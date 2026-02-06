@@ -21,12 +21,7 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            if (shopPanel != null)
-            {
-                shopPanel.SetActive(false);
-            }
-
-            UIHelper.SafeAddListener(closeButton, OnCloseButtonClicked);
+            ShopUIHelper.InitializeShopPanel(shopPanel, closeButton, goldText, OnCloseButtonClicked);
 
             if (GameManager.Instance != null)
             {
@@ -34,19 +29,12 @@ namespace PigeonGame.UI
                 GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
             }
 
-            UpdateGoldText();
             UpdateInventoryDisplay();
         }
 
         public void OpenShopPanel()
         {
-            if (shopPanel != null)
-            {
-                shopPanel.SetActive(true);
-                UpdateGoldText();
-                UpdateInventoryDisplay();
-                ScrollRectHelper.ScrollToTop(shopPanel);
-            }
+            ShopUIHelper.OpenShopPanel(shopPanel, goldText, UpdateInventoryDisplay);
         }
 
         private void OnPigeonAdded(PigeonInstanceStats stats)
@@ -56,12 +44,7 @@ namespace PigeonGame.UI
 
         private void OnMoneyChanged(int money)
         {
-            UpdateGoldText();
-        }
-
-        private void UpdateGoldText()
-        {
-            UIHelper.UpdateGoldText(goldText);
+            ShopUIHelper.HandleMoneyChanged(goldText, UpdateInventoryDisplay);
         }
 
         private void UpdateInventoryDisplay()
@@ -69,7 +52,7 @@ namespace PigeonGame.UI
             if (GameManager.Instance == null)
                 return;
 
-            ClearShopItems();
+            UIHelper.ClearSlotList(itemInstances);
 
             if (itemContainer == null || shopSlot == null)
                 return;
@@ -144,15 +127,7 @@ namespace PigeonGame.UI
 
         private void OnCloseButtonClicked()
         {
-            if (shopPanel != null)
-            {
-                shopPanel.SetActive(false);
-            }
-        }
-
-        private void ClearShopItems()
-        {
-            UIHelper.ClearSlotList(itemInstances);
+            ShopUIHelper.CloseShopPanel(shopPanel);
         }
 
         private void OnDestroy()

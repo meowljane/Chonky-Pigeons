@@ -31,10 +31,7 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            if (settingsPanel != null)
-            {
-                settingsPanel.SetActive(false);
-            }
+            PanelUIHelper.InitializePanel(settingsPanel, closeButton, CloseSettings);
 
             if (confirmDialog != null)
             {
@@ -42,7 +39,6 @@ namespace PigeonGame.UI
             }
 
             UIHelper.SafeAddListener(settingsButton, OpenSettings);
-            UIHelper.SafeAddListener(closeButton, CloseSettings);
             UIHelper.SafeAddListener(resetDataButton, OnResetDataButtonClicked);
             UIHelper.SafeAddListener(confirmResetButton, OnConfirmReset);
             UIHelper.SafeAddListener(cancelResetButton, OnCancelReset);
@@ -97,42 +93,24 @@ namespace PigeonGame.UI
 
         public void OpenSettings()
         {
-            if (settingsPanel != null)
-            {
-                settingsPanel.SetActive(true);
-            }
+            PanelUIHelper.OpenPanel(settingsPanel);
         }
 
         public void CloseSettings()
         {
-            if (settingsPanel != null)
-            {
-                settingsPanel.SetActive(false);
-            }
-
-            if (confirmDialog != null)
-            {
-                confirmDialog.SetActive(false);
-            }
+            PanelUIHelper.ClosePanel(settingsPanel);
+            confirmDialog?.SetActive(false);
         }
 
         private void OnResetDataButtonClicked()
         {
-            if (confirmDialog != null)
-            {
-                confirmDialog.SetActive(true);
-            }
+            confirmDialog?.SetActive(true);
         }
 
         private void OnConfirmReset()
         {
             SaveManager.Instance?.DeleteSave();
-
-            if (confirmDialog != null)
-            {
-                confirmDialog.SetActive(false);
-            }
-
+            confirmDialog?.SetActive(false);
             CloseSettings();
 
             ToastNotificationManager.ShowSuccess("게임 데이터가 초기화되었습니다.\n게임을 재시작합니다...");
@@ -147,10 +125,7 @@ namespace PigeonGame.UI
 
         private void OnCancelReset()
         {
-            if (confirmDialog != null)
-            {
-                confirmDialog.SetActive(false);
-            }
+            confirmDialog?.SetActive(false);
         }
 
         private void OnDestroy()

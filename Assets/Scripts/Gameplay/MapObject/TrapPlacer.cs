@@ -7,60 +7,62 @@ namespace PigeonGame.Gameplay
 {
     public class TrapPlacer : MonoBehaviour
     {
+        public static TrapPlacer Instance { get; private set; }
+
         [SerializeField] private GameObject trapPrefab;
 
-        private List<FoodTrap> cachedTraps = new List<FoodTrap>();
-        private List<InteractableBase> cachedInteractables = new List<InteractableBase>();
-        private float cacheUpdateTimer = 0f;
-        private const float CACHE_UPDATE_INTERVAL = 1f;
-
-        private void UpdateCache()
+        private void Awake()
         {
-            cacheUpdateTimer += Time.deltaTime;
-            if (cacheUpdateTimer >= CACHE_UPDATE_INTERVAL)
-            {
-                cacheUpdateTimer = 0f;
-                cachedTraps.Clear();
-                cachedInteractables.Clear();
+            if (Instance == null)
+                Instance = this;
+            else
+                Destroy(gameObject);
+        }
+
+        private List<FoodTrap> reusableActiveTrapsList = new List<FoodTrap>();
+
+        public List<FoodTrap> GetActiveTrapsInMap(string mapName)
+        {
+            reusableActiveTrapsList.Clear();
+            if (TilemapRangeManager.Instance == null)
+                return reusableActiveTrapsList;
 
                 FoodTrap[] allTraps = FindObjectsByType<FoodTrap>(FindObjectsSortMode.None);
-                if (allTraps != null)
-                    cachedTraps.AddRange(allTraps);
+            if (allTraps == null)
+                return reusableActiveTrapsList;
 
-                InteractableBase[] interactables = FindObjectsByType<InteractableBase>(FindObjectsSortMode.None);
-                if (interactables != null)
-                    cachedInteractables.AddRange(interactables);
+            foreach (var trap in allTraps)
+            {
+                if (trap == null) continue;
+
+                string trapMapName = TilemapRangeManager.Instance.GetMapNameAtPosition(trap.transform.position);
+                if (trapMapName == mapName)
+                {
+                    reusableActiveTrapsList.Add(trap);
+                }
             }
+            return reusableActiveTrapsList;
+            }
+
+        public int GetActiveTrapCountInMap(string mapName)
+        {
+            return GetActiveTrapsInMap(mapName).Count;
         }
 
         private int GetCurrentTrapCount(string mapName)
         {
-            if (string.IsNullOrEmpty(mapName) || TilemapRangeManager.Instance == null)
-                return 0;
-
-            UpdateCache();
-
-            int count = 0;
-            foreach (var trap in cachedTraps)
-            {
-                if (trap == null) continue;
-                string trapMapName = TilemapRangeManager.Instance.GetMapNameAtPosition(trap.transform.position);
-                if (trapMapName == mapName)
-                    count++;
-            }
-            return count;
+            return GetActiveTrapCountInMap(mapName);
         }
 
         private bool IsPositionTooCloseToOtherObjects(Vector3 position)
         {
-            UpdateCache();
-
-            if (cachedInteractables.Count == 0)
+                InteractableBase[] interactables = FindObjectsByType<InteractableBase>(FindObjectsSortMode.None);
+            if (interactables == null || interactables.Length == 0)
                 return false;
 
             Vector2 pos2D = new Vector2(position.x, position.y);
 
-            foreach (var interactable in cachedInteractables)
+            foreach (var interactable in interactables)
             {
                 if (interactable == null) continue;
 
@@ -101,9 +103,9 @@ namespace PigeonGame.Gameplay
 
             int maxTrapCount = UpgradeData.Instance?.MaxTrapCount ?? 0;
             if (maxTrapCount > 0 && GetCurrentTrapCount(mapName) >= maxTrapCount)
-            {
-                ToastNotificationManager.ShowWarning($"덫 개수 제한에 도달했습니다! (최대 {maxTrapCount}개)");
-                return false;
+                {
+                    ToastNotificationManager.ShowWarning($"덫 개수 제한에 도달했습니다! (최대 {maxTrapCount}개)");
+                    return false;
             }
 
             if (IsPositionTooCloseToOtherObjects(position))

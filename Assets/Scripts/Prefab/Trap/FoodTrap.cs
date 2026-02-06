@@ -16,15 +16,15 @@ namespace PigeonGame.Gameplay
             if (trapData != null)
             {
                 if (feedAmount > 0)
-                {
-                    currentFeedAmount = Mathf.Max(1, feedAmount);
-                    initialFeedAmount = currentFeedAmount;
-                }
+            {
+                currentFeedAmount = Mathf.Max(1, feedAmount);
+                initialFeedAmount = currentFeedAmount;
+            }
                 else
                 {
                     currentFeedAmount = trapData.feedAmount;
                 }
-            }
+        }
         }
         private int currentFeedAmount;
         private int initialFeedAmount; 
@@ -131,7 +131,7 @@ namespace PigeonGame.Gameplay
             foreach (var pigeon in nearbyPigeons)
             {
                 if (pigeon.CanEat() && pigeon.CurrentState != PigeonState.Flee)
-                    pigeon.AddCrowdAlert(competitorCount, deltaTime);
+                pigeon.AddCrowdAlert(competitorCount, deltaTime);
             }
         }
 
@@ -163,6 +163,7 @@ namespace PigeonGame.Gameplay
             {
                 currentlyEatingPigeons.Remove(pigeon);
                 eatingStateTimers.Remove(pigeon);
+                pigeon.SetEating(false);
             }
         }
 
@@ -214,6 +215,7 @@ namespace PigeonGame.Gameplay
                 return false;
 
             currentlyEatingPigeons.Add(pigeon);
+            pigeon.SetEating(true);
             eatingStateTimers[pigeon] = 0f;
 
             var stats = controller.Stats;
@@ -257,11 +259,11 @@ namespace PigeonGame.Gameplay
                 renderer.sprite = sprite;
                 renderer.enabled = true;
                 Color color = renderer.color;
-                color.a = 0.7f;
+                    color.a = 0.7f;
                 renderer.color = color;
-            }
-            else
-            {
+                }
+                else
+                {
                 renderer.enabled = false;
             }
         }

@@ -50,7 +50,7 @@ namespace PigeonGame.Gameplay
 
         protected virtual void OnTriggerEnter2D(Collider2D other)
         {
-            if (other.CompareTag("Player") || other.GetComponent<PlayerController>() != null)
+            if (other.CompareTag("Player"))
             {
                 isPlayerInRange = true;
                 InteractionSystem.Instance?.RegisterInteractable(this);
@@ -59,7 +59,7 @@ namespace PigeonGame.Gameplay
 
         protected virtual void OnTriggerExit2D(Collider2D other)
         {
-            if (other.CompareTag("Player") || other.GetComponent<PlayerController>() != null)
+            if (other.CompareTag("Player"))
             {
                 isPlayerInRange = false;
                 InteractionSystem.Instance?.UnregisterInteractable(this);

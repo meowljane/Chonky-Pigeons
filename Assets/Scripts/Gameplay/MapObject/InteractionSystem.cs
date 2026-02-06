@@ -17,7 +17,6 @@ namespace PigeonGame.Gameplay
         private GameObject currentOutlineObject; 
 
         [Header("UI References")]
-        [SerializeField] private InventoryUI inventoryUI;
         [SerializeField] private PigeonShopUI pigeonShopUI;
         [SerializeField] private TrapShopUI trapShopUI;
         [SerializeField] private UI.ExhibitionUI exhibitionUI;
@@ -32,7 +31,6 @@ namespace PigeonGame.Gameplay
             else
                 Destroy(gameObject);
         }
-
 
         private void OnDestroy()
         {
@@ -141,9 +139,9 @@ namespace PigeonGame.Gameplay
             upgradeShopUI.OpenShopPanel();
         }
 
-        public void OpenDoorPurchase(Door door, DoorType doorType, int cost, MapType unlocksMap)
+        public void OpenDoor(WorldShop doorShop)
         {
-            doorPurchaseUI.OpenPurchasePanel(door, doorType, cost, unlocksMap);
+            doorPurchaseUI.OpenShopPanel(doorShop);
         }
 
         public bool CanInteract()
