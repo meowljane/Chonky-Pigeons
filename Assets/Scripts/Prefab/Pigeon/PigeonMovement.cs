@@ -113,6 +113,14 @@ namespace PigeonGame.Gameplay
 
             PigeonState state = ai.CurrentState;
 
+            // 플레이어가 가까이 있으면 항상 우선 체크 (backoff 중이어도)
+            if (IsPlayerNearby())
+            {
+                backoffCausedByPlayer = true;
+                HandleBackOff();
+                return;
+            }
+
             if (backoffTargetSet)
             {
                 float sqrDistanceToTarget = ((Vector2)transform.position - backoffTarget).sqrMagnitude;
@@ -125,13 +133,6 @@ namespace PigeonGame.Gameplay
                 backoffCausedByPlayer = false; 
                 targetFoodTrap = null; 
                 backoffEndTime = Time.time; 
-            }
-
-            if (IsPlayerNearby())
-            {
-                backoffCausedByPlayer = true;
-                HandleBackOff();
-                return;
             }
 
             if (state == PigeonState.BackOff)

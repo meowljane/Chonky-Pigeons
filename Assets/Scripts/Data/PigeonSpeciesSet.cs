@@ -81,7 +81,7 @@ namespace PigeonGame.Data
                         rarityTier = 2,
                         baseSpawnWeight = 3.0f,
                         basePrice = 18,
-                        unlockCost = 120, 
+                        unlockCost = 50, 
                         favoriteTrapType = TrapType.CORN,
                         favoriteTerrain = TerrainType.WETLAND
                     },
@@ -92,7 +92,7 @@ namespace PigeonGame.Data
                         rarityTier = 2,
                         baseSpawnWeight = 2.5f,
                         basePrice = 22,
-                        unlockCost = 180,
+                        unlockCost = 90,
                         favoriteTrapType = TrapType.BREAD,
                         favoriteTerrain = TerrainType.SNOWY
                     },
@@ -103,7 +103,7 @@ namespace PigeonGame.Data
                         rarityTier = 3,
                         baseSpawnWeight = 1.5f,
                         basePrice = 45,
-                        unlockCost = 380,
+                        unlockCost = 200,
                         favoriteTrapType = TrapType.BREAD,
                         favoriteTerrain = TerrainType.GRASS
                     },
@@ -114,7 +114,7 @@ namespace PigeonGame.Data
                         rarityTier = 3,
                         baseSpawnWeight = 1.0f,
                         basePrice = 55,
-                        unlockCost = 520,
+                        unlockCost = 300,
                         favoriteTrapType = TrapType.LUXURY,
                         favoriteTerrain = TerrainType.ROAD
                     },
@@ -125,7 +125,7 @@ namespace PigeonGame.Data
                         rarityTier = 4,
                         baseSpawnWeight = 0.8f,
                         basePrice = 110,
-                        unlockCost = 900,
+                        unlockCost = 550,
                         favoriteTrapType = TrapType.LUXURY,
                         favoriteTerrain = TerrainType.SNOWY
                     },
@@ -136,7 +136,7 @@ namespace PigeonGame.Data
                         rarityTier = 4,
                         baseSpawnWeight = 0.5f,
                         basePrice = 135,
-                        unlockCost = 1150,
+                        unlockCost = 700,
                         favoriteTrapType = TrapType.SHINY,
                         favoriteTerrain = TerrainType.ROAD
                     },
@@ -147,7 +147,7 @@ namespace PigeonGame.Data
                         rarityTier = 5,
                         baseSpawnWeight = 0.3f,
                         basePrice = 280,
-                        unlockCost = 1900,
+                        unlockCost = 1200,
                         favoriteTrapType = TrapType.SHINY,
                         favoriteTerrain = TerrainType.GRASS
                     }

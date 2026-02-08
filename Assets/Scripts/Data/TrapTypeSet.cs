@@ -44,10 +44,10 @@ namespace PigeonGame.Data
                 traps = new TrapDefinition[]
                 {
                     new TrapDefinition { trapType = TrapType.SEED, name = "씨앗", unlockCost = 0, installCost = 0, feedCostPerUnit = 1, feedAmount = 20, pigeonSpawnCount = 1 },
-                    new TrapDefinition { trapType = TrapType.CORN, name = "옥수수", unlockCost = 240, installCost = 12, feedCostPerUnit = 2, feedAmount = 20, pigeonSpawnCount = 1 },
-                    new TrapDefinition { trapType = TrapType.BREAD, name = "빵", unlockCost = 420, installCost = 22, feedCostPerUnit = 3, feedAmount = 20, pigeonSpawnCount = 2 },
-                    new TrapDefinition { trapType = TrapType.LUXURY, name = "고급먹이", unlockCost = 780, installCost = 40, feedCostPerUnit = 5, feedAmount = 20, pigeonSpawnCount = 2 },
-                    new TrapDefinition { trapType = TrapType.SHINY, name = "반짝먹이", unlockCost = 1400, installCost = 75, feedCostPerUnit = 8, feedAmount = 20, pigeonSpawnCount = 3 }
+                    new TrapDefinition { trapType = TrapType.CORN, name = "옥수수", unlockCost = 80, installCost = 5, feedCostPerUnit = 2, feedAmount = 20, pigeonSpawnCount = 1 },
+                    new TrapDefinition { trapType = TrapType.BREAD, name = "빵", unlockCost = 180, installCost = 10, feedCostPerUnit = 3, feedAmount = 20, pigeonSpawnCount = 2 },
+                    new TrapDefinition { trapType = TrapType.LUXURY, name = "고급먹이", unlockCost = 380, installCost = 20, feedCostPerUnit = 5, feedAmount = 20, pigeonSpawnCount = 2 },
+                    new TrapDefinition { trapType = TrapType.SHINY, name = "반짝먹이", unlockCost = 750, installCost = 40, feedCostPerUnit = 8, feedAmount = 20, pigeonSpawnCount = 3 }
                 };
             }
         }

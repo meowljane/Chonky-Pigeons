@@ -15,14 +15,14 @@ MonoBehaviour:
   version: 1
   doors:
   - doorType: 0
-    unlockCost: 200
+    unlockCost: 50
     unlocksMap: 1
   - doorType: 1
-    unlockCost: 550
+    unlockCost: 280
     unlocksMap: 2
   - doorType: 2
-    unlockCost: 1200
+    unlockCost: 650
     unlocksMap: 3
   - doorType: 3
-    unlockCost: 2500
+    unlockCost: 1400
     unlocksMap: 4

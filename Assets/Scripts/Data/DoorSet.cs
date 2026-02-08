@@ -36,10 +36,10 @@ namespace PigeonGame.Data
                 version = 1;
                 doors = new DoorDefinition[]
                 {
-                    new DoorDefinition { doorType = DoorType.DOOR1, unlockCost = 200, unlocksMap = MapType.MAP2 },
-                    new DoorDefinition { doorType = DoorType.DOOR2, unlockCost = 550, unlocksMap = MapType.MAP3 },
-                    new DoorDefinition { doorType = DoorType.DOOR3, unlockCost = 1200, unlocksMap = MapType.MAP4 },
-                    new DoorDefinition { doorType = DoorType.DOOR4, unlockCost = 2500, unlocksMap = MapType.MAP5 },
+                    new DoorDefinition { doorType = DoorType.DOOR1, unlockCost = 50, unlocksMap = MapType.MAP2 },
+                    new DoorDefinition { doorType = DoorType.DOOR2, unlockCost = 280, unlocksMap = MapType.MAP3 },
+                    new DoorDefinition { doorType = DoorType.DOOR3, unlockCost = 650, unlocksMap = MapType.MAP4 },
+                    new DoorDefinition { doorType = DoorType.DOOR4, unlockCost = 1400, unlocksMap = MapType.MAP5 },
                 };
             }
         }

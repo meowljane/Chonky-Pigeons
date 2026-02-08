@@ -15,14 +15,14 @@ MonoBehaviour:
   version: 1
   upgrades:
   - upgradeName: "\uC778\uBCA4\uD1A0\uB9AC \uD655\uC7A5"
-    costs: c8000000c201000084030000
+    costs: 50000000c8000000c2010000
     values: 0f0000001400000019000000
     upgradeType: 0
   - upgradeName: "\uBE44\uB458\uAE30 \uC2A4\uD3F0 \uC99D\uAC00"
-    costs: a00000007c0100000c030000
+    costs: 3c000000b400000090010000
     values: 0a0000000f00000014000000
     upgradeType: 1
   - upgradeName: "\uB36B \uC124\uCE58 \uAC1C\uC218 \uC99D\uAC00"
-    costs: 040100006c02000014050000
+    costs: 64000000180100008a020000
     values: 05000000070000000a000000
     upgradeType: 2
