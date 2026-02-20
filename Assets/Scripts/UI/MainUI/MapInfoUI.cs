@@ -23,8 +23,6 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            if (pigeonManager == null)
-                Debug.LogError("WorldPigeonManager가 할당되지 않았습니다!", this);
         }
 
         private void Update()

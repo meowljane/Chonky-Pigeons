@@ -30,8 +30,6 @@ namespace PigeonGame.Gameplay
 
         private void OnValidate()
         {
-            if (GetComponent<Tilemap>() == null)
-                Debug.LogWarning($"{areaType} Area는 Tilemap 컴포넌트가 필요합니다!", this);
         }
     }
 }

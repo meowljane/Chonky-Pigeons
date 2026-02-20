@@ -41,13 +41,9 @@ namespace PigeonGame.UI
         {
             if (trapPlacer == null)
             {
-                Debug.LogError("TrapPlacer가 할당되지 않았습니다!", this);
                 enabled = false;
                 return;
             }
-
-            if (pigeonManager == null)
-                Debug.LogError("WorldPigeonManager가 할당되지 않았습니다!", this);
 
             UIHelper.SafeAddListener(trapPlacementButton, OnTrapPlacementButtonClicked);
             PanelUIHelper.InitializePanel(trapSelectionPanel, closeButton, OnCloseButtonClicked);

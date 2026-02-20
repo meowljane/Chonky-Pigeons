@@ -48,13 +48,6 @@ namespace PigeonGame.Gameplay
 
         private void Start()
         {
-            if (mobileJoystick == null)
-                Debug.LogWarning("MobileJoystick이 할당되지 않았습니다. 키보드 입력만 사용됩니다.", this);
-            
-            if (animator != null && animator.runtimeAnimatorController == null)
-            {
-                Debug.LogWarning("Animator Controller가 할당되지 않았습니다. 애니메이션이 작동하지 않습니다.", this);
-            }
         }
 
         private void OnDestroy()

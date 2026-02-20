@@ -20,11 +20,6 @@ namespace PigeonGame.UI
 
         private void Start()
         {
-            if (background == null)
-                Debug.LogError("Background RectTransform이 할당되지 않았습니다!", this);
-            if (handle == null)
-                Debug.LogError("Handle RectTransform이 할당되지 않았습니다!", this);
-
             if (handle != null && background != null)
             {
                 handle.anchoredPosition = Vector2.zero;
