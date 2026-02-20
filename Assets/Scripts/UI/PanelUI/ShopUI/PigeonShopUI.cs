@@ -16,6 +16,7 @@ namespace PigeonGame.UI
         [SerializeField] private TextMeshProUGUI inventoryCountText;
         [SerializeField] private TextMeshProUGUI goldText;
         [SerializeField] private Button closeButton;
+        [SerializeField] private Button sellAllButton;
 
         private List<GameObject> itemInstances = new List<GameObject>();
 
@@ -27,6 +28,12 @@ namespace PigeonGame.UI
             {
                 GameManager.Instance.OnPigeonAddedToInventory += OnPigeonAdded;
                 GameManager.Instance.OnMoneyChanged += OnMoneyChanged;
+            }
+
+            if (sellAllButton != null)
+            {
+                sellAllButton.onClick.RemoveAllListeners();
+                sellAllButton.onClick.AddListener(OnSellAllButtonClicked);
             }
 
             UpdateInventoryDisplay();
@@ -125,6 +132,23 @@ namespace PigeonGame.UI
             }
         }
 
+        private void OnSellAllButtonClicked()
+        {
+            if (GameManager.Instance == null)
+                return;
+
+            var inventory = GameManager.Instance.Inventory;
+            if (inventory == null || inventory.Count == 0)
+            {
+                ToastNotificationManager.ShowWarning("판매할 비둘기가 없습니다!");
+                return;
+            }
+
+            int totalPrice = GameManager.Instance.SellAllPigeons();
+            ToastNotificationManager.ShowSuccess($"전체 판매 완료! {totalPrice}G 획득");
+            UpdateInventoryDisplay();
+        }
+
         private void OnCloseButtonClicked()
         {
             ShopUIHelper.CloseShopPanel(shopPanel);
@@ -138,6 +162,7 @@ namespace PigeonGame.UI
                 GameManager.Instance.OnMoneyChanged -= OnMoneyChanged;
             }
             UIHelper.SafeRemoveListener(closeButton);
+            UIHelper.SafeRemoveListener(sellAllButton);
         }
     }
 }

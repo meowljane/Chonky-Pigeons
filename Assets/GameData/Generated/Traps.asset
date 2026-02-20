@@ -16,8 +16,8 @@ MonoBehaviour:
   traps:
   - trapType: 0
     name: "\uC528\uC557"
-    icon: {fileID: 0}
-    capturedSprite: {fileID: 0}
+    icon: {fileID: 21300000, guid: d38944a14505d7243b44974febc04c27, type: 3}
+    capturedSprite: {fileID: 21300000, guid: a5ddbe9d83eb9ab4390502367729b5ce, type: 3}
     unlockCost: 0
     installCost: 0
     feedCostPerUnit: 1
@@ -25,8 +25,8 @@ MonoBehaviour:
     pigeonSpawnCount: 1
   - trapType: 1
     name: "\uC625\uC218\uC218"
-    icon: {fileID: 0}
-    capturedSprite: {fileID: 0}
+    icon: {fileID: 21300000, guid: b56e1240241fd314180a3786521ad196, type: 3}
+    capturedSprite: {fileID: 21300000, guid: 96ed75c49aadcff49b7347f2516e62c1, type: 3}
     unlockCost: 80
     installCost: 5
     feedCostPerUnit: 2
@@ -34,8 +34,8 @@ MonoBehaviour:
     pigeonSpawnCount: 1
   - trapType: 2
     name: "\uBE75"
-    icon: {fileID: 0}
-    capturedSprite: {fileID: 0}
+    icon: {fileID: 21300000, guid: cf7c33aae7f25a249a8f5f8683e3e9f5, type: 3}
+    capturedSprite: {fileID: 21300000, guid: 263375419f5061a469ed7beb9ebbfef3, type: 3}
     unlockCost: 180
     installCost: 10
     feedCostPerUnit: 3
@@ -43,8 +43,8 @@ MonoBehaviour:
     pigeonSpawnCount: 2
   - trapType: 3
     name: "\uACE0\uAE09\uBA39\uC774"
-    icon: {fileID: 0}
-    capturedSprite: {fileID: 0}
+    icon: {fileID: 21300000, guid: b3d693650c1da6341b8f040e73b07591, type: 3}
+    capturedSprite: {fileID: 21300000, guid: 3dc7d553ee5ab714382dd19c05db2422, type: 3}
     unlockCost: 380
     installCost: 20
     feedCostPerUnit: 5
@@ -52,8 +52,8 @@ MonoBehaviour:
     pigeonSpawnCount: 2
   - trapType: 4
     name: "\uBC18\uC9DD\uBA39\uC774"
-    icon: {fileID: 0}
-    capturedSprite: {fileID: 0}
+    icon: {fileID: 21300000, guid: 2a5fdf69fe0c1c542aa636006d56b53c, type: 3}
+    capturedSprite: {fileID: 21300000, guid: 1110b74f31513be4187761f2f7b68351, type: 3}
     unlockCost: 750
     installCost: 40
     feedCostPerUnit: 8

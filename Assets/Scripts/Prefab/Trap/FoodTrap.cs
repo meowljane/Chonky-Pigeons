@@ -225,6 +225,18 @@ namespace PigeonGame.Gameplay
             if (currentFeedAmount <= 0)
             {
                 capturedPigeonStats = stats.Clone();
+                
+                // 트랩이 포획되기 전에 다른 비둘기들의 먹는 상태를 모두 해제
+                foreach (var otherPigeon in currentlyEatingPigeons)
+                {
+                    if (otherPigeon != null && otherPigeon != pigeon)
+                    {
+                        otherPigeon.SetEating(false);
+                    }
+                }
+                currentlyEatingPigeons.Clear();
+                eatingStateTimers.Clear();
+                
                 isCaptured = true;
                 
                 if (trapData?.capturedSprite != null)

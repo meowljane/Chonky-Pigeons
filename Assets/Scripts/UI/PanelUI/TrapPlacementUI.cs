@@ -136,10 +136,11 @@ namespace PigeonGame.UI
             var registry = GameDataRegistry.Instance;
             if (registry?.Traps != null)
             {
-                foreach (var itemObj in trapItemObjects)
+                var allTraps = registry.Traps.traps;
+                for (int i = 0; i < trapItemObjects.Count && i < allTraps.Length; i++)
                 {
-                    if (itemObj == null) continue;
-                    UpdateTrapSlotSelection(itemObj, trapType);
+                    if (trapItemObjects[i] == null) continue;
+                    UpdateTrapSlotSelection(trapItemObjects[i], allTraps[i].trapType);
                 }
             }
 

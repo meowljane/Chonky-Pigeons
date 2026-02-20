@@ -24,6 +24,9 @@ namespace PigeonGame.Gameplay
         [SerializeField] private float warnThreshold = 45f;
         [SerializeField] private float backoffThreshold = 70f;
         [SerializeField] private float fleeThreshold = 100f;
+        [SerializeField] private AudioSource audioSource;
+        [SerializeField] private AudioClip backoffAudioClip;
+        [SerializeField] private AudioClip fleeAudioClip;
 
         public float DetectionRadius => detectionRadius;
         public float WarnThreshold => warnThreshold;
@@ -78,6 +81,10 @@ namespace PigeonGame.Gameplay
         private const float BACKOFF_COOLDOWN = 2f; 
         private Vector2 lastMovementDirection = Vector2.right;
         private float sqrDetectionRadius;
+        private bool hasPlayedBackoffAudio = false;
+        private bool hasPlayedFleeAudio = false;
+        private const float AUDIO_TRIGGER_DISTANCE = 2f;
+        private float sqrAudioTriggerDistance;
 
         public Vector2 MovementDirection => lastMovementDirection;
 
@@ -88,6 +95,13 @@ namespace PigeonGame.Gameplay
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             mainCamera = Camera.main;
             sqrDetectionRadius = detectionRadius * detectionRadius;
+            sqrAudioTriggerDistance = AUDIO_TRIGGER_DISTANCE * AUDIO_TRIGGER_DISTANCE;
+            
+            if (audioSource == null)
+                audioSource = GetComponent<AudioSource>();
+            
+            if (audioSource == null)
+                audioSource = gameObject.AddComponent<AudioSource>();
         }
 
         private void Start()
@@ -106,8 +120,16 @@ namespace PigeonGame.Gameplay
             if (ai.CurrentState == PigeonState.Flee)
             {
                 HandleFlee();
+                // 플레이어가 멀어지면 오디오 플래그 리셋
+                if (!IsPlayerWithinAudioRange())
+                {
+                    hasPlayedFleeAudio = false;
+                }
                 return;
             }
+            
+            // Flee 상태가 아니면 flee 오디오 플래그 리셋
+            hasPlayedFleeAudio = false;
 
             UpdateAlertSystem();
 
@@ -119,6 +141,12 @@ namespace PigeonGame.Gameplay
                 backoffCausedByPlayer = true;
                 HandleBackOff();
                 return;
+            }
+            
+            // 플레이어가 멀어지면 오디오 플래그 리셋
+            if (!IsPlayerWithinAudioRange())
+            {
+                hasPlayedBackoffAudio = false;
             }
 
             if (backoffTargetSet)
@@ -132,13 +160,18 @@ namespace PigeonGame.Gameplay
                 backoffTargetSet = false;
                 backoffCausedByPlayer = false; 
                 targetFoodTrap = null; 
-                backoffEndTime = Time.time; 
+                backoffEndTime = Time.time;
+                hasPlayedBackoffAudio = false; // backoff 종료 시 플래그 리셋
             }
 
             if (state == PigeonState.BackOff)
                 HandleBackOff();
             else
+            {
+                // BackOff 상태가 아니면 오디오 플래그 리셋
+                hasPlayedBackoffAudio = false;
                 HandleNormalMovement();
+            }
         }
 
         private void UpdateAlertSystem()
@@ -164,6 +197,15 @@ namespace PigeonGame.Gameplay
             float sqrDistance = ((Vector2)transform.position - PlayerController.Instance.Position).sqrMagnitude;
             return sqrDistance <= sqrDetectionRadius;
         }
+        
+        private bool IsPlayerWithinAudioRange()
+        {
+            if (PlayerController.Instance == null)
+                return false;
+
+            float sqrDistance = ((Vector2)transform.position - PlayerController.Instance.Position).sqrMagnitude;
+            return sqrDistance <= sqrAudioTriggerDistance;
+        }
 
         private void HandleNormalMovement()
         {
@@ -188,6 +230,13 @@ namespace PigeonGame.Gameplay
 
         private void HandleBackOff()
         {
+            // 플레이어가 2f 이내에 있고 아직 오디오를 재생하지 않았다면 재생
+            if (IsPlayerWithinAudioRange() && !hasPlayedBackoffAudio && backoffAudioClip != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(backoffAudioClip);
+                hasPlayedBackoffAudio = true;
+            }
+            
             float backoffDistance = backoffCausedByPlayer ? detectionRadius : detectionRadius * 2f;
             float sqrDistanceToTarget = ((Vector2)transform.position - backoffTarget).sqrMagnitude;
 
@@ -215,6 +264,13 @@ namespace PigeonGame.Gameplay
 
         private void HandleFlee()
         {
+            // 플레이어가 2f 이내에 있고 아직 오디오를 재생하지 않았다면 재생
+            if (IsPlayerWithinAudioRange() && !hasPlayedFleeAudio && fleeAudioClip != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(fleeAudioClip);
+                hasPlayedFleeAudio = true;
+            }
+            
             if (mainCamera == null)
                 mainCamera = Camera.main;
 

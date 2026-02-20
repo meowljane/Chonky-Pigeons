@@ -14,16 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PigeonGame.Data.PigeonSpeciesSet
   version: 1
   species:
-  - speciesType: 0
-    name: "\uC9D1\uB458\uAE30"
-    rarityTier: 1
-    baseSpawnWeight: 5
-    basePrice: 7
-    unlockCost: 0
-    favoriteTrapType: 0
-    favoriteTerrain: 0
-    icon: {fileID: 0}
-    animatorController: {fileID: 0}
   - speciesType: 1
     name: "\uB3CC\uB458\uAE30"
     rarityTier: 1
@@ -32,8 +22,18 @@ MonoBehaviour:
     unlockCost: 0
     favoriteTrapType: 1
     favoriteTerrain: 2
-    icon: {fileID: 0}
-    animatorController: {fileID: 0}
+    icon: {fileID: -6833537548248782126, guid: 95d3473ce69779f41b55c298fab0f508, type: 3}
+    animatorController: {fileID: 9100000, guid: 6f6fc4cd84db72e49a273bab25032874, type: 2}
+  - speciesType: 0
+    name: "\uC9D1\uB458\uAE30"
+    rarityTier: 1
+    baseSpawnWeight: 5
+    basePrice: 7
+    unlockCost: 0
+    favoriteTrapType: 0
+    favoriteTerrain: 0
+    icon: {fileID: 4429067072235983382, guid: c850ec94b8483c44a964ecb09aa45f97, type: 3}
+    animatorController: {fileID: 9100000, guid: 70413eca1989cfd49a2e3cf024317334, type: 2}
   - speciesType: 2
     name: "\uD751\uB458\uAE30"
     rarityTier: 2
@@ -42,8 +42,8 @@ MonoBehaviour:
     unlockCost: 50
     favoriteTrapType: 1
     favoriteTerrain: 2
-    icon: {fileID: 0}
-    animatorController: {fileID: 0}
+    icon: {fileID: -4501887021953858134, guid: 3bb1543328260a44eba499e423dfac1d, type: 3}
+    animatorController: {fileID: 9100000, guid: fe5acffbae9b604439c398ae93c97419, type: 2}
   - speciesType: 3
     name: "\uBC31\uB458\uAE30"
     rarityTier: 2
@@ -52,8 +52,8 @@ MonoBehaviour:
     unlockCost: 90
     favoriteTrapType: 2
     favoriteTerrain: 3
-    icon: {fileID: 0}
-    animatorController: {fileID: 0}
+    icon: {fileID: -8853117722117294064, guid: 78f4cc33e44b6654dbf99e6717b30e93, type: 3}
+    animatorController: {fileID: 9100000, guid: cfa9c0bb26ac9e24aaa74d5ffbf20250, type: 2}
   - speciesType: 4
     name: "\uAF43\uB458\uAE30"
     rarityTier: 3
@@ -62,8 +62,8 @@ MonoBehaviour:
     unlockCost: 200
     favoriteTrapType: 2
     favoriteTerrain: 4
-    icon: {fileID: 0}
-    animatorController: {fileID: 0}
+    icon: {fileID: 6433311820870582835, guid: e611ecf833658f549bd2ab471a57541e, type: 3}
+    animatorController: {fileID: 9100000, guid: 1a4c9582308f2404f8939b6062e35235, type: 2}
   - speciesType: 5
     name: "\uAE08\uB458\uAE30"
     rarityTier: 3
@@ -72,8 +72,8 @@ MonoBehaviour:
     unlockCost: 300
     favoriteTrapType: 3
     favoriteTerrain: 1
-    icon: {fileID: 0}
-    animatorController: {fileID: 0}
+    icon: {fileID: -3747651091676111297, guid: d4eaa0c15f457394d8e4544d5852753a, type: 3}
+    animatorController: {fileID: 9100000, guid: 352a615eb3123764ebb58dfb65bc53a2, type: 2}
   - speciesType: 6
     name: "\uC0B0\uD0C0\uB458\uAE30"
     rarityTier: 4
@@ -82,8 +82,8 @@ MonoBehaviour:
     unlockCost: 550
     favoriteTrapType: 3
     favoriteTerrain: 3
-    icon: {fileID: 0}
-    animatorController: {fileID: 0}
+    icon: {fileID: 3661237781724905914, guid: 711d14226c0fed343bf450fe9b6a7255, type: 3}
+    animatorController: {fileID: 9100000, guid: fa9c91ad7ad68ed4bbd9bd5db5f4587d, type: 2}
   - speciesType: 7
     name: "\uC544\uC774\uB3CC\uAE30"
     rarityTier: 4
@@ -92,8 +92,8 @@ MonoBehaviour:
     unlockCost: 700
     favoriteTrapType: 4
     favoriteTerrain: 1
-    icon: {fileID: 0}
-    animatorController: {fileID: 0}
+    icon: {fileID: -1499130831, guid: 31fa63c4858840d4e846e48298333fab, type: 3}
+    animatorController: {fileID: 9100000, guid: 03b2d4c7c92d546479ad6217206b2443, type: 2}
   - speciesType: 8
     name: "\uB0E5\uB458\uAE30"
     rarityTier: 5
@@ -102,5 +102,5 @@ MonoBehaviour:
     unlockCost: 1200
     favoriteTrapType: 4
     favoriteTerrain: 4
-    icon: {fileID: 0}
-    animatorController: {fileID: 0}
+    icon: {fileID: -7148479615432102188, guid: b83799604ad88f1448f127874c3201c7, type: 3}
+    animatorController: {fileID: 9100000, guid: 97578609946a965478af7b465927139f, type: 2}
